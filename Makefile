@@ -34,6 +34,16 @@ all: build
 build: lib examples
 
 lib:
+	$(Q)if [ ! "`ls -A libopencm3`" ] ; then \
+		echo "######## ERROR ########"; \
+		echo "\tlibopencm3 is not initialized."; \
+		echo "\tPlease run:"; \
+		echo "\t$$ git submodule init"; \
+		echo "\t$$ git submodule update"; \
+		echo "\tbefore running make."; \
+		echo "######## ERROR ########"; \
+		exit 1; \
+		fi
 	$(Q)$(MAKE) -C libopencm3
 
 EXAMPLE_DIRS:=$(sort $(dir $(wildcard $(addsuffix /*/*/Makefile,$(addprefix examples/,$(TARGETS))))))
