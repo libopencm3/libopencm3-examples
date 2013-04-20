@@ -28,8 +28,8 @@ OBJDUMP		= $(PREFIX)-objdump
 GDB		= $(PREFIX)-gdb
 FLASH		= $(shell which st-flash)
 
-TOOLCHAIN_DIR ?= ../../../../..
-ifeq ($(wildcard ../../../../../lib/libopencm3_stm32f4.a),)
+TOOLCHAIN_DIR ?= ../../../../../libopencm3
+ifeq ($(wildcard ../../../../../libopencm3/lib/libopencm3_stm32f4.a),)
 ifneq ($(strip $(shell which $(CC))),)
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 endif
