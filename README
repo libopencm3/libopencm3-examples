@@ -1,0 +1,45 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This repository contains assorted example projects for libopencm3.
+
+The libopencm3 project aims to create an open-source firmware library for
+various ARM Cortex-M3 microcontrollers.
+
+For more information visit http://libopencm3.org
+
+The examples are meant as starting points for different subsystems on multitude
+of platforms.
+
+Feel free to add new examples and send them to us either via the mailinglist or
+preferably via a github pull request.
+
+Usage
+-----
+
+The makefiles are generally useable for your own projects with
+only minimal changes for the libopencm3 install path (See Installation)
+
+For flashing the 'miniblink' example (after you built libopencm3 and the
+examples by typing 'make' at the top-level directory) onto the Olimex
+STM32-H103 eval board (ST STM32F1 series microcontroller), you can execute:
+
+ $ cd examples/stm32/f1/stm32-h103/miniblink
+ $ make flash
+
+The Makefiles of the examples are configured to use a certain OpenOCD
+flash programmer, you might need to change some of the variables in the
+Makefile if you use a different one.
+
+You can also flash manually like this:
+
+ $ openocd -f interface/jtagkey-tiny.cfg -f target/stm32f1x.cfg
+ $ telnet localhost 4444
+ > reset halt
+ > flash write_image erase foobar.hex
+ > reset
+
+Replace the "jtagkey-tiny.cfg" with whatever JTAG device you are using, and/or
+replace "stm32f1x.cfg" with your respective config file. Replace "foobar.hex"
+with the file name of the image you want to flash.
