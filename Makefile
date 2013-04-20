@@ -44,18 +44,15 @@ $(EXAMPLE_DIRS): lib
 examples: $(EXAMPLE_DIRS)
 	$(Q)true
 
-doc:
-	$(Q)$(MAKE) -C doc html
-
 # Bleh http://www.makelinux.net/make3/make3-CHP-6-SECT-1#make3-CHP-6-SECT-1
-clean: cleanheaders
-	$(Q)for i in $(LIB_DIRS) \
-		     $(EXAMPLE_DIRS); do \
+clean:
+	$(Q)$(MAKE) -C libopencm3 clean
+	$(Q)for i in $(EXAMPLE_DIRS); do \
 		if [ -d $$i ]; then \
 			printf "  CLEAN   $$i\n"; \
 			$(MAKE) -C $$i clean SRCLIBDIR=$(SRCLIBDIR) || exit $?; \
 		fi; \
 	done
 
-.PHONY: build lib examples $(EXAMPLE_DIRS) install doc clean
+.PHONY: build lib examples $(EXAMPLE_DIRS) install clean
 
