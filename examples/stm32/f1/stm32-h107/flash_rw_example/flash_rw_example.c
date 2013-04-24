@@ -38,10 +38,9 @@ static void usart_send_string(u32 usart, u8 *string, u16 str_size);
 static void usart_get_string(u32 usart, u8 *string, u16 str_max_size);
 /*flash operations*/
 static u32 flash_program_data(u32 start_address, u8 *input_data, u16 num_elements);
-static void flash_read_data(u32 start_address, u16 num_elements, u8 *out_string);
+static void flash_read_data(u32 start_address, u16 num_elements, u8 *output_data);
 /*local functions to work with strings*/
-static u16 local_strlen(u8 *string);
-static void local_atol_hex(u32 value, u8 *out_string);
+static void local_ltoa_hex(u32 value, u8 *out_string);
 
 int main(void)
 {
@@ -52,28 +51,28 @@ int main(void)
 
 	while(1)
 	{
-		usart_send_string(USART1, (u8*)"Please enter string to write into Flash memory:\n\r", local_strlen((u8*)"Please enter string to write into Flash memory:\n\r"));
+		usart_send_string(USART1, (u8*)"Please enter string to write into Flash memory:\n\r", SEND_BUFFER_SIZE);
 		usart_get_string(USART1, str_send, SEND_BUFFER_SIZE);
-		result = flash_program_data(FLASH_OPERATION_ADDRESS, str_send, local_strlen(str_send));
+		result = flash_program_data(FLASH_OPERATION_ADDRESS, str_send, SEND_BUFFER_SIZE);
 
 		switch(result)
 		{
 		case RESULT_OK: /*everything ok*/
-			usart_send_string(USART1, (u8*)"Verification of written data: ", local_strlen((u8*)"Verification of written data: "));
+			usart_send_string(USART1, (u8*)"Verification of written data: ", SEND_BUFFER_SIZE);
 			flash_read_data(FLASH_OPERATION_ADDRESS, SEND_BUFFER_SIZE, str_verify);
-			usart_send_string(USART1, str_verify, local_strlen(str_verify));
+			usart_send_string(USART1, str_verify, SEND_BUFFER_SIZE);
 			break;
 		case FLASH_WRONG_DATA_WRITTEN: /*data read from Flash is different than written data*/
 			usart_send_string(USART1, (u8*)"Wrong data written into flash memory", SEND_BUFFER_SIZE);
 			break;
 		default: /*wrong flags' values in Flash Status Register (FLASH_SR)*/
 			usart_send_string(USART1, (u8*)"Wrong value of FLASH_SR: ", SEND_BUFFER_SIZE);
-			local_atol_hex(result, str_send);
+			local_ltoa_hex(result, str_send);
 			usart_send_string(USART1, str_send, SEND_BUFFER_SIZE);
 			break;
 		}
-
-		usart_send_string(USART1, (u8*)"\r\n", local_strlen((u8*)"\r\n"));
+		/*send end_of_line*/
+		usart_send_string(USART1, (u8*)"\r\n", 3);
 	}
 	return 0;
 }
@@ -141,27 +140,32 @@ static u32 flash_program_data(u32 start_address, u8 *input_data, u16 num_element
 	u32 page_address = start_address;
 	u32 flash_status = 0;
 
+	/*check if start_address is in proper range*/
 	if((start_address - FLASH_BASE) >= (FLASH_PAGE_SIZE * (FLASH_PAGE_NUM_MAX+1)))
 		return 1;
 
-
+	/*calculate current page address*/
 	if(start_address % FLASH_PAGE_SIZE)
 		page_address -= (start_address % FLASH_PAGE_SIZE);
 
 	flash_unlock();
 
+	/*Erasing page*/
 	flash_erase_page(page_address);
 	flash_status = flash_get_status_flags();
 	if(flash_status != FLASH_SR_EOP)
 		return flash_status;
 
+	/*programming flash memory*/
 	for(iter=0; iter<num_elements; iter += 4)
 	{
+		/*programming word data*/
 		flash_program_word(current_address+iter, *((u32*)(input_data + iter)));
 		flash_status = flash_get_status_flags();
 		if(flash_status != FLASH_SR_EOP)
 			return flash_status;
 
+		/*verify if correct data is programmed*/
 		if(*((u32*)(current_address+iter)) != *((u32*)(input_data + iter)))
 			return FLASH_WRONG_DATA_WRITTEN;
 	}
@@ -169,28 +173,19 @@ static u32 flash_program_data(u32 start_address, u8 *input_data, u16 num_element
 	return 0;
 }
 
-static void flash_read_data(u32 start_address, u16 num_elements, u8 *out_string)
+static void flash_read_data(u32 start_address, u16 num_elements, u8 *output_data)
 {
 	u16 iter;
 	u32 *memory_ptr= (u32*)start_address;
 
 	for(iter=0; iter<num_elements/4; iter++)
 	{
-		*(u32*)out_string = *(memory_ptr + iter);
-		out_string += 4;
+		*(u32*)output_data = *(memory_ptr + iter);
+		output_data += 4;
 	}
 }
 
-static u16 local_strlen(u8 *string)
-{
-	u16 iter = 0;
-
-	while(string[iter++] != 0);
-
-	return iter;
-}
-
-static void local_atol_hex(u32 value, u8 *out_string)
+static void local_ltoa_hex(u32 value, u8 *out_string)
 {
 	u8 iter;
 
