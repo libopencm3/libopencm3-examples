@@ -74,6 +74,9 @@ const char *usb_strings[] = {
 	"1001",
 };
 
+/* Buffer to be used for control requests. */
+u8 usbd_control_buffer[128];
+
 static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data *req, u8 **buf,
 		u16 *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
@@ -107,7 +110,7 @@ int main(void)
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO6);
 
-	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 3);
+	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_VENDOR,

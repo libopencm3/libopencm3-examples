@@ -171,6 +171,9 @@ static const char *usb_strings[] = {
 	"DEMO",
 };
 
+/* Buffer to be used for control requests. */
+u8 usbd_control_buffer[128];
+
 static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, u8 **buf, u16 *len,
 			void (**complete)(usbd_device *, struct usb_setup_data *))
 {
@@ -255,7 +258,7 @@ int main(void)
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 
-	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev_descr, &config, usb_strings, 3);
+	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev_descr, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, hid_set_config);
 
 	gpio_set(GPIOA, GPIO15);

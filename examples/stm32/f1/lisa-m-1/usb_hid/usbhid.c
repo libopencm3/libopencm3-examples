@@ -175,6 +175,9 @@ static const char *usb_strings[] = {
 	"DEMO",
 };
 
+/* Buffer used for control requests. */
+u8 usbd_control_buffer[128];
+
 static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, u8 **buf, u16 *len,
 			void (**complete)(usbd_device *dev, struct usb_setup_data *req))
 {
@@ -337,7 +340,7 @@ int main(void)
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2);
 
-	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev_descr, &config, usb_strings, 3);
+	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev_descr, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, hid_set_config);
 
 	/* Delay some seconds to show that pull-up switch works. */
