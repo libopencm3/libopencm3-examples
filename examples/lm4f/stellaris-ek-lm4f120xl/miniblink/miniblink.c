@@ -95,8 +95,8 @@ static void gpio_setup(void)
 	periph_clock_enable(RCC_GPIOF);
 	const u32 outpins = (LED_R | LED_G | LED_B);
 
-	GPIO_DIR(RGB_PORT) |= outpins; /* Configure outputs. */
-	GPIO_DEN(RGB_PORT) |= outpins; /* Enable digital function on outputs. */
+	gpio_mode_setup(RGB_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, outpins);
+	gpio_set_output_config(RGB_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_2MA, outpins);
 
 	/*
 	 * Now take care of our buttons
@@ -104,20 +104,12 @@ static void gpio_setup(void)
 	const u32 btnpins = USR_SW1 | USR_SW2;
 
 	/*
-	 * PF0 is locked by default. We need to unlock the GPIO_CR register,
-	 * then enable PF0 commit. After we do this, we can setup PF0. If we
-	 * don't do this, any configuration done to PF0 is lost, and we will not
-	 * have a PF0 interrupt.
+	 * PF0 is a locked by default. We need to unlock it before we can
+	 * re-purpose it as a GPIO pin.
 	 */
-	GPIO_LOCK(GPIOF) = 0x4C4F434B;
-	GPIO_CR(GPIOF) |= USR_SW2;
-
-	/* Configure pins as inputs. */
-	GPIO_DIR(GPIOF) &= ~btnpins;
-	/* Enable digital function on the pins. */
-	GPIO_DEN(GPIOF) |= btnpins;
-	/* Pull-up the pins. We don't have an external pull-up */
-	GPIO_PUR(GPIOF) |= btnpins;
+	gpio_unlock_commit(GPIOF, USR_SW2);
+	/* Configure pins as inputs, with pull-up. */
+	gpio_mode_setup(GPIOF, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, btnpins);
 }
 
 /*
@@ -127,14 +119,10 @@ static void gpio_setup(void)
 static void irq_setup(void)
 {
 	const u32 btnpins = USR_SW1 | USR_SW2;
-	/* Configure interrupt as edge-sensitive */
-	GPIO_IS(GPIOF) &= ~btnpins;
-	/* Interrupt only respond to rising or falling edge (single-edge) */
-	GPIO_IBE(GPIOF) &= ~btnpins;
 	/* Trigger interrupt on rising-edge (when button is depressed) */
-	GPIO_IEV(GPIOF) |= btnpins;
+	gpio_configure_trigger(GPIOF, GPIO_TRIG_EDGE_RISE, btnpins);
 	/* Finally, Enable interrupt */
-	GPIO_IM(GPIOF) |= btnpins;
+	gpio_enable_interrupts(GPIOF, btnpins);
 	/* Enable the interrupt in the NVIC as well */
 	nvic_enable_irq(NVIC_GPIOF_IRQ);
 }
@@ -149,6 +137,7 @@ static void delay(void)
 
 int main(void)
 {
+	gpio_enable_ahb_aperture();
 	clock_setup();
 	gpio_setup();
 	irq_setup();
@@ -185,7 +174,7 @@ int main(void)
 
 void gpiof_isr(void)
 {
-	if (GPIO_RIS(GPIOF) & USR_SW1) {
+	if (gpio_is_interrupt_source(GPIOF, USR_SW1)) {
 		/* SW1 was just depressed */
 		bypass = !bypass;
 		if (bypass) {
@@ -201,10 +190,10 @@ void gpiof_isr(void)
 			rcc_change_pll_divisor(plldiv[ipll]);
 		}
 		/* Clear interrupt source */
-		GPIO_ICR(GPIOF) = USR_SW1;
+		gpio_clear_interrupt_flag(GPIOF, USR_SW1);
 	}
-
-	if (GPIO_RIS(GPIOF) & USR_SW2) {
+	
+	if (gpio_is_interrupt_source(GPIOF, USR_SW2)) {
 		/* SW2 was just depressed */
 		if (!bypass) {
 			if (plldiv[++ipll] == 0)
@@ -212,6 +201,6 @@ void gpiof_isr(void)
 			rcc_change_pll_divisor(plldiv[ipll]);
 		}
 		/* Clear interrupt source */
-		GPIO_ICR(GPIOF) = USR_SW2;
+		gpio_clear_interrupt_flag(GPIOF, USR_SW2);
 	}
 }
