@@ -25,14 +25,10 @@
 
 static void uart_setup(void)
 {
-	u32 pins;
 	/* Enable GPIOA in run mode. */
 	periph_clock_enable(RCC_GPIOA);
-	/* Configure PA0 and PA1 as alternate function pins */
-	pins = GPIO0 | GPIO1;
-	GPIO_AFSEL(GPIOA) |= pins;
-	GPIO_DEN(GPIOA) |= pins;
-	/* PA0 and PA1 are muxed to UART0 during power on, by default */
+	/* Mux PA0 and PA1 to UART0 (alternate function 1) */
+	gpio_set_af(GPIOA, 1, GPIO0 | GPIO1);
 
 	/* Enable the UART clock */
 	periph_clock_enable(RCC_UART0);
@@ -79,6 +75,7 @@ void uart0_isr(void)
 
 int main(void)
 {
+	gpio_enable_ahb_aperture();
 	uart_setup();
 	uart_irq_setup();
 
