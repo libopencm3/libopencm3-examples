@@ -1,0 +1,9 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This example reads a single adc port and blinks a couple of LEDs. the blink
+rate varies as the voltage on the port changes. An interrupt is used to access
+the adc result.
+
+
