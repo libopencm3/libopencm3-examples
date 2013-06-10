@@ -24,7 +24,7 @@
 /* Set STM32 to 72 MHz. */
 static void clock_setup(void)
 {
-	rcc_clock_setup_in_hse_8mhz_out_72mhz();
+	rcc_clock_setup_in_hse_25mhz_out_72mhz();
 
 	/* Enable GPIOC clock. */
 	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
