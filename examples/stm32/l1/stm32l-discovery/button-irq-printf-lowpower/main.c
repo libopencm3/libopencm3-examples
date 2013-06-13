@@ -162,8 +162,8 @@ static int setup_rtc(void)
 		;
 
 	/* set synch prescaler, using defaults for 1Hz out */
-	u32 sync = 255;
-	u32 async = 127;
+	uint32_t sync = 255;
+	uint32_t async = 127;
 	rtc_set_prescaler(sync, async);
 
 	/* load time and date here if desired, and hour format */

@@ -32,20 +32,20 @@
  * https://github.com/open-bldc/open-bldc/tree/master/source/libgovernor
  *****************************************************************************/
 
-typedef s32 ring_size_t;
+typedef int32_t ring_size_t;
 
 struct ring {
-	u8 *data;
+	uint8_t *data;
 	ring_size_t size;
-	u32 begin;
-	u32 end;
+	uint32_t begin;
+	uint32_t end;
 };
 
 #define RING_SIZE(RING)  ((RING)->size - 1)
 #define RING_DATA(RING)  (RING)->data
 #define RING_EMPTY(RING) ((RING)->begin == (RING)->end)
 
-static void ring_init(struct ring *ring, u8 *buf, ring_size_t size)
+static void ring_init(struct ring *ring, uint8_t *buf, ring_size_t size)
 {
 	ring->data = buf;
 	ring->size = size;
@@ -53,20 +53,20 @@ static void ring_init(struct ring *ring, u8 *buf, ring_size_t size)
 	ring->end = 0;
 }
 
-static s32 ring_write_ch(struct ring *ring, u8 ch)
+static int32_t ring_write_ch(struct ring *ring, uint8_t ch)
 {
 	if (((ring->end + 1) % ring->size) != ring->begin) {
 		ring->data[ring->end++] = ch;
 		ring->end %= ring->size;
-		return (u32)ch;
+		return (uint32_t)ch;
 	}
 
 	return -1;
 }
 
-static s32 ring_write(struct ring *ring, u8 *data, ring_size_t size)
+static int32_t ring_write(struct ring *ring, uint8_t *data, ring_size_t size)
 {
-	s32 i;
+	int32_t i;
 
 	for (i = 0; i < size; i++) {
 		if (ring_write_ch(ring, data[i]) < 0)
@@ -76,9 +76,9 @@ static s32 ring_write(struct ring *ring, u8 *data, ring_size_t size)
 	return i;
 }
 
-static s32 ring_read_ch(struct ring *ring, u8 *ch)
+static int32_t ring_read_ch(struct ring *ring, uint8_t *ch)
 {
-	s32 ret = -1;
+	int32_t ret = -1;
 
 	if (ring->begin != ring->end) {
 		ret = ring->data[ring->begin++];
@@ -91,9 +91,9 @@ static s32 ring_read_ch(struct ring *ring, u8 *ch)
 }
 
 /* Not used!
-static s32 ring_read(struct ring *ring, u8 *data, ring_size_t size)
+static int32_t ring_read(struct ring *ring, uint8_t *data, ring_size_t size)
 {
-	s32 i;
+	int32_t i;
 
 	for (i = 0; i < size; i++) {
 		if (ring_read_ch(ring, data + i) < 0)
@@ -111,7 +111,7 @@ static s32 ring_read(struct ring *ring, u8 *data, ring_size_t size)
 #define BUFFER_SIZE 1024
 
 struct ring output_ring;
-u8 output_ring_buffer[BUFFER_SIZE];
+uint8_t output_ring_buffer[BUFFER_SIZE];
 
 int _write(int file, char *ptr, int len);
 
@@ -187,7 +187,7 @@ void usart1_isr(void)
 	if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
 	    ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
 
-		s32 data;
+		int32_t data;
 
 		data = ring_read_ch(&output_ring, NULL);
 
@@ -206,7 +206,7 @@ int _write(int file, char *ptr, int len)
 	int ret;
 
 	if (file == 1) {
-		ret = ring_write(&output_ring, (u8 *)ptr, len);
+		ret = ring_write(&output_ring, (uint8_t *)ptr, len);
 
 		if (ret < 0)
 			ret = -ret;
@@ -240,7 +240,7 @@ void sys_tick_handler(void)
 	static int counter = 0;
 	static float fcounter = 0.0;
 	static double dcounter = 0.0;
-	static u32 temp32 = 0;
+	static uint32_t temp32 = 0;
 
 	temp32++;
 

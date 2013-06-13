@@ -23,7 +23,7 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
 
-u16 exti_line_state;
+uint16_t exti_line_state;
 
 /* Set STM32 to 72 MHz. */
 static void clock_setup(void)

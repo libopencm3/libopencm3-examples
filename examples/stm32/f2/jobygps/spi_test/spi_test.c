@@ -93,7 +93,7 @@ int _write(int file, char *ptr, int len)
 int main(void)
 {
 	int counter = 0;
-	volatile u16 dummy __attribute__((unused));
+	volatile uint16_t dummy __attribute__((unused));
 
 	clock_setup();
 	gpio_setup();
@@ -105,7 +105,7 @@ int main(void)
 		printf("Hello, world! %i\r\n", counter);
 		/* Stops RX buffer overflow, but probably not needed. */
 		dummy = spi_read(SPI2);
-		spi_send(SPI2, (u8) counter);
+		spi_send(SPI2, (uint8_t) counter);
 		gpio_toggle(GPIOC, GPIO3);
 	}
 

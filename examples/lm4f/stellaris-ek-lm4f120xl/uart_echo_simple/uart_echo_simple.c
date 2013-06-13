@@ -49,7 +49,7 @@ static void uart_setup(void)
 
 int main(void)
 {
-	u8 rx;
+	uint8_t rx;
 
 	gpio_enable_ahb_aperture();
 	uart_setup();

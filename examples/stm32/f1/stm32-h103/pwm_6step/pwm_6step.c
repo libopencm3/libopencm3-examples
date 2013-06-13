@@ -26,7 +26,7 @@
 #define FALLING 0
 #define RISING 1
 
-u16 exti_direction = FALLING;
+uint16_t exti_direction = FALLING;
 
 static void clock_setup(void)
 {

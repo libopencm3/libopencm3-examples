@@ -27,11 +27,11 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/cm3/nvic.h>
 
-volatile u16 temperature = 0;
-volatile u16 v_refint = 0;
-volatile u16 lisam_adc1 = 0;
-volatile u16 lisam_adc2 = 0;
-u8 channel_array[4]; /* for injected sampling, 4 channels max, for regular, 16 max */
+volatile uint16_t temperature = 0;
+volatile uint16_t v_refint = 0;
+volatile uint16_t lisam_adc1 = 0;
+volatile uint16_t lisam_adc2 = 0;
+uint8_t channel_array[4]; /* for injected sampling, 4 channels max, for regular, 16 max */
 
 static void usart_setup(void)
 {
@@ -149,10 +149,10 @@ static void adc_setup(void)
 	while ((ADC_CR2(ADC1) & ADC_CR2_CAL) != 0); //added this check
 }
 
-static void my_usart_print_int(u32 usart, int value)
+static void my_usart_print_int(uint32_t usart, int value)
 {
-	s8 i;
-	u8 nr_digits = 0;
+	int8_t i;
+	uint8_t nr_digits = 0;
 	char buffer[25];
 
 	if (value < 0) {

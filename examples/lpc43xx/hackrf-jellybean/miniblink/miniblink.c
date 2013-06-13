@@ -52,7 +52,7 @@ static void gpio_setup(void)
 	GPIO3_DIR |= PIN_EN1V8; /* GPIO3[6] on P6_10  as output. */
 }
 
-u32 boot0, boot1, boot2, boot3;
+uint32_t boot0, boot1, boot2, boot3;
 
 int main(void)
 {

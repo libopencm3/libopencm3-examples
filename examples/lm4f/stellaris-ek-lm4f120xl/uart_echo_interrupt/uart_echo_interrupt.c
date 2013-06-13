@@ -61,8 +61,8 @@ static void uart_irq_setup(void)
  */
 void uart0_isr(void)
 {
-	u8 rx;
-	u32 irq_clear = 0;
+	uint8_t rx;
+	uint32_t irq_clear = 0;
 
 	if (uart_is_interrupt_source(UART0, UART_INT_RX)) {
 		rx = uart_recv(UART0);

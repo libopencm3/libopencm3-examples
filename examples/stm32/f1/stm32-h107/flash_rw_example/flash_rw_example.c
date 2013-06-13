@@ -24,7 +24,7 @@
 
 #define USART_ECHO_EN 1
 #define SEND_BUFFER_SIZE 256
-#define FLASH_OPERATION_ADDRESS ((u32)0x0800f000)
+#define FLASH_OPERATION_ADDRESS ((uint32_t)0x0800f000)
 #define FLASH_PAGE_NUM_MAX 127
 #define FLASH_PAGE_SIZE 0x800
 #define FLASH_WRONG_DATA_WRITTEN 0x80
@@ -34,45 +34,45 @@
 static void init_system(void);
 static void init_usart(void);
 /*usart operations*/
-static void usart_send_string(u32 usart, u8 *string, u16 str_size);
-static void usart_get_string(u32 usart, u8 *string, u16 str_max_size);
+static void usart_send_string(uint32_t usart, uint8_t *string, uint16_t str_size);
+static void usart_get_string(uint32_t usart, uint8_t *string, uint16_t str_max_size);
 /*flash operations*/
-static u32 flash_program_data(u32 start_address, u8 *input_data, u16 num_elements);
-static void flash_read_data(u32 start_address, u16 num_elements, u8 *output_data);
+static uint32_t flash_program_data(uint32_t start_address, uint8_t *input_data, uint16_t num_elements);
+static void flash_read_data(uint32_t start_address, uint16_t num_elements, uint8_t *output_data);
 /*local functions to work with strings*/
-static void local_ltoa_hex(u32 value, u8 *out_string);
+static void local_ltoa_hex(uint32_t value, uint8_t *out_string);
 
 int main(void)
 {
-	u32 result = 0;
-	u8 str_send[SEND_BUFFER_SIZE], str_verify[SEND_BUFFER_SIZE];
+	uint32_t result = 0;
+	uint8_t str_send[SEND_BUFFER_SIZE], str_verify[SEND_BUFFER_SIZE];
 
 	init_system();
 
 	while(1)
 	{
-		usart_send_string(USART1, (u8*)"Please enter string to write into Flash memory:\n\r", SEND_BUFFER_SIZE);
+		usart_send_string(USART1, (uint8_t*)"Please enter string to write into Flash memory:\n\r", SEND_BUFFER_SIZE);
 		usart_get_string(USART1, str_send, SEND_BUFFER_SIZE);
 		result = flash_program_data(FLASH_OPERATION_ADDRESS, str_send, SEND_BUFFER_SIZE);
 
 		switch(result)
 		{
 		case RESULT_OK: /*everything ok*/
-			usart_send_string(USART1, (u8*)"Verification of written data: ", SEND_BUFFER_SIZE);
+			usart_send_string(USART1, (uint8_t*)"Verification of written data: ", SEND_BUFFER_SIZE);
 			flash_read_data(FLASH_OPERATION_ADDRESS, SEND_BUFFER_SIZE, str_verify);
 			usart_send_string(USART1, str_verify, SEND_BUFFER_SIZE);
 			break;
 		case FLASH_WRONG_DATA_WRITTEN: /*data read from Flash is different than written data*/
-			usart_send_string(USART1, (u8*)"Wrong data written into flash memory", SEND_BUFFER_SIZE);
+			usart_send_string(USART1, (uint8_t*)"Wrong data written into flash memory", SEND_BUFFER_SIZE);
 			break;
 		default: /*wrong flags' values in Flash Status Register (FLASH_SR)*/
-			usart_send_string(USART1, (u8*)"Wrong value of FLASH_SR: ", SEND_BUFFER_SIZE);
+			usart_send_string(USART1, (uint8_t*)"Wrong value of FLASH_SR: ", SEND_BUFFER_SIZE);
 			local_ltoa_hex(result, str_send);
 			usart_send_string(USART1, str_send, SEND_BUFFER_SIZE);
 			break;
 		}
 		/*send end_of_line*/
-		usart_send_string(USART1, (u8*)"\r\n", 3);
+		usart_send_string(USART1, (uint8_t*)"\r\n", 3);
 	}
 	return 0;
 }
@@ -100,19 +100,19 @@ static void init_usart(void)
 	usart_enable(USART1);
 }
 
-static void usart_send_string(u32 usart, u8 *string, u16 str_size)
+static void usart_send_string(uint32_t usart, uint8_t *string, uint16_t str_size)
 {
-	u16 iter = 0;
+	uint16_t iter = 0;
 	do
 	{
 		usart_send_blocking(usart, string[iter++]);
 	}while(string[iter] != 0 && iter < str_size);
 }
 
-static void usart_get_string(u32 usart, u8 *out_string, u16 str_max_size)
+static void usart_get_string(uint32_t usart, uint8_t *out_string, uint16_t str_max_size)
 {
-	u8 sign = 0;
-	u16 iter = 0;
+	uint8_t sign = 0;
+	uint16_t iter = 0;
 
 	while(iter < str_max_size)
 	{
@@ -127,18 +127,18 @@ static void usart_get_string(u32 usart, u8 *out_string, u16 str_max_size)
 		else
 		{
 			out_string[iter] = 0;
-			usart_send_string(USART1, (u8*)"\r\n", 3);
+			usart_send_string(USART1, (uint8_t*)"\r\n", 3);
 			break;
 		}
 	}
 }
 
-static u32 flash_program_data(u32 start_address, u8 *input_data, u16 num_elements)
+static uint32_t flash_program_data(uint32_t start_address, uint8_t *input_data, uint16_t num_elements)
 {
-	u16 iter;
-	u32 current_address = start_address;
-	u32 page_address = start_address;
-	u32 flash_status = 0;
+	uint16_t iter;
+	uint32_t current_address = start_address;
+	uint32_t page_address = start_address;
+	uint32_t flash_status = 0;
 
 	/*check if start_address is in proper range*/
 	if((start_address - FLASH_BASE) >= (FLASH_PAGE_SIZE * (FLASH_PAGE_NUM_MAX+1)))
@@ -160,34 +160,34 @@ static u32 flash_program_data(u32 start_address, u8 *input_data, u16 num_element
 	for(iter=0; iter<num_elements; iter += 4)
 	{
 		/*programming word data*/
-		flash_program_word(current_address+iter, *((u32*)(input_data + iter)));
+		flash_program_word(current_address+iter, *((uint32_t*)(input_data + iter)));
 		flash_status = flash_get_status_flags();
 		if(flash_status != FLASH_SR_EOP)
 			return flash_status;
 
 		/*verify if correct data is programmed*/
-		if(*((u32*)(current_address+iter)) != *((u32*)(input_data + iter)))
+		if(*((uint32_t*)(current_address+iter)) != *((uint32_t*)(input_data + iter)))
 			return FLASH_WRONG_DATA_WRITTEN;
 	}
 
 	return 0;
 }
 
-static void flash_read_data(u32 start_address, u16 num_elements, u8 *output_data)
+static void flash_read_data(uint32_t start_address, uint16_t num_elements, uint8_t *output_data)
 {
-	u16 iter;
-	u32 *memory_ptr= (u32*)start_address;
+	uint16_t iter;
+	uint32_t *memory_ptr= (uint32_t*)start_address;
 
 	for(iter=0; iter<num_elements/4; iter++)
 	{
-		*(u32*)output_data = *(memory_ptr + iter);
+		*(uint32_t*)output_data = *(memory_ptr + iter);
 		output_data += 4;
 	}
 }
 
-static void local_ltoa_hex(u32 value, u8 *out_string)
+static void local_ltoa_hex(uint32_t value, uint8_t *out_string)
 {
-	u8 iter;
+	uint8_t iter;
 
 	/*end of string*/
 	out_string += 8;

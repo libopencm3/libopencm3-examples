@@ -124,14 +124,14 @@ static void dac_setup(void)
 	dac_set_trigger_source(DAC_CR_TSEL2_SW);
 }
 
-static u16 read_adc_naiive(u8 channel)
+static uint16_t read_adc_naiive(uint8_t channel)
 {
-	u8 channel_array[16];
+	uint8_t channel_array[16];
 	channel_array[0] = channel;
 	adc_set_regular_sequence(ADC1, 1, channel_array);
 	adc_start_conversion_direct(ADC1);
 	while (!adc_eoc(ADC1));
-	u16 reg16 = adc_read_regular(ADC1);
+	uint16_t reg16 = adc_read_regular(ADC1);
 	return reg16;
 }
 
@@ -148,11 +148,11 @@ int main(void)
 		GPIO_CNF_OUTPUT_PUSHPULL, LED_DISCOVERY_USER_PIN);
 	
 	while (1) {
-		u16 input_adc0 = read_adc_naiive(0);
-		u16 target = input_adc0 / 2;
+		uint16_t input_adc0 = read_adc_naiive(0);
+		uint16_t target = input_adc0 / 2;
 		dac_load_data_buffer_single(target, RIGHT12, CHANNEL_2);
 		dac_software_trigger(CHANNEL_2);
-		u16 input_adc1 = read_adc_naiive(1);
+		uint16_t input_adc1 = read_adc_naiive(1);
 		printf("tick: %d: adc0= %u, target adc1=%d, adc1=%d\n",
 			j++, input_adc0, target, input_adc1);
 		gpio_toggle(LED_DISCOVERY_USER_PORT, LED_DISCOVERY_USER_PIN); /* LED on/off */

@@ -20,9 +20,9 @@
 #include <libopencm3/stm32/i2c.h>
 #include "stts75.h"
 
-void stts75_write_config(u32 i2c, u8 sensor)
+void stts75_write_config(uint32_t i2c, uint8_t sensor)
 {
-	u32 reg32 __attribute__((unused));
+	uint32_t reg32 __attribute__((unused));
 
 	/* Send START condition. */
 	i2c_send_start(i2c);
@@ -51,9 +51,9 @@ void stts75_write_config(u32 i2c, u8 sensor)
 	i2c_send_stop(i2c);
 }
 
-void stts75_write_temp_os(u32 i2c, u8 sensor, u16 temp_os)
+void stts75_write_temp_os(uint32_t i2c, uint8_t sensor, uint16_t temp_os)
 {
-	u32 reg32 __attribute__((unused));
+	uint32_t reg32 __attribute__((unused));
 
 	/* Send START condition. */
 	i2c_send_start(i2c);
@@ -74,9 +74,9 @@ void stts75_write_temp_os(u32 i2c, u8 sensor, u16 temp_os)
 	/* Sending the data. */
 	i2c_send_data(i2c, 0x3); /* OvertemperatureShutdown register */
 	while (!(I2C_SR1(i2c) & I2C_SR1_BTF));
-	i2c_send_data(i2c, (u8)(temp_os >> 8)); /* MSB */
+	i2c_send_data(i2c, (uint8_t)(temp_os >> 8)); /* MSB */
 	while (!(I2C_SR1(i2c) & I2C_SR1_BTF));
-	i2c_send_data(i2c, (u8)(temp_os & 0xff00)); /* LSB */
+	i2c_send_data(i2c, (uint8_t)(temp_os & 0xff00)); /* LSB */
 	/* After the last byte we have to wait for TxE too. */
 	while (!(I2C_SR1(i2c) & (I2C_SR1_BTF | I2C_SR1_TxE)));
 
@@ -84,9 +84,9 @@ void stts75_write_temp_os(u32 i2c, u8 sensor, u16 temp_os)
 	i2c_send_stop(i2c);
 }
 
-void stts75_write_temp_hyst(u32 i2c, u8 sensor, u16 temp_hyst)
+void stts75_write_temp_hyst(uint32_t i2c, uint8_t sensor, uint16_t temp_hyst)
 {
-	u32 reg32 __attribute__((unused));
+	uint32_t reg32 __attribute__((unused));
 
 	/* Send START condition. */
 	i2c_send_start(i2c);
@@ -107,9 +107,9 @@ void stts75_write_temp_hyst(u32 i2c, u8 sensor, u16 temp_hyst)
 	/* Sending the data. */
 	i2c_send_data(i2c, 0x2); /* TemperatureHysteresis register */
 	while (!(I2C_SR1(i2c) & I2C_SR1_BTF));
-	i2c_send_data(i2c, (u8)(temp_hyst >> 8)); /* MSB */
+	i2c_send_data(i2c, (uint8_t)(temp_hyst >> 8)); /* MSB */
 	while (!(I2C_SR1(i2c) & I2C_SR1_BTF));
-	i2c_send_data(i2c, (u8)(temp_hyst & 0xff00)); /* LSB */
+	i2c_send_data(i2c, (uint8_t)(temp_hyst & 0xff00)); /* LSB */
 	/* After the last byte we have to wait for TxE too. */
 	while (!(I2C_SR1(i2c) & (I2C_SR1_BTF | I2C_SR1_TxE)));
 
@@ -117,10 +117,10 @@ void stts75_write_temp_hyst(u32 i2c, u8 sensor, u16 temp_hyst)
 	i2c_send_stop(i2c);
 }
 
-u16 stts75_read_temperature(u32 i2c, u8 sensor)
+uint16_t stts75_read_temperature(uint32_t i2c, uint8_t sensor)
 {
-	u32 reg32 __attribute__((unused));
-	u16 temperature;
+	uint32_t reg32 __attribute__((unused));
+	uint16_t temperature;
 
 	/* Send START condition. */
 	i2c_send_start(i2c);
@@ -172,7 +172,7 @@ u16 stts75_read_temperature(u32 i2c, u8 sensor)
 
 	/* Now the slave should begin to send us the first byte. Await BTF. */
 	while (!(I2C_SR1(i2c) & I2C_SR1_BTF));
-	temperature = (u16)(I2C_DR(i2c) << 8); /* MSB */
+	temperature = (uint16_t)(I2C_DR(i2c) << 8); /* MSB */
 
 	/*
 	 * Yes they mean it: we have to generate the STOP condition before

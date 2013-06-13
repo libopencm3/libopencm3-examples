@@ -75,10 +75,10 @@ const char *usb_strings[] = {
 };
 
 /* Buffer to be used for control requests. */
-u8 usbd_control_buffer[128];
+uint8_t usbd_control_buffer[128];
 
-static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data *req, u8 **buf,
-		u16 *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
+		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)buf;
 	(void)len;

@@ -19,13 +19,13 @@
 
 #include "./dogm128.h"
 
-u8 dogm128_ram[1024];
-u8 dogm128_cursor_x;
-u8 dogm128_cursor_y;
+uint8_t dogm128_ram[1024];
+uint8_t dogm128_cursor_x;
+uint8_t dogm128_cursor_y;
 
-void dogm128_send_command(u8 command)
+void dogm128_send_command(uint8_t command)
 {
-	u32 i;
+	uint32_t i;
 
 	gpio_clear(DOGM128_A0_PORT, DOGM128_A0_PIN); /* A0 low for commands */
 	spi_send(DOGM128_SPI, command);
@@ -34,9 +34,9 @@ void dogm128_send_command(u8 command)
 		;
 }
 
-void dogm128_send_data(u8 data)
+void dogm128_send_data(uint8_t data)
 {
-	u32 i;
+	uint32_t i;
 
 	gpio_set(DOGM128_A0_PORT, DOGM128_A0_PIN); /* A0 high for data */
 	spi_send(DOGM128_SPI, data);
@@ -47,7 +47,7 @@ void dogm128_send_data(u8 data)
 
 void dogm128_init(void)
 {
-	u32 i;
+	uint32_t i;
 
 	/* Reset the display (reset low for dogm128). */
 	gpio_clear(DOGM128_RESET_PORT, DOGM128_RESET_PIN);
@@ -84,9 +84,9 @@ void dogm128_init(void)
 	spi_set_nss_high(DOGM128_SPI);
 }
 
-void dogm128_print_char(u8 data)
+void dogm128_print_char(uint8_t data)
 {
-	u8 i, page, shift, xcoord, ycoord;
+	uint8_t i, page, shift, xcoord, ycoord;
 
 	xcoord = dogm128_cursor_x;
 	ycoord = dogm128_cursor_y;
@@ -128,7 +128,7 @@ void dogm128_print_char(u8 data)
 	}
 }
 
-void dogm128_set_cursor(u8 xcoord, u8 ycoord)
+void dogm128_set_cursor(uint8_t xcoord, uint8_t ycoord)
 {
 	dogm128_cursor_x = xcoord;
 	dogm128_cursor_y = ycoord;
@@ -142,13 +142,13 @@ void dogm128_print_string(char *s)
 	}
 }
 
-void dogm128_set_dot(u8 xcoord, u8 ycoord)
+void dogm128_set_dot(uint8_t xcoord, uint8_t ycoord)
 {
 	dogm128_ram[(((63 - ycoord) / 8) * 128) + xcoord] |=
 		(1 << ((63 - ycoord) % 8));
 }
 
-void dogm128_clear_dot(u8 xcoord, u8 ycoord)
+void dogm128_clear_dot(uint8_t xcoord, uint8_t ycoord)
 {
 	dogm128_ram[(((63 - ycoord) / 8) * 128) + xcoord] &=
 		~(1 << ((63 - ycoord) % 8));
@@ -156,7 +156,7 @@ void dogm128_clear_dot(u8 xcoord, u8 ycoord)
 
 void dogm128_update_display(void)
 {
-	u8 page, column;
+	uint8_t page, column;
 
 	/* Tell the display that we want to start. */
 	spi_set_nss_low(DOGM128_SPI);
@@ -196,7 +196,7 @@ void dogm128_clear(void)
  * little bit.
  */
 
-const u8 dogm128_font[96][6] = {
+const uint8_t dogm128_font[96][6] = {
 
   /* 20 SPACE  */  {0x00, 0x00, 0x00, 0xAA, 0xAA, 0xAA},
   /* 21 ! */  {0x5E, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA},

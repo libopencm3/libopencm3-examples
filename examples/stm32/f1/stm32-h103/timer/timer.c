@@ -23,7 +23,7 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
 
-u16 frequency_sequence[18] = {
+uint16_t frequency_sequence[18] = {
 	1000,
 	500,
 	1000,
@@ -46,9 +46,9 @@ u16 frequency_sequence[18] = {
 
 int frequency_sel = 0;
 
-u16 compare_time;
-u16 new_time;
-u16 frequency;
+uint16_t compare_time;
+uint16_t new_time;
+uint16_t frequency;
 int debug = 0;
 
 static void clock_setup(void)

@@ -49,7 +49,7 @@
  * Iout = Iin ** gamma
  */
 #ifdef GAMMA_LINEAR
-static const u16 gamma_table_linear[] = {
+static const uint16_t gamma_table_linear[] = {
 	1,	4,	9,	17,	26,	37,	51,	67,
 	84,	104,	126,	149,	175,	203,	233,	265,
 	299,	334,	372,	412,	454,	499,	545,	593,
@@ -86,7 +86,7 @@ static const u16 gamma_table_linear[] = {
 #endif
 
 #ifdef GAMMA_1_3
-static const u16 gamma_table_1_3[] = {
+static const uint16_t gamma_table_1_3[] = {
 	/* Gamma 1.3 */
 	0,	49,	120,	203,	296,	395,	501,	612,
 	728,	848,	973,	1101,	1233,	1368,	1506,	1648,
@@ -124,7 +124,7 @@ static const u16 gamma_table_1_3[] = {
 #endif
 
 #ifdef GAMMA_2_2
-static const u16 gamma_table_2_2[] = {
+static const uint16_t gamma_table_2_2[] = {
 	0,	0,	2,	4,	7,	11,	17,	24,
 	32,	42,	53,	65,	79,	94,	111,	129,
 	148,	169,	192,	216,	242,	270,	299,	330,
@@ -161,7 +161,7 @@ static const u16 gamma_table_2_2[] = {
 #endif
 
 #ifdef GAMMA_2_5
-static const u16 gamma_table_2_5[] = {
+static const uint16_t gamma_table_2_5[] = {
 	/* gamma = 2.5 */
 	0,	0,	0,	1,	2,	4,	6,	8,
 	11,	15,	20,	25,	31,	38,	46,	55,
@@ -199,7 +199,7 @@ static const u16 gamma_table_2_5[] = {
 #endif
 
 #ifdef GAMMA_3_0
-static const u16 gamma_table_3_0[] = {
+static const uint16_t gamma_table_3_0[] = {
 	/* gamma = 3.0 */
 	0,	0,	0,	0,	0,	0,	1,	1,
 	2,	3,	4,	5,	7,	9,	11,	13,

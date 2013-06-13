@@ -47,7 +47,7 @@ static void usart_setup(void)
 	// usart_set_baudrate(USART1, 38400);
 	/* TODO usart_set_baudrate() doesn't support 24MHz clock (yet). */
 	/* This is the equivalent: */
-	USART_BRR(USART1) = (u16)((24000000 << 4) / (38400 * 16));
+	USART_BRR(USART1) = (uint16_t)((24000000 << 4) / (38400 * 16));
 
 	usart_set_databits(USART1, 8);
 	usart_set_stopbits(USART1, USART_STOPBITS_1);
@@ -76,7 +76,7 @@ static void nvic_setup(void)
 
 void rtc_isr(void)
 {
-	volatile u32 j = 0, c = 0;
+	volatile uint32_t j = 0, c = 0;
 
 	/* The interrupt flag isn't cleared by hardware, we have to do it. */
 	rtc_clear_flag(RTC_SEC);

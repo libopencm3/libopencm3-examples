@@ -52,9 +52,9 @@ volatile trans_status transceive_status;
 int rx_buf_remainder = 0;
 
 #if USE_16BIT_TRANSFERS
-u16 dummy_tx_buf = 0xdd;
+uint16_t dummy_tx_buf = 0xdd;
 #else
-u8 dummy_tx_buf = 0xdd;
+uint8_t dummy_tx_buf = 0xdd;
 #endif
 
 int _write(int file, char *ptr, int len);
@@ -152,9 +152,9 @@ static void dma_setup(void)
 }
 
 #if USE_16BIT_TRANSFERS
-static int spi_dma_transceive(u16 *tx_buf, int tx_len, u16 *rx_buf, int rx_len)
+static int spi_dma_transceive(uint16_t *tx_buf, int tx_len, uint16_t *rx_buf, int rx_len)
 #else
-static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
+static int spi_dma_transceive(uint8_t *tx_buf, int tx_len, uint8_t *rx_buf, int rx_len)
 #endif
 {	
 
@@ -173,7 +173,7 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 	 * busy any longer, i.e. the last activity was verified
 	 * complete elsewhere in the program.
 	 */
-	volatile u8 temp_data __attribute__ ((unused));
+	volatile uint8_t temp_data __attribute__ ((unused));
 	while (SPI_SR(SPI1) & (SPI_SR_RXNE | SPI_SR_OVR)) {
 		temp_data = SPI_DR(SPI1);
 	}
@@ -199,8 +199,8 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 
 	/* Set up rx dma, note it has higher priority to avoid overrun */
 	if (rx_len > 0) {
-		dma_set_peripheral_address(DMA1, DMA_CHANNEL2, (u32)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL2, (u32)rx_buf);
+		dma_set_peripheral_address(DMA1, DMA_CHANNEL2, (uint32_t)&SPI1_DR);
+		dma_set_memory_address(DMA1, DMA_CHANNEL2, (uint32_t)rx_buf);
 		dma_set_number_of_data(DMA1, DMA_CHANNEL2, rx_len);
 		dma_set_read_from_peripheral(DMA1, DMA_CHANNEL2);
 		dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL2);
@@ -217,8 +217,8 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 	/* Set up tx dma (must always run tx to get clock signal) */
 	if (tx_len > 0) {
 		/* Here we have a regular tx transfer */
-		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (u32)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL3, (u32)tx_buf);
+		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (uint32_t)&SPI1_DR);
+		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)tx_buf);
 		dma_set_number_of_data(DMA1, DMA_CHANNEL3, tx_len);
 		dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
 		dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL3);
@@ -235,8 +235,8 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 		 * and set the length to the rx_len to get all rx data in, while
 		 * not incrementing the memory pointer
 		 */
-		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (u32)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL3, (u32)(&dummy_tx_buf)); // Change here
+		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (uint32_t)&SPI1_DR);
+		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)(&dummy_tx_buf)); // Change here
 		dma_set_number_of_data(DMA1, DMA_CHANNEL3, rx_len); // Change here
 		dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
 		dma_disable_memory_increment_mode(DMA1, DMA_CHANNEL3); // Change here
@@ -313,8 +313,8 @@ void dma1_channel3_isr(void)
 	 */
 	if (rx_buf_remainder > 0) {
 		dma_channel_reset(DMA1, DMA_CHANNEL3);
-		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (u32)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL3, (u32)(&dummy_tx_buf)); // Change here
+		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (uint32_t)&SPI1_DR);
+		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)(&dummy_tx_buf)); // Change here
 		dma_set_number_of_data(DMA1, DMA_CHANNEL3, rx_buf_remainder); // Change here
 		dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
 		dma_disable_memory_increment_mode(DMA1, DMA_CHANNEL3); // Change here
@@ -401,11 +401,11 @@ int main(void)
 
 	/* Transmit and Receive packets, set transmit to index and receive to known unused value to aid in debugging */
 #if USE_16BIT_TRANSFERS
-	u16 tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	u16 rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
+	uint16_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	uint16_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
 #else
-	u8 tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	u8 rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
+	uint8_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	uint8_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
 #endif
 
 	transceive_status = DONE;
@@ -494,9 +494,9 @@ int main(void)
 		/* Reset receive buffer for consistency */
 		for (i = 0; i < 16; i++) {
 #if USE_16BIT_TRANSFERS
-			tx_packet[i] = (u16)i;
+			tx_packet[i] = (uint16_t)i;
 #else
-			tx_packet[i] = (u8)i;
+			tx_packet[i] = (uint8_t)i;
 #endif
 			rx_packet[i] = 0x42;
 		}		
