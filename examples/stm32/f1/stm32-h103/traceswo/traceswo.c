@@ -53,7 +53,7 @@ static void trace_setup(void)
 
 	/* Unlock access to ITM registers. */
 	/* FIXME: Magic numbers... Is this Cortex-M3 generic? */
-	*((volatile u32 *)0xE0000FB0) = 0xC5ACCE55;
+	*((volatile uint32_t *)0xE0000FB0) = 0xC5ACCE55;
 
 	/* Enable ITM with ID = 1. */
 	ITM_TCR = (1 << 16) | ITM_TCR_ITMENA;

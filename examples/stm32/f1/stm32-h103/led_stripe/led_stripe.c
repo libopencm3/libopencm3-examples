@@ -57,9 +57,9 @@
 	}
 
 struct color {
-	u8 r;
-	u8 g;
-	u8 b;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 };
 
 /* Set STM32 to 72 MHz. */

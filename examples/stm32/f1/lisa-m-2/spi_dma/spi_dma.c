@@ -142,9 +142,9 @@ static void dma_setup(void)
 }
 
 #if USE_16BIT_TRANSFERS
-static int spi_dma_transceive(u16 *tx_buf, int tx_len, u16 *rx_buf, int rx_len)
+static int spi_dma_transceive(uint16_t *tx_buf, int tx_len, uint16_t *rx_buf, int rx_len)
 #else
-static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
+static int spi_dma_transceive(uint8_t *tx_buf, int tx_len, uint8_t *rx_buf, int rx_len)
 #endif
 {
 	/* Check for 0 length in both tx and rx */
@@ -162,7 +162,7 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 	 * busy any longer, i.e. the last activity was verified
 	 * complete elsewhere in the program.
 	 */
-	volatile u8 temp_data __attribute__ ((unused));
+	volatile uint8_t temp_data __attribute__ ((unused));
 	while (SPI_SR(SPI1) & (SPI_SR_RXNE | SPI_SR_OVR)) {
 		temp_data = SPI_DR(SPI1);
 	}
@@ -178,8 +178,8 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 
 	/* Set up rx dma, note it has higher priority to avoid overrun */
 	if (rx_len > 0) {
-		dma_set_peripheral_address(DMA1, DMA_CHANNEL2, (u32)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL2, (u32)rx_buf);
+		dma_set_peripheral_address(DMA1, DMA_CHANNEL2, (uint32_t)&SPI1_DR);
+		dma_set_memory_address(DMA1, DMA_CHANNEL2, (uint32_t)rx_buf);
 		dma_set_number_of_data(DMA1, DMA_CHANNEL2, rx_len);
 		dma_set_read_from_peripheral(DMA1, DMA_CHANNEL2);
 		dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL2);
@@ -195,8 +195,8 @@ static int spi_dma_transceive(u8 *tx_buf, int tx_len, u8 *rx_buf, int rx_len)
 
 	/* Set up tx dma */
 	if (tx_len > 0) {
-		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (u32)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL3, (u32)tx_buf);
+		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (uint32_t)&SPI1_DR);
+		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)tx_buf);
 		dma_set_number_of_data(DMA1, DMA_CHANNEL3, tx_len);
 		dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
 		dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL3);
@@ -340,11 +340,11 @@ int main(void)
 
 	/* Transmit and Receive packets, set transmit to index and receive to known unused value to aid in debugging */
 #if USE_16BIT_TRANSFERS
-	u16 tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	u16 rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
+	uint16_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	uint16_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
 #else
-	u8 tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	u8 rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
+	uint8_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	uint8_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
 #endif
 
 	transceive_status = DONE;

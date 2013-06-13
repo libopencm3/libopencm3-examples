@@ -73,7 +73,7 @@ static void gpio_setup(void)
 
 void usart2_isr(void)
 {
-	static u8 data = 'A';
+	static uint8_t data = 'A';
 
 	/* Check if we were called because of RXNE. */
 	if (((USART_CR1(USART2) & USART_CR1_RXNEIE) != 0) &&
@@ -106,7 +106,7 @@ void usart2_isr(void)
 
 int main(void)
 {
-	SCB_VTOR = (u32) 0x08005000;
+	SCB_VTOR = (uint32_t) 0x08005000;
 
 	clock_setup();
 	gpio_setup();

@@ -50,7 +50,7 @@ const struct usb_device_descriptor dev = {
 };
 
 /* I have no idea what this means. I haven't read the HID spec. */
-static const u8 hid_report_descriptor[] = {
+static const uint8_t hid_report_descriptor[] = {
 	0x05, 0x01, 0x09, 0x02, 0xA1, 0x01, 0x09, 0x01,
 	0xA1, 0x00, 0x05, 0x09, 0x19, 0x01, 0x29, 0x03,
 	0x15, 0x00, 0x25, 0x01, 0x95, 0x03, 0x75, 0x01,
@@ -66,8 +66,8 @@ static const u8 hid_report_descriptor[] = {
 static const struct {
 	struct usb_hid_descriptor hid_descriptor;
 	struct {
-		u8 bReportDescriptorType;
-		u16 wDescriptorLength;
+		uint8_t bReportDescriptorType;
+		uint16_t wDescriptorLength;
 	} __attribute__((packed)) hid_report;
 } __attribute__((packed)) hid_function = {
 	.hid_descriptor = {
@@ -169,9 +169,9 @@ static const char *usb_strings[] = {
 };
 
 /* Buffer to be used for control requests. */
-u8 usbd_control_buffer[128];
+uint8_t usbd_control_buffer[128];
 
-static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, u8 **buf, u16 *len,
+static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)complete;
@@ -183,7 +183,7 @@ static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req
 		return 0;
 
 	/* Handle the HID report descriptor. */
-	*buf = (u8 *)hid_report_descriptor;
+	*buf = (uint8_t *)hid_report_descriptor;
 	*len = sizeof(hid_report_descriptor);
 
 	return 1;
@@ -202,7 +202,7 @@ static void dfu_detach_complete(usbd_device *usbd_dev, struct usb_setup_data *re
 	scb_reset_core();
 }
 
-static int dfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, u8 **buf, u16 *len,
+static int dfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)buf;
@@ -218,7 +218,7 @@ static int dfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req
 }
 #endif
 
-static void hid_set_config(usbd_device *usbd_dev, u16 wValue)
+static void hid_set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
 	(void)wValue;
 	(void)usbd_dev;
@@ -276,7 +276,7 @@ void sys_tick_handler(void)
 {
 	static int x = 0;
 	static int dir = 1;
-	u8 buf[4] = {0, 0, 0, 0};
+	uint8_t buf[4] = {0, 0, 0, 0};
 
 	buf[1] = dir;
 	x += dir;

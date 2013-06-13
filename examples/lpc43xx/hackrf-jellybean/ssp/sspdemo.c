@@ -62,9 +62,9 @@ static void gpio_setup(void)
 int main(void)
 {
 	int i;
-	u8 ssp_val;
-	u8 serial_clock_rate;
-	u8 clock_prescale_rate;
+	uint8_t ssp_val;
+	uint8_t serial_clock_rate;
+	uint8_t clock_prescale_rate;
 
 	gpio_setup();
 
@@ -86,7 +86,7 @@ int main(void)
 
 	while (1) {
 
-		ssp_write(SSP1_NUM, (u16)ssp_val);
+		ssp_write(SSP1_NUM, (uint16_t)ssp_val);
 
 		gpio_set(GPIO2, GPIOPIN1); /* LED on */
 

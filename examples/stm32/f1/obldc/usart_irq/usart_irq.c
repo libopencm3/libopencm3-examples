@@ -77,7 +77,7 @@ static void gpio_setup(void)
 
 void usart1_isr(void)
 {
-	static u8 data = 'A';
+	static uint8_t data = 'A';
 
 	/* Check if we were called because of RXNE. */
 	if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&

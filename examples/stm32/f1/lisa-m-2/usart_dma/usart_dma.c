@@ -76,8 +76,8 @@ static void dma_write(char *data, int size)
 	/* Reset DMA channel*/
 	dma_channel_reset(DMA1, DMA_CHANNEL7);
 
-	dma_set_peripheral_address(DMA1, DMA_CHANNEL7, (u32)&USART2_DR);
-	dma_set_memory_address(DMA1, DMA_CHANNEL7, (u32)data);
+	dma_set_peripheral_address(DMA1, DMA_CHANNEL7, (uint32_t)&USART2_DR);
+	dma_set_memory_address(DMA1, DMA_CHANNEL7, (uint32_t)data);
 	dma_set_number_of_data(DMA1, DMA_CHANNEL7, size);
 	dma_set_read_from_memory(DMA1, DMA_CHANNEL7);
 	dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL7);
@@ -118,8 +118,8 @@ static void dma_read(char *data, int size)
 	/* Reset DMA channel*/
 	dma_channel_reset(DMA1, DMA_CHANNEL6);
 
-	dma_set_peripheral_address(DMA1, DMA_CHANNEL6, (u32)&USART2_DR);
-	dma_set_memory_address(DMA1, DMA_CHANNEL6, (u32)data);
+	dma_set_peripheral_address(DMA1, DMA_CHANNEL6, (uint32_t)&USART2_DR);
+	dma_set_memory_address(DMA1, DMA_CHANNEL6, (uint32_t)data);
 	dma_set_number_of_data(DMA1, DMA_CHANNEL6, size);
 	dma_set_read_from_peripheral(DMA1, DMA_CHANNEL6);
 	dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL6);

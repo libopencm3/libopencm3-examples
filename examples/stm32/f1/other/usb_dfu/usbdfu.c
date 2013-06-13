@@ -32,15 +32,15 @@
 #define CMD_ERASE	0x41
 
 /* We need a special large control buffer for this device: */
-u8 usbd_control_buffer[1024];
+uint8_t usbd_control_buffer[1024];
 
 static enum dfu_state usbdfu_state = STATE_DFU_IDLE;
 
 static struct {
-	u8 buf[sizeof(usbd_control_buffer)];
-	u16 len;
-	u32 addr;
-	u16 blocknum;
+	uint8_t buf[sizeof(usbd_control_buffer)];
+	uint16_t len;
+	uint32_t addr;
+	uint16_t blocknum;
 } prog;
 
 const struct usb_device_descriptor dev = {
@@ -113,7 +113,7 @@ static const char *usb_strings[] = {
 	"@Internal Flash   /0x08000000/8*001Ka,56*001Kg",
 };
 
-static u8 usbdfu_getstatus(u32 *bwPollTimeout)
+static uint8_t usbdfu_getstatus(uint32_t *bwPollTimeout)
 {
 	switch (usbdfu_state) {
 	case STATE_DFU_DNLOAD_SYNC:
@@ -142,20 +142,20 @@ static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_da
 			switch (prog.buf[0]) {
 			case CMD_ERASE:
 				{
-					u32 *dat = (u32 *)(prog.buf + 1);
+					uint32_t *dat = (uint32_t *)(prog.buf + 1);
 					flash_erase_page(*dat);
 				}
 			case CMD_SETADDR:
 				{
-					u32 *dat = (u32 *)(prog.buf + 1);
+					uint32_t *dat = (uint32_t *)(prog.buf + 1);
 					prog.addr = *dat;
 				}
 			}
 		} else {
-			u32 baseaddr = prog.addr + ((prog.blocknum - 2) *
+			uint32_t baseaddr = prog.addr + ((prog.blocknum - 2) *
 				       dfu_function.wTransferSize);
 			for (i = 0; i < prog.len; i += 2) {
-				u16 *dat = (u16 *)(prog.buf + i);
+				uint16_t *dat = (uint16_t *)(prog.buf + i);
 				flash_program_half_word(baseaddr + i,
 						*dat);
 			}
@@ -174,8 +174,8 @@ static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_da
 	}
 }
 
-static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, u8 **buf,
-		u16 *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
+		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)usbd_dev;
 
@@ -208,7 +208,7 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		/* Upload not supported for now. */
 		return 0;
 	case DFU_GETSTATUS: {
-		u32 bwPollTimeout = 0; /* 24-bit integer in DFU class spec */
+		uint32_t bwPollTimeout = 0; /* 24-bit integer in DFU class spec */
 		(*buf)[0] = usbdfu_getstatus(&bwPollTimeout);
 		(*buf)[1] = bwPollTimeout & 0xFF;
 		(*buf)[2] = (bwPollTimeout >> 8) & 0xFF;
@@ -237,12 +237,12 @@ int main(void)
 
 	if (!gpio_get(GPIOA, GPIO10)) {
 		/* Boot the application if it's valid. */
-		if ((*(volatile u32 *)APP_ADDRESS & 0x2FFE0000) == 0x20000000) {
+		if ((*(volatile uint32_t *)APP_ADDRESS & 0x2FFE0000) == 0x20000000) {
 			/* Set vector table base address. */
 			SCB_VTOR = APP_ADDRESS & 0xFFFF;
 			/* Initialise master stack pointer. */
 			asm volatile("msr msp, %0"::"g"
-				     (*(volatile u32 *)APP_ADDRESS));
+				     (*(volatile uint32_t *)APP_ADDRESS));
 			/* Jump to application. */
 			(*(void (**)())(APP_ADDRESS + 4))();
 		}

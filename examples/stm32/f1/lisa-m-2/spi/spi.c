@@ -132,7 +132,7 @@ static void gpio_setup(void)
 int main(void)
 {
 	int counter = 0;
-	u16 rx_value = 0x42;
+	uint16_t rx_value = 0x42;
 
 	clock_setup();
 	gpio_setup();

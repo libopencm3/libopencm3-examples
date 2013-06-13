@@ -57,7 +57,7 @@ const struct usb_device_descriptor dev_descr = {
 };
 
 /* I have no idea what this means. I haven't read the HID spec. */
-static const u8 hid_report_descriptor[] = {
+static const uint8_t hid_report_descriptor[] = {
 	0x05, 0x01, 0x09, 0x02, 0xA1, 0x01, 0x09, 0x01,
 	0xA1, 0x00, 0x05, 0x09, 0x19, 0x01, 0x29, 0x03,
 	0x15, 0x00, 0x25, 0x01, 0x95, 0x03, 0x75, 0x01,
@@ -73,8 +73,8 @@ static const u8 hid_report_descriptor[] = {
 static const struct {
 	struct usb_hid_descriptor hid_descriptor;
 	struct {
-		u8 bReportDescriptorType;
-		u16 wDescriptorLength;
+		uint8_t bReportDescriptorType;
+		uint16_t wDescriptorLength;
 	} __attribute__((packed)) hid_report;
 } __attribute__((packed)) hid_function = {
 	.hid_descriptor = {
@@ -176,9 +176,9 @@ static const char *usb_strings[] = {
 };
 
 /* Buffer used for control requests. */
-u8 usbd_control_buffer[128];
+uint8_t usbd_control_buffer[128];
 
-static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, u8 **buf, u16 *len,
+static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			void (**complete)(usbd_device *dev, struct usb_setup_data *req))
 {
 	(void)complete;
@@ -190,7 +190,7 @@ static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, u8 
 		return 0;
 
 	/* Handle the HID report descriptor. */
-	*buf = (u8 *)hid_report_descriptor;
+	*buf = (uint8_t *)hid_report_descriptor;
 	*len = sizeof(hid_report_descriptor);
 
 	return 1;
@@ -209,7 +209,7 @@ static void dfu_detach_complete(usbd_device *dev, struct usb_setup_data *req)
 	scb_reset_core();
 }
 
-static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, u8 **buf, u16 *len,
+static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			void (**complete)(usbd_device *dev, struct usb_setup_data *req))
 {
 	(void)buf;
@@ -225,7 +225,7 @@ static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, u8 
 }
 #endif
 
-static void hid_set_config(usbd_device *dev, u16 wValue)
+static void hid_set_config(usbd_device *dev, uint16_t wValue)
 {
 	(void)wValue;
 
@@ -251,7 +251,7 @@ static void hid_set_config(usbd_device *dev, u16 wValue)
 	systick_counter_enable();
 }
 
-static u8 spi_readwrite(u32 spi, u8 data)
+static uint8_t spi_readwrite(uint32_t spi, uint8_t data)
 {
 	while (SPI_SR(spi) & SPI_SR_BSY)
 		;
@@ -261,9 +261,9 @@ static u8 spi_readwrite(u32 spi, u8 data)
 	return SPI_DR(spi);
 }
 
-static u8 accel_read(u8 addr)
+static uint8_t accel_read(uint8_t addr)
 {
-	u8 ret;
+	uint8_t ret;
 	gpio_clear(GPIOB, GPIO12);
 	spi_readwrite(SPI2, addr | 0x80);
 	ret = spi_readwrite(SPI2, 0);
@@ -271,7 +271,7 @@ static u8 accel_read(u8 addr)
 	return ret;
 }
 
-static void accel_write(u8 addr, u8 data)
+static void accel_write(uint8_t addr, uint8_t data)
 {
 	gpio_clear(GPIOB, GPIO12);
 	spi_readwrite(SPI2, addr);
@@ -279,7 +279,7 @@ static void accel_write(u8 addr, u8 data)
 	gpio_set(GPIOB, GPIO12);
 }
 
-static void accel_get(s16 *x, s16 *y, s16 *z)
+static void accel_get(int16_t *x, int16_t *y, int16_t *z)
 {
 	if (x)
 		*x = accel_read(ADXL345_DATAX0) |
@@ -361,8 +361,8 @@ int main(void)
 
 void sys_tick_handler(void)
 {
-	s16 x, y;
-	u8 buf[4] = {0, 0, 0, 0};
+	int16_t x, y;
+	uint8_t buf[4] = {0, 0, 0, 0};
 
 	accel_get(&x, &y, NULL);
 	buf[1] = x >> 9;

@@ -57,7 +57,7 @@ static void gpio_setup(void)
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO7);
 }
 
-static void my_usart_print_string(u32 usart, char *s)
+static void my_usart_print_string(uint32_t usart, char *s)
 {
 	while (*s != 0) {
 		usart_send(usart, *s);
@@ -107,10 +107,10 @@ int main(void)
 	dma_set_read_from_peripheral(DMA1, DMA_CHANNEL1);
 
 	/* We want to transfer string s1. */
-	dma_set_peripheral_address(DMA1, DMA_CHANNEL1, (u32)&s1);
+	dma_set_peripheral_address(DMA1, DMA_CHANNEL1, (uint32_t)&s1);
 
 	/* Destination should be string s2. */
-	dma_set_memory_address(DMA1, DMA_CHANNEL1, (u32)&s2);
+	dma_set_memory_address(DMA1, DMA_CHANNEL1, (uint32_t)&s2);
 
 	/*
 	 * Set number of DATA to transfer.

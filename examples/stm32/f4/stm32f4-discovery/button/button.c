@@ -22,7 +22,7 @@
 #include <libopencm3/stm32/f4/rcc.h>
 #include <libopencm3/stm32/f4/gpio.h>
 
-u16 exti_line_state;
+uint16_t exti_line_state;
 
 /* Set STM32 to 168 MHz. */
 static void clock_setup(void)

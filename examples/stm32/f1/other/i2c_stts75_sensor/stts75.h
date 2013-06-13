@@ -31,9 +31,9 @@
 #define STTS75_SENSOR6		0x4e
 #define STTS75_SENSOR7		0x4f
 
-void stts75_write_config(u32 i2c, u8 sensor);
-void stts75_write_temp_os(u32 i2c, u8 sensor, u16 temp_os);
-void stts75_write_temp_hyst(u32 i2c, u8 sensor, u16 temp_hyst);
-u16 stts75_read_temperature(u32 i2c, u8 sensor);
+void stts75_write_config(uint32_t i2c, uint8_t sensor);
+void stts75_write_temp_os(uint32_t i2c, uint8_t sensor, uint16_t temp_os);
+void stts75_write_temp_hyst(uint32_t i2c, uint8_t sensor, uint16_t temp_hyst);
+uint16_t stts75_read_temperature(uint32_t i2c, uint8_t sensor);
 
 #endif

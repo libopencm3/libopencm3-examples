@@ -105,7 +105,7 @@ static void i2c_setup(void)
 int main(void)
 {
 	int i = 0;
-	u16 temperature;
+	uint16_t temperature;
 
 	rcc_clock_setup_in_hse_16mhz_out_72mhz();
 	gpio_setup();

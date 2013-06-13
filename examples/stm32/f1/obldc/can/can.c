@@ -26,22 +26,22 @@
 #include <libopencm3/stm32/can.h>
 
 struct can_tx_msg {
-	u32 std_id;
-	u32 ext_id;
-	u8 ide;
-	u8 rtr;
-	u8 dlc;
-	u8 data[8];
+	uint32_t std_id;
+	uint32_t ext_id;
+	uint8_t ide;
+	uint8_t rtr;
+	uint8_t dlc;
+	uint8_t data[8];
 };
 
 struct can_rx_msg {
-	u32 std_id;
-	u32 ext_id;
-	u8 ide;
-	u8 rtr;
-	u8 dlc;
-	u8 data[8];
-	u8 fmi;
+	uint32_t std_id;
+	uint32_t ext_id;
+	uint8_t ide;
+	uint8_t rtr;
+	uint8_t dlc;
+	uint8_t data[8];
+	uint8_t fmi;
 };
 
 struct can_tx_msg can_tx_msg;
@@ -151,7 +151,7 @@ static void can_setup(void)
 void sys_tick_handler(void)
 {
 	static int temp32 = 0;
-	static u8 data[8] = {0, 1, 2, 0, 0, 0, 0, 0};
+	static uint8_t data[8] = {0, 1, 2, 0, 0, 0, 0, 0};
 
 	/* We call this handler every 1ms so 1000ms = 1s on/off. */
 	if (++temp32 != 1000)
@@ -177,9 +177,9 @@ void sys_tick_handler(void)
 
 void usb_lp_can_rx0_isr(void)
 {
-	u32 id, fmi;
+	uint32_t id, fmi;
 	bool ext, rtr;
-	u8 length, data[8];
+	uint8_t length, data[8];
 
 	can_receive(CAN1, 0, false, &id, &ext, &rtr, &fmi, &length, data);
 

@@ -69,18 +69,18 @@
 #define DOGM128_STATIC_INDICATOR_ON		0xAD
 #define DOGM128_BOOSTER_RATIO_SET		0xF8
 
-extern const u8 dogm128_font[96][6];
-extern u8 dogm128_ram[1024];
-extern u8 dogm128_cursor_x;
-extern u8 dogm128_cursor_y;
+extern const uint8_t dogm128_font[96][6];
+extern uint8_t dogm128_ram[1024];
+extern uint8_t dogm128_cursor_x;
+extern uint8_t dogm128_cursor_y;
 
-void dogm128_send_command(u8 command);
-void dogm128_set_cursor(u8 xcoord, u8 ycoord);
-void dogm128_print_char(u8 data);
+void dogm128_send_command(uint8_t command);
+void dogm128_set_cursor(uint8_t xcoord, uint8_t ycoord);
+void dogm128_print_char(uint8_t data);
 void dogm128_print_string(char *s);
-void dogm128_set_dot(u8 xcoord, u8 ycoord);
-void dogm128_clear_dot(u8 xcoord, u8 ycoord);
-void dogm128_send_data(u8 data);
+void dogm128_set_dot(uint8_t xcoord, uint8_t ycoord);
+void dogm128_clear_dot(uint8_t xcoord, uint8_t ycoord);
+void dogm128_send_data(uint8_t data);
 void dogm128_init(void);
 void dogm128_update_display(void);
 void dogm128_clear(void);

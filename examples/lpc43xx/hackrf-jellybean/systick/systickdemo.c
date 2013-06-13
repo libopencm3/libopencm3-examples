@@ -27,8 +27,8 @@
 #include "../jellybean_conf.h"
 
 /* Global counter incremented by SysTick Interrupt each millisecond */
-volatile u32 g_ulSysTickCount;
-u32 g_NbCyclePerSecond;
+volatile uint32_t g_ulSysTickCount;
+uint32_t g_NbCyclePerSecond;
 
 static void gpio_setup(void)
 {
@@ -67,7 +67,7 @@ static void gpio_setup(void)
 
 static void systick_setup(void)
 {
-	u32 systick_reload_val;
+	uint32_t systick_reload_val;
 	g_ulSysTickCount = 0;
 
 	/* Disable IRQ globally */
@@ -106,15 +106,15 @@ static void scs_dwt_cycle_counter_enabled(void)
 	SCS_DWT_CTRL  |= SCS_DWT_CTRL_CYCCNTENA;
 }
 
-static u32 sys_tick_get_time_ms(void)
+static uint32_t sys_tick_get_time_ms(void)
 {
     return g_ulSysTickCount;
 }
 
-static u32 sys_tick_delta_time_ms(u32 start, u32 end)
+static uint32_t sys_tick_delta_time_ms(uint32_t start, uint32_t end)
 {
 	#define MAX_T_U32 ((2^32)-1)
-    u32 diff;
+    uint32_t diff;
 
     if(end > start)
     {
@@ -127,10 +127,10 @@ static u32 sys_tick_delta_time_ms(u32 start, u32 end)
     return diff;
 }
 
-static void sys_tick_wait_time_ms(u32 wait_ms)
+static void sys_tick_wait_time_ms(uint32_t wait_ms)
 {
-    u32 start, end;
-    u32 tickms;
+    uint32_t start, end;
+    uint32_t tickms;
 
     start = sys_tick_get_time_ms();
 

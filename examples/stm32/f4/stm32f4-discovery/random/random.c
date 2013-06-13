@@ -50,11 +50,11 @@ static void gpio_setup(void)
 }
 
 /* Tried to folow the guidelines in the stm32f4 user manual.*/
-static u32 random_int(void)
+static uint32_t random_int(void)
 {
-	static u32 last_value=0;
-	static u32 new_value=0;
-	u32 error_bits = 0;
+	static uint32_t last_value=0;
+	static uint32_t new_value=0;
+	uint32_t error_bits = 0;
 	error_bits = RNG_SR_SEIS | RNG_SR_CEIS;
 	while (new_value==last_value) {
 		/* Check for error flags and if data is ready. */
@@ -73,7 +73,7 @@ int main(void)
 	gpio_setup();
 	rng_setup();
 	while(1){
-		u32 rnd;
+		uint32_t rnd;
 		rnd = random_int();
 		for(i=0;i!=32;++i){
 			if ( (rnd & (1 << i))!=0 )

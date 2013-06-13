@@ -70,7 +70,7 @@ static void nvic_setup(void)
 
 void rtc_isr(void)
 {
-	volatile u32 j = 0, c = 0;
+	volatile uint32_t j = 0, c = 0;
 
 	/* The interrupt flag isn't cleared by hardware, we have to do it. */
 	rtc_clear_flag(RTC_SEC);
