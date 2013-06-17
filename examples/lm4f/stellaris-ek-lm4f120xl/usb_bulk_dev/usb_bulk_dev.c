@@ -30,6 +30,8 @@
 #include <libopencm3/lm4f/usb.h>
 
 #include<stdio.h>
+
+int _write(int file, char *ptr, int len);
 void uart_setup(void);
 
 /* =============================================================================
