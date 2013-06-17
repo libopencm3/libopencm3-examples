@@ -170,17 +170,17 @@ static const char *usb_strings[] = {
 };
 
 usbd_device *acm_dev;
-u8 usbd_control_buffer[128];
+uint8_t usbd_control_buffer[128];
 extern usbd_driver lm4f_usb_driver;
 
 static int cdcacm_control_request(usbd_device * usbd_dev,
-				  struct usb_setup_data *req, u8 ** buf,
-				  u16 * len,
+				  struct usb_setup_data *req, uint8_t ** buf,
+				  uint16_t * len,
 				  void (**complete) (usbd_device * usbd_dev,
 						     struct usb_setup_data *
 						     req))
 {
-	u8 dtr, rts;
+	uint8_t dtr, rts;
 
 	(void)complete;
 	(void)buf;
@@ -217,9 +217,9 @@ static int cdcacm_control_request(usbd_device * usbd_dev,
 	return 0;
 }
 
-static void cdcacm_data_rx_cb(usbd_device * usbd_dev, u8 ep)
+static void cdcacm_data_rx_cb(usbd_device * usbd_dev, uint8_t ep)
 {
-	u8 buf[64];
+	uint8_t buf[64];
 
 	(void)ep;
 
@@ -227,12 +227,12 @@ static void cdcacm_data_rx_cb(usbd_device * usbd_dev, u8 ep)
 	glue_send_data_cb(buf, len);
 }
 
-void cdcacm_send_data(u8 * buf, u16 len)
+void cdcacm_send_data(uint8_t * buf, uint16_t len)
 {
 	usbd_ep_write_packet(acm_dev, 0x82, buf, len);
 }
 
-static void cdcacm_set_config(usbd_device * usbd_dev, u16 wValue)
+static void cdcacm_set_config(usbd_device * usbd_dev, uint16_t wValue)
 {
 	(void)wValue;
 
@@ -249,10 +249,10 @@ static void cdcacm_set_config(usbd_device * usbd_dev, u16 wValue)
 				       cdcacm_control_request);
 }
 
-void cdcacm_line_state_changed_cb(u8 linemask)
+void cdcacm_line_state_changed_cb(uint8_t linemask)
 {
 	const int size = sizeof(struct usb_cdc_notification) + 2;
-	u8 buf[size];
+	uint8_t buf[size];
 
 	struct usb_cdc_notification *notify = (void *)buf;
 	notify->bmRequestType = 0xa1;
@@ -260,7 +260,7 @@ void cdcacm_line_state_changed_cb(u8 linemask)
 	notify->wValue = 0;
 	notify->wIndex = 1;
 	notify->wLength = 2;
-	u16 *data = (void *)&buf[sizeof(struct usb_cdc_notification)];
+	uint16_t *data = (void *)&buf[sizeof(struct usb_cdc_notification)];
 	*data = linemask;
 
 	while (usbd_ep_write_packet(acm_dev, 0x83, buf, size) == size) ;
@@ -276,7 +276,7 @@ static void usb_pins_setup(void)
 
 static void usb_ints_setup(void)
 {
-	u8 usbints;
+	uint8_t usbints;
 	/* Gimme some interrupts */
 	usbints = USB_INT_RESET | USB_INT_DISCON | USB_INT_RESUME | USB_INT_SUSPEND;	//| USB_IM_SOF;
 	usb_enable_interrupts(usbints, 0xff, 0xff);

@@ -67,7 +67,7 @@ static void gpio_setup(void)
 	 * This port is used to control the RGB LED
 	 */
 	periph_clock_enable(RCC_GPIOF);
-	const u32 opins = (LED_R | LED_G | LED_B);
+	const uint32_t opins = (LED_R | LED_G | LED_B);
 
 	gpio_mode_setup(RGB_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, opins);
 	gpio_set_output_config(RGB_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_2MA, opins);
@@ -85,7 +85,7 @@ static void cm4f_enable_fpu(void)
 
 }
 
-void glue_data_recieved_cb(u8 * buf, u16 len)
+void glue_data_recieved_cb(uint8_t * buf, uint16_t len)
 {
 	/* Blue LED indicates data coming in */
 	gpio_set(RGB_PORT, LED_B);
@@ -93,7 +93,7 @@ void glue_data_recieved_cb(u8 * buf, u16 len)
 	gpio_clear(RGB_PORT, LED_B);
 }
 
-void glue_set_line_state_cb(u8 dtr, u8 rts)
+void glue_set_line_state_cb(uint8_t dtr, uint8_t rts)
 {
 	/* Green LED indicated one of the control lines are active */
 	if (dtr || rts)
@@ -104,12 +104,12 @@ void glue_set_line_state_cb(u8 dtr, u8 rts)
 	uart_set_ctl_line_state(dtr, rts);
 }
 
-int glue_set_line_coding_cb(u32 baud, u8 databits,
+int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 			    enum usb_cdc_line_coding_bParityType cdc_parity,
 			    enum usb_cdc_line_coding_bCharFormat cdc_stopbits)
 {
 	enum uart_parity parity;
-	u8 uart_stopbits;
+	uint8_t uart_stopbits;
 
 	if (databits < 5 || databits > 8)
 		return 0;
@@ -152,7 +152,7 @@ int glue_set_line_coding_cb(u32 baud, u8 databits,
 	return 1;
 }
 
-void glue_send_data_cb(u8 * buf, u16 len)
+void glue_send_data_cb(uint8_t * buf, uint16_t len)
 {
 	int i;
 
@@ -168,8 +168,8 @@ void glue_send_data_cb(u8 * buf, u16 len)
 
 static void mainloop(void)
 {
-	u8 linestate, cdcacmstate;
-	static u8 oldlinestate = 0;
+	uint8_t linestate, cdcacmstate;
+	static uint8_t oldlinestate = 0;
 
 	/* See if the state of control lines has changed */
 	linestate = uart_get_ctl_line_state();

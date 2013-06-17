@@ -43,7 +43,7 @@
 
 static void uart_ctl_line_setup(void)
 {
-	u32 inpins, outpins;
+	uint32_t inpins, outpins;
 
 	inpins = PIN_DCD | PIN_DSR | PIN_RI | PIN_CTS;
 	outpins = PIN_DTR | PIN_RTS;
@@ -75,14 +75,14 @@ void uart_init(void)
 	nvic_enable_irq(NVIC_UART1_IRQ);
 }
 
-u8 uart_get_ctl_line_state(void)
+uint8_t uart_get_ctl_line_state(void)
 {
 	return gpio_read(GPIOA, PIN_RI | PIN_DSR | PIN_DCD);
 }
 
-void uart_set_ctl_line_state(u8 dtr, u8 rts)
+void uart_set_ctl_line_state(uint8_t dtr, uint8_t rts)
 {
-	u8 val = 0;
+	uint8_t val = 0;
 
 	val |= dtr ? PIN_DTR : 0;
 	val |= rts ? PIN_RTS : 0;
@@ -92,7 +92,7 @@ void uart_set_ctl_line_state(u8 dtr, u8 rts)
 
 void uart1_isr(void)
 {
-	u8 rx;
+	uint8_t rx;
 	rx = uart_recv(UART1);
 	glue_data_recieved_cb(&rx, 1);
 	uart_clear_interrupt_flag(UART1, UART_INT_RX);

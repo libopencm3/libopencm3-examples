@@ -60,7 +60,7 @@ enum {
 	PLL_DIV_16MHZ 	= 25,
 };
 
-static const u8 plldiv[] = {
+static const uint8_t plldiv[] = {
 	PLL_DIV_80MHZ,
 	PLL_DIV_57MHZ,
 	PLL_DIV_40MHZ,
@@ -176,8 +176,8 @@ static const struct usb_config_descriptor config_descr = {
 
 extern usbd_driver lm4f_usb_driver;
 static usbd_device *bulk_dev;
-static u8 usbd_control_buffer[128];
-static u8 config_set = 0;
+static uint8_t usbd_control_buffer[128];
+static uint8_t config_set = 0;
 
 static const char *usb_strings[] = {
 	"libopencm3",
@@ -209,7 +209,7 @@ static void usb_setup(void)
  */
 static void usb_ints_setup(void)
 {
-	u8 usbints;
+	uint8_t usbints;
 	/* Gimme some interrupts */
 	usbints = USB_INT_RESET | USB_INT_DISCON | USB_INT_RESUME |
 	    USB_INT_SUSPEND | USB_INT_SOF;
@@ -222,7 +222,7 @@ static void usb_ints_setup(void)
  *
  * This gets called whenever a new OUT packet has arrived.
  */
-static void bulk_rx_cb(usbd_device * usbd_dev, u8 ep)
+static void bulk_rx_cb(usbd_device * usbd_dev, uint8_t ep)
 {
 	char buf[64] __attribute__ ((aligned(4)));
 
@@ -237,7 +237,7 @@ static void bulk_rx_cb(usbd_device * usbd_dev, u8 ep)
  *
  * This gets called whenever an IN packet has been successfully transmitted.
  */
-static void bulk_tx_cb(usbd_device * usbd_dev, u8 ep)
+static void bulk_tx_cb(usbd_device * usbd_dev, uint8_t ep)
 {
 	char buf[64] __attribute__ ((aligned(4)));
 
@@ -252,9 +252,9 @@ static void bulk_tx_cb(usbd_device * usbd_dev, u8 ep)
  *
  * Called after the host issues a SetConfiguration request.
  */
-static void set_config(usbd_device * usbd_dev, u16 wValue)
+static void set_config(usbd_device * usbd_dev, uint16_t wValue)
 {
-	u8 data[64] __attribute__ ((aligned(4)));
+	uint8_t data[64] __attribute__ ((aligned(4)));
 
 	(void)wValue;
 	printf("Configuring endpoints.\n\r");
@@ -295,7 +295,7 @@ static void button_setup(void)
 	/*
 	 * Now take care of our buttons
 	 */
-	const u32 btnpins = USR_SW1 | USR_SW2;
+	const uint32_t btnpins = USR_SW1 | USR_SW2;
 
 	/*
 	 * PF0 is a locked by default. We need to unlock it before we can
@@ -319,7 +319,7 @@ static void button_setup(void)
 
 int main(void)
 {
-	u8 data[65] __attribute__ ((aligned(4)));
+	uint8_t data[65] __attribute__ ((aligned(4)));
 
 	gpio_enable_ahb_aperture();
 	rcc_sysclk_config(OSCSRC_MOSC, XTAL_16M, PLL_DIV_80MHZ);
@@ -376,7 +376,7 @@ void usb0_isr(void)
 
 void gpiof_isr(void)
 {
-	u8 serviced_irqs = 0;
+	uint8_t serviced_irqs = 0;
 
 	if (gpio_is_interrupt_source(GPIOF, USR_SW1)) {
 		/* SW1 was just depressed */

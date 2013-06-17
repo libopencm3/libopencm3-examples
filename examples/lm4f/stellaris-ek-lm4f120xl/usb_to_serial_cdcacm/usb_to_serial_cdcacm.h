@@ -60,8 +60,8 @@ enum rs232pin {
 };
 
 void uart_init(void);
-u8 uart_get_ctl_line_state(void);
-void uart_set_ctl_line_state(u8 dtr, u8 rts);
+uint8_t uart_get_ctl_line_state(void);
+void uart_set_ctl_line_state(uint8_t dtr, uint8_t rts);
 /* =============================================================================
  * CDCACM control
  * ---------------------------------------------------------------------------*/
@@ -72,17 +72,17 @@ enum cdc_serial_state_line {
 };
 
 void cdcacm_init(void);
-void cdcacm_line_state_changed_cb(u8 linemask);
-void cdcacm_send_data(u8 *buf, u16 len);
+void cdcacm_line_state_changed_cb(uint8_t linemask);
+void cdcacm_send_data(uint8_t *buf, uint16_t len);
 /* =============================================================================
  * CDCACM <-> UART glue
  * ---------------------------------------------------------------------------*/
-void glue_data_recieved_cb(u8 *buf, u16 len);
-void glue_set_line_state_cb(u8 dtr, u8 rts);
-int glue_set_line_coding_cb(u32 baud, u8 databits,
+void glue_data_recieved_cb(uint8_t *buf, uint16_t len);
+void glue_set_line_state_cb(uint8_t dtr, uint8_t rts);
+int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 			    enum usb_cdc_line_coding_bParityType cdc_parity,
 			    enum usb_cdc_line_coding_bCharFormat cdc_stopbits);
-void glue_send_data_cb(u8 *buf, u16 len);
+void glue_send_data_cb(uint8_t *buf, uint16_t len);
 
 #endif /* __STELLARIS_EK_LM4F120XL_USB_TO_SERIAL_CDCACM_H */
 
