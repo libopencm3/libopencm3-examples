@@ -36,11 +36,11 @@ build: lib examples
 lib:
 	$(Q)if [ ! "`ls -A libopencm3`" ] ; then \
 		echo "######## ERROR ########"; \
-		echo "\tlibopencm3 is not initialized."; \
-		echo "\tPlease run:"; \
-		echo "\t$$ git submodule init"; \
-		echo "\t$$ git submodule update"; \
-		echo "\tbefore running make."; \
+		echo -e "\tlibopencm3 is not initialized."; \
+		echo -e "\tPlease run:"; \
+		echo -e "\t$$ git submodule init"; \
+		echo -e "\t$$ git submodule update"; \
+		echo -e "\tbefore running make."; \
 		echo "######## ERROR ########"; \
 		exit 1; \
 		fi
