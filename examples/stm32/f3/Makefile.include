@@ -71,7 +71,7 @@ endif
 all: images
 
 images: $(BINARY).images
-flash: $(BINARY).stlink-flash
+flash: $(BINARY).flash
 
 %.images: %.bin %.hex %.srec %.list
 	@#echo "*** $* images generated ***"
