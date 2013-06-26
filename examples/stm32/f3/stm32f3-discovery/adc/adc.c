@@ -89,32 +89,21 @@ void usart_setup(void) {
   usart_set_mode(USART2, USART_MODE_TX_RX);
   usart_set_parity(USART2, USART_PARITY_NONE);
   usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
-  
+
   /* Finally enable the USART. */
   usart_enable(USART2);
 }
 
 void gpio_setup(void)
 {
-	/* Enable GPIOE clock. */
-	/* Manually: */
-	// RCC_AHB1ENR |= RCC_AHB1ENR_IOPDEN;
-	/* Using API functions: */
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
-
-
-	/* Set GPIO12 (in GPIO port E) to 'output push-pull'. */
-	/* Manually: */
-	//GPIOE_CRH = (GPIO_CNF_OUTPUT_PUSHPULL << (((8 - 8) * 4) + 2));
-	//GPIOE_CRH |= (GPIO_MODE_OUTPUT_2_MHZ << ((8 - 8) * 4));
-	/* Using API functions: */
 	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8| GPIO9| GPIO10| GPIO11| GPIO12| GPIO13| GPIO14| GPIO15);
 }
 
-void my_usart_print_int(uint32_t usart, int value)
+void my_usart_print_int(uint32_t usart, int16_t value)
 {
-        uint8_t i;
-        uint8_t nr_digits = 0;
+        int8_t i;
+        int8_t nr_digits = 0;
         char buffer[25];
 
         if (value < 0) {
@@ -122,12 +111,16 @@ void my_usart_print_int(uint32_t usart, int value)
                 value = value * -1;
         }
 
+        if (value == 0) {
+                usart_send_blocking(usart, '0');
+        }
+
         while (value > 0) {
                 buffer[nr_digits++] = "0123456789"[value % 10];
                 value /= 10;
         }
 
-        for (i = nr_digits; i >= 0; i--) {
+        for (i = nr_digits-1; i >= 0; i--) {
                 usart_send_blocking(usart, buffer[i]);
         }
 
@@ -136,24 +129,11 @@ void my_usart_print_int(uint32_t usart, int value)
 }
 
 void clock_setup(void) {
-  /*
-  rcc_set_sysclk_source(RCC_CFGR_SW_HSI); //se cayo
-  rcc_wait_for_sysclk_status(HSI);
-  rcc_osc_off(PLL);
-  rcc_wait_for_osc_not_ready(PLL);
-  rcc_set_pll_source(RCC_CFGR_PLLSRC_HSI_DIV2);
-  rcc_set_main_pll_hsi(RCC_CFGR_PLLMUL_PLL_IN_CLK_X11);
-  rcc_osc_on(PLL);
-  rcc_wait_for_osc_ready(PLL);
-  rcc_set_hpre(RCC_CFGR_HPRE_DIV_NONE);
-  rcc_set_ppre2(RCC_CFGR_PPRE2_DIV_NONE);
-  rcc_set_ppre1(RCC_CFGR_PPRE1_DIV_2);
-  rcc_set_sysclk_source(RCC_CFGR_SW_PLL); //se cayo
-  rcc_wait_for_sysclk_status(PLL);
-  */
   //rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_44MHZ]);
   rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
 }
+
+extern unsigned _stack;
 
 int main(void)
 {
@@ -165,41 +145,12 @@ int main(void)
 	adc_setup();
 	usart_setup();
 
-	/* Blink the LED (PC8) on the board. */
 	while (1) {
-	  /* Manually: */
-	  // GPIOD_BSRR = GPIO12;		/* LED off */
-	  // for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-	  // 	__asm__("nop");
-	  // GPIOD_BRR = GPIO9;		/* LED on */
-	  // for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-	  // 	__asm__("nop");
-
-	  /* Using API functions gpio_set()/gpio_clear(): */
-	  //gpio_set(GPIOE, GPIO9);	/* LED off */
-	  // for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-	  // 	__asm__("nop");
-	  //gpio_clear(GPIOE, GPIO9);	/* LED on */
-	  // for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-	  // 	__asm__("nop");
-
-	  /* Using API function gpio_toggle(): */
-	  gpio_toggle(LRED);
-	  for (i = 0; i < 200000; i++) /* Wait a bit. */
-	    __asm__("nop");
-	  gpio_toggle(LRED);
-	  for (i = 0; i < 200000; i++) /* Wait a bit. */
-	    __asm__("nop");
 	  adc_start_conversion_regular(ADC1);
 	  while (!(adc_eoc(ADC1)));
 	  temp=adc_read_regular(ADC1);
-	  gpio_port_write(GPIOE, temp << 4);
+ 	  gpio_port_write(GPIOE, temp << 4);
 	  my_usart_print_int(USART2, temp);
-	  //usart_send_blocking(USART2, 'a');
-	  //usart_send_blocking(USART2, '\r');
-	  //usart_send_blocking(USART2, '\n');
-
-	  inc++;
 	}
 
 	return 0;
