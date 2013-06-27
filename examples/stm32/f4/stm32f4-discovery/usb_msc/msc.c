@@ -25,6 +25,7 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/msc.h>
 #include <libopencm3/cm3/scb.h>
+#include "ramdisk.h"
 
 static const struct usb_device_descriptor dev = {
 	.bLength = USB_DT_DEVICE_SIZE,
@@ -103,20 +104,6 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static uint8_t data[512 * 5];
-
-static int read_block(uint32_t lba, uint8_t *copy_to)
-{
-	memcpy(copy_to, &data[lba << 9], 512);
-	return 0;
-}
-
-static int write_block(uint32_t lba, const uint8_t *copy_from)
-{
-	memcpy(&data[lba << 9], copy_from, 512);
-	return 0;
-}
-
 int main(void)
 {
 	usbd_device *usbd_dev;
@@ -131,7 +118,8 @@ int main(void)
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
 
 	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
-	usb_msc_init(usbd_dev, 0x81, 64, 0x02, 64, "VendorID", "ProductID", "0.00", 5, read_block, write_block);
+	ramdisk_init();
+	usb_msc_init(usbd_dev, 0x81, 64, 0x02, 64, "VendorID", "ProductID", "0.00", ramdisk_blocks(), ramdisk_read, ramdisk_write);
 
 	while (1)
 		usbd_poll(usbd_dev);

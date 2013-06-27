@@ -19,6 +19,8 @@
 
 BINARY = msc
 
+OBJS = ramdisk.o
+
 LDSCRIPT = ../stm32f4-discovery.ld
 
 include ../../Makefile.include
