@@ -24,8 +24,8 @@
 #define WBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF)
 #define QBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF), (((x) >> 16) & 0xFF), (((x) >> 24) & 0xFF)
 
-// filesystem size is 64kB (128*512)
-#define SECTOR_COUNT 128
+// filesystem size is 512kB (1024 * SECTOR_SIZE)
+#define SECTOR_COUNT 1024
 #define SECTOR_SIZE 512
 #define BYTES_PER_SECTOR 512
 #define SECTORS_PER_CLUSTER 4
@@ -34,19 +34,20 @@
 #define ROOT_ENTRIES 512
 #define ROOT_ENTRY_LENGTH 32
 #define FILEDATA_START_CLUSTER 3
-uint32_t filedata_start_cluster = FILEDATA_START_CLUSTER - 2;
 #define DATA_REGION_SECTOR (RESERVED_SECTORS + FAT_COPIES + (ROOT_ENTRIES * ROOT_ENTRY_LENGTH) / BYTES_PER_SECTOR)
-#define FILEDATA_START_SECTOR (DATA_REGION_SECTOR + filedata_start_cluster * SECTORS_PER_CLUSTER)
+#define FILEDATA_START_SECTOR (DATA_REGION_SECTOR + (FILEDATA_START_CLUSTER - 2) * SECTORS_PER_CLUSTER)
+// filesize is 64kB (128 * SECTOR_SIZE)
+#define FILEDATA_SECTOR_COUNT 128
 
 uint8_t BootSector[] = {
 	0xEB, 0x3C, 0x90,										// code to jump to the bootstrap code
 	'm', 'k', 'd', 'o', 's', 'f', 's', 0x00,				// OEM ID
-	WBVAL(BYTES_PER_SECTOR),
-	SECTORS_PER_CLUSTER,
-	WBVAL(RESERVED_SECTORS),
-	FAT_COPIES,
-	WBVAL(ROOT_ENTRIES),
-	WBVAL(SECTOR_COUNT),
+	WBVAL(BYTES_PER_SECTOR),								// bytes per sector
+	SECTORS_PER_CLUSTER,									// sectors per cluster
+	WBVAL(RESERVED_SECTORS),								// # of reserved sectors (1 boot sector)
+	FAT_COPIES,												// FAT copies (2)
+	WBVAL(ROOT_ENTRIES),									// root entries (512)
+	WBVAL(SECTOR_COUNT),									// total number of sectors
 	0xF8,													// media descriptor (0xF8 = Fixed disk)
 	0x01, 0x00,												// sectors per FAT (1)
 	0x20, 0x00,												// sectors per track (32)
@@ -109,14 +110,19 @@ uint8_t DirSector[] = {
 	0xCE, 0x01,																// last write time
 	0x86, 0x41,																// last write date
 	WBVAL(FILEDATA_START_CLUSTER),											// start cluster
-	QBVAL(SECTOR_COUNT * SECTOR_SIZE)										// file size in bytes
+	QBVAL(FILEDATA_SECTOR_COUNT * SECTOR_SIZE)								// file size in bytes
 };
 
-static uint8_t ramdata[SECTOR_COUNT * SECTOR_SIZE];
+static uint8_t ramdata[FILEDATA_SECTOR_COUNT * SECTOR_SIZE];
 
 int ramdisk_init(void)
 {
-	memset(ramdata, 'A', sizeof(ramdata));
+	const uint8_t text[] = "USB Mass Storage Class example. ";
+	uint32_t i = 0;
+	while (i < sizeof(ramdata)) {
+		ramdata[i] = text[i % (sizeof(text) -1)];
+		i++;
+	}
 	return 0;
 }
 
@@ -138,7 +144,7 @@ int ramdisk_read(uint32_t lba, uint8_t *copy_to)
 			break;
 		default:
 			// ignore reads outside of the data section
-			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + SECTOR_COUNT) {
+			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + FILEDATA_SECTOR_COUNT) {
 				memcpy(copy_to, ramdata + (lba - FILEDATA_START_SECTOR) * SECTOR_SIZE, SECTOR_SIZE);
 			}
 			break;
@@ -148,28 +154,11 @@ int ramdisk_read(uint32_t lba, uint8_t *copy_to)
 
 int ramdisk_write(uint32_t lba, const uint8_t *copy_from)
 {
-	switch (lba) {
-		case 0: // sector 0 is the boot sector
-			memcpy(BootSector, copy_from, SECTOR_SIZE);
-			break;
-		case 1: // sector 1 is FAT 1st copy
-		case 2: // sector 2 is FAT 2nd copy
-			memcpy(FatSector, copy_from, SECTOR_SIZE);
-			break;
-		case 3: // sector 3 is the directory entry
-			memcpy(DirSector, copy_from, SECTOR_SIZE);
-			break;
-		default:
-			// ignore writes outside of the data section
-			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + SECTOR_COUNT) {
-				memcpy(ramdata + (lba - FILEDATA_START_SECTOR) * SECTOR_SIZE, copy_from, SECTOR_SIZE);
-			}
-			break;
-	}
+	// ignore writes
 	return 0;
 }
 
 int ramdisk_blocks(void)
 {
-	return FILEDATA_START_SECTOR + SECTOR_COUNT;
+	return SECTOR_COUNT;
 }
