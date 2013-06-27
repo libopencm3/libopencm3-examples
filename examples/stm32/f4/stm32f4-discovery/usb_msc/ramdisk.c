@@ -25,8 +25,8 @@
 #define QBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF), (((x) >> 16) & 0xFF), (((x) >> 24) & 0xFF)
 
 // filesystem size is 64kB (128*512)
-#define BLOCK_COUNT 128
-#define BLOCK_SIZE 512
+#define SECTOR_COUNT 128
+#define SECTOR_SIZE 512
 #define BYTES_PER_SECTOR 512
 #define SECTORS_PER_CLUSTER 4
 #define RESERVED_SECTORS 1
@@ -46,7 +46,7 @@ uint8_t BootSector[] = {
 	WBVAL(RESERVED_SECTORS),
 	FAT_COPIES,
 	WBVAL(ROOT_ENTRIES),
-	WBVAL(BLOCK_COUNT),
+	WBVAL(SECTOR_COUNT),
 	0xF8,													// media descriptor (0xF8 = Fixed disk)
 	0x01, 0x00,												// sectors per FAT (1)
 	0x20, 0x00,												// sectors per track (32)
@@ -109,10 +109,10 @@ uint8_t DirSector[] = {
 	0xCE, 0x01,																// last write time
 	0x86, 0x41,																// last write date
 	WBVAL(FILEDATA_START_CLUSTER),											// start cluster
-	QBVAL(BLOCK_COUNT * BLOCK_SIZE)											// file size in bytes
+	QBVAL(SECTOR_COUNT * SECTOR_SIZE)										// file size in bytes
 };
 
-static uint8_t ramdata[BLOCK_COUNT * BLOCK_SIZE];
+static uint8_t ramdata[SECTOR_COUNT * SECTOR_SIZE];
 
 int ramdisk_init(void)
 {
@@ -122,12 +122,12 @@ int ramdisk_init(void)
 
 int ramdisk_read(uint32_t lba, uint8_t *copy_to)
 {
-	memset(copy_to, 0, BLOCK_SIZE);
+	memset(copy_to, 0, SECTOR_SIZE);
 	switch (lba) {
 		case 0: // sector 0 is the boot sector
 			memcpy(copy_to, BootSector, sizeof(BootSector));
-			copy_to[BLOCK_SIZE - 2] = 0x55;
-			copy_to[BLOCK_SIZE - 1] = 0xAA;
+			copy_to[SECTOR_SIZE - 2] = 0x55;
+			copy_to[SECTOR_SIZE - 1] = 0xAA;
 			break;
 		case 1: // sector 1 is FAT 1st copy
 		case 2: // sector 2 is FAT 2nd copy
@@ -138,8 +138,8 @@ int ramdisk_read(uint32_t lba, uint8_t *copy_to)
 			break;
 		default:
 			// ignore reads outside of the data section
-			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + BLOCK_COUNT) {
-				memcpy(copy_to, ramdata + (lba - FILEDATA_START_SECTOR) * BLOCK_SIZE, BLOCK_SIZE);
+			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + SECTOR_COUNT) {
+				memcpy(copy_to, ramdata + (lba - FILEDATA_START_SECTOR) * SECTOR_SIZE, SECTOR_SIZE);
 			}
 			break;
 	}
@@ -150,19 +150,19 @@ int ramdisk_write(uint32_t lba, const uint8_t *copy_from)
 {
 	switch (lba) {
 		case 0: // sector 0 is the boot sector
-			memcpy(BootSector, copy_from, BLOCK_SIZE);
+			memcpy(BootSector, copy_from, SECTOR_SIZE);
 			break;
 		case 1: // sector 1 is FAT 1st copy
 		case 2: // sector 2 is FAT 2nd copy
-			memcpy(FatSector, copy_from, BLOCK_SIZE);
+			memcpy(FatSector, copy_from, SECTOR_SIZE);
 			break;
 		case 3: // sector 3 is the directory entry
-			memcpy(DirSector, copy_from, BLOCK_SIZE);
+			memcpy(DirSector, copy_from, SECTOR_SIZE);
 			break;
 		default:
 			// ignore writes outside of the data section
-			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + BLOCK_COUNT) {
-				memcpy(ramdata + (lba - FILEDATA_START_SECTOR) * BLOCK_SIZE, copy_from, BLOCK_SIZE);
+			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + SECTOR_COUNT) {
+				memcpy(ramdata + (lba - FILEDATA_START_SECTOR) * SECTOR_SIZE, copy_from, SECTOR_SIZE);
 			}
 			break;
 	}
@@ -171,5 +171,5 @@ int ramdisk_write(uint32_t lba, const uint8_t *copy_from)
 
 int ramdisk_blocks(void)
 {
-	return FILEDATA_START_SECTOR + BLOCK_COUNT;
+	return FILEDATA_START_SECTOR + SECTOR_COUNT;
 }
