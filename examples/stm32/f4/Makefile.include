@@ -78,7 +78,7 @@ images: $(BINARY).images
 flash: $(BINARY).flash
 
 %.images: %.bin %.hex %.srec %.list
-	@#echo "*** $* images generated ***"
+	@#printf "*** $* images generated ***\n"
 
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
@@ -145,7 +145,7 @@ else
 endif
 else
 %.flash: %.elf
-	@echo "  GDB   $(*).elf (flash)"
+	@printf "  GDB   $(*).elf (flash)\n"
 	$(Q)$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(TOOLCHAIN_DIR)/scripts/black_magic_probe_flash.scr \

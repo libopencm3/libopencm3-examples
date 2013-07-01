@@ -73,7 +73,7 @@ images: $(BINARY).images
 flash: $(BINARY).flash
 
 %.images: %.bin %.hex %.srec %.list
-	@#echo "*** $* images generated ***"
+	@#printf "*** $* images generated ***\n"
 
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
