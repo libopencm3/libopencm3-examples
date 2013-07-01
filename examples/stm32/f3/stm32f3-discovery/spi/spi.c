@@ -159,10 +159,8 @@ void clock_setup(void) {
 
 int main(void)
 {
-	int i, j;
-       	uint8_t temp, inc=0;
+        uint8_t temp;
 	int16_t gyr_x;
-	int wait;
 	clock_setup();
 	gpio_setup();
 	usart_setup();

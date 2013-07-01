@@ -41,7 +41,7 @@ void gpio_setup(void)
 
 int main(void)
 {
-	int i, j;
+        int i;
 
 	gpio_setup();
 

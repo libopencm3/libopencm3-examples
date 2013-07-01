@@ -143,9 +143,6 @@ void clock_setup(void) {
 
 int main(void)
 {
-	int i, j;
-       	uint16_t temp, inc=0;
-	int wait;
 	clock_setup();
 	gpio_setup();
 	usart_setup();
@@ -155,7 +152,6 @@ int main(void)
 	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG1_A, 1, data);
 	data[0]=0x08;
 	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG4_A, 1, data);
-	uint8_t data_in[20];
 	uint16_t acc_x;
 
 	while (1) {
