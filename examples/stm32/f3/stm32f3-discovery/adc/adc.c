@@ -137,8 +137,7 @@ extern unsigned _stack;
 
 int main(void)
 {
-	int i, j;
-       	uint16_t temp, inc=0;
+       	uint16_t temp;
 
 	clock_setup();
 	gpio_setup();
