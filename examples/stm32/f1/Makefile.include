@@ -60,6 +60,8 @@ endif
 
 OBJS		+= $(BINARY).o
 
+GENFILES	?= *.o
+
 OOCD		?= openocd
 OOCD_INTERFACE	?= flossjtag
 OOCD_BOARD	?= olimex_stm32_h103
@@ -83,6 +85,8 @@ endif
 .SECONDARY:
 
 all: images
+
+include $(TOOLCHAIN_DIR)/ld/Makefile.linker
 
 images: $(BINARY).images
 flash: $(BINARY).flash
@@ -122,6 +126,7 @@ clean:
 	$(Q)rm -f *.hex
 	$(Q)rm -f *.srec
 	$(Q)rm -f *.list
+	$(Q)rm -f $(GENFILES)
 
 ifeq ($(STLINK_PORT),)
 ifeq ($(BMP_PORT),)

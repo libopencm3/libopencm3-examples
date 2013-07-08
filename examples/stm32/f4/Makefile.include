@@ -53,6 +53,8 @@ LDFLAGS		+= --static -lc -lnosys -L$(TOOLCHAIN_DIR)/lib \
 		   -mthumb -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
 OBJS		+= $(BINARY).o
 
+GENFILES	?= *.o
+
 OOCD		?= openocd
 OOCD_INTERFACE	?= flossjtag
 OOCD_BOARD	?= olimex_stm32_h103
@@ -73,6 +75,8 @@ endif
 .SECONDARY:
 
 all: images
+
+include $(TOOLCHAIN_DIR)/ld/Makefile.linker
 
 images: $(BINARY).images
 flash: $(BINARY).flash
@@ -112,12 +116,13 @@ clean:
 	$(Q)rm -f *.hex
 	$(Q)rm -f *.srec
 	$(Q)rm -f *.list
+	$(Q)rm -f $(GENFILES)
 
 %.stlink-flash: %.bin
 	@printf "  FLASH  $<\n"
 	$(Q)$(FLASH) write $(*).bin 0x8000000
 
-	
+
 ifeq ($(BMP_PORT),)
 ifeq ($(OOCD_SERIAL),)
 %.flash: %.hex
@@ -155,4 +160,3 @@ endif
 .PHONY: images clean
 
 -include $(OBJS:.o=.d)
-
