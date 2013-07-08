@@ -30,23 +30,38 @@ TOOLCHAIN_DIR ?= ../../../../../libopencm3
 ifeq ($(wildcard $(TOOLCHAIN_DIR)/lib/libopencm3_stm32f1.a),)
 ifneq ($(strip $(shell which $(CC))),)
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
-endif
-else
-ifeq ($(V),1)
-$(info We seem to be building the example in the source directory. Using local library!)
+CCDIR		= $(shell dirname $(shell which $(CC)))
+
+# library search paths
+LIBPATHS	:= ./libopencm3 ../../../../../libopencm3 $(CCDIR)/../$(PREFIX)
+
+ifeq ($(strip $(SRCLIBDIR)),)
+
+# if user have not overriden the SRCLIBDIR, try to search for him
+SRCLIBDIR	:= $(wildcard $(LIBPATHS:=/locm3.sublime-project))
+SRCLIBDIR	:= $(firstword $(shell dirname $(SRCLIBDIR)))
+
+ifeq ($(strip $(SRCLIBDIR)),)
+$(error Cannot find libopencm3 library in the standard search paths.)
 endif
 endif
 
-ARCH_FLAGS      = -mthumb -mcpu=cortex-m3 -msoft-float
+ifeq ($(V),1)
+$(info Using the $(SRCLIBDIR) directory with library!)
+endif
+
+FP_FLAGS	?= -msoft-float
+ARCH_FLAGS	= -mthumb -mcpu=cortex-m3 
+
+
 CFLAGS		+= -Os -g \
 		   -Wall -Wextra -Wimplicit-function-declaration \
 		   -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
-		   -Wundef -Wshadow \
-		   -I$(TOOLCHAIN_DIR)/include \
-		   -fno-common $(ARCH_FLAGS) -MD -DSTM32F1
+		   -Wundef -Wshadow -I$(SRCLIBDIR)/include \
+		   -fno-common $(ARCH_FLAGS) $(FP_FLAGS) -MD -DSTM32F1
 LDSCRIPT	?= $(BINARY).ld
 LDFLAGS		+= --static -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group \
-		   -L$(TOOLCHAIN_DIR)/lib \
+		   -L$(SRCLIBDIR)/lib \
 		   -T$(LDSCRIPT) -nostartfiles -Wl,--gc-sections \
 		   $(ARCH_FLAGS) -mfix-cortex-m3-ldrd
 
@@ -86,7 +101,7 @@ endif
 
 all: images
 
-include $(TOOLCHAIN_DIR)/ld/Makefile.linker
+include $(SRCLIBDIR)/ld/Makefile.linker
 
 images: $(BINARY).images
 flash: $(BINARY).flash
@@ -110,7 +125,7 @@ flash: $(BINARY).flash
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf: $(OBJS) $(LDSCRIPT) $(TOOLCHAIN_DIR)/lib/libopencm3_stm32f1.a
+%.elf: $(OBJS) $(LDSCRIPT) $(SRCLIBDIR)/lib/libopencm3_stm32f1.a
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(LD) -o $(*).elf $(OBJS) -lopencm3_stm32f1 $(LDFLAGS)
 
@@ -159,7 +174,7 @@ else
 	@printf "  GDB   $(*).elf (flash)\n"
 	$(Q)$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
-		   -x $(TOOLCHAIN_DIR)/scripts/black_magic_probe_flash.scr \
+		   -x $(SRCLIBDIR)/scripts/black_magic_probe_flash.scr \
 		   $(*).elf
 endif
 else

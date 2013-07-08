@@ -29,6 +29,8 @@ Q := @
 MAKEFLAGS += --no-print-directory
 endif
 
+SRCLIBDIR:= $(realpath libopencm3)
+
 all: build
 
 build: lib examples
@@ -49,7 +51,7 @@ lib:
 EXAMPLE_DIRS:=$(sort $(dir $(wildcard $(addsuffix /*/*/Makefile,$(addprefix examples/,$(TARGETS))))))
 $(EXAMPLE_DIRS): lib
 	@printf "  BUILD   $@\n";
-	$(Q)$(MAKE) --directory=$@
+	$(Q)$(MAKE) --directory=$@ SRCLIBDIR=$(SRCLIBDIR)
 
 examples: $(EXAMPLE_DIRS)
 	$(Q)true

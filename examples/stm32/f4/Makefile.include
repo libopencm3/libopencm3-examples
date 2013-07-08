@@ -20,37 +20,50 @@
 ##
 
 PREFIX	?= arm-none-eabi
-# PREFIX		?= arm-elf
+
 CC		= $(PREFIX)-gcc
 LD		= $(PREFIX)-gcc
 OBJCOPY		= $(PREFIX)-objcopy
 OBJDUMP		= $(PREFIX)-objdump
 GDB		= $(PREFIX)-gdb
 FLASH		= $(shell which st-flash)
+CCDIR		= $(shell dirname $(shell which $(CC)))
 
 TOOLCHAIN_DIR ?= ../../../../../libopencm3
 ifeq ($(wildcard $(TOOLCHAIN_DIR)/lib/libopencm3_stm32f4.a),)
 ifneq ($(strip $(shell which $(CC))),)
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
+# library search paths
+LIBPATHS	:= ./libopencm3 ../../../../../libopencm3 $(CCDIR)/../$(PREFIX)
+
+ifeq ($(strip $(SRCLIBDIR)),)
+
+# if user have not overriden the SRCLIBDIR, try to search for him
+SRCLIBDIR	:= $(wildcard $(LIBPATHS:=/locm3.sublime-project))
+SRCLIBDIR	:= $(firstword $(shell dirname $(SRCLIBDIR)))
+
+ifeq ($(strip $(SRCLIBDIR)),)
+$(error Cannot find libopencm3 library in the standard search paths.)
 endif
-else
+endif
+
 ifeq ($(V),1)
-$(info We seem to be building the example in the source directory. Using local library!)
+$(info Using the $(SRCLIBDIR) directory with library!)
 endif
-endif
+
+
+FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
+ARCH_FLAGS	?= -mcpu=cortex-m4 -mthumb 
 
 CFLAGS		+= -Os -g \
 		   -Wall -Wextra -Wimplicit-function-declaration \
 		   -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
-		   -Wundef -Wshadow \
-		   -I$(TOOLCHAIN_DIR)/include \
-		   -fno-common -mcpu=cortex-m4 -mthumb \
-		   -mfloat-abi=hard -mfpu=fpv4-sp-d16 -MD -DSTM32F4
+		   -Wundef -Wshadow -I$(SRCLIBDIR)/include -fno-common \
+		   $(ARCH_FLAGS) $(FP_FLAGS) -MD -DSTM32F4
 LDSCRIPT	?= $(BINARY).ld
-LDFLAGS		+= --static -lc -lnosys -L$(TOOLCHAIN_DIR)/lib \
-			 -L$(TOOLCHAIN_DIR)/lib/stm32/f4 \
+LDFLAGS		+= --static -lc -lnosys -L$(SRCLIBDIR)/lib \
 		   -T$(LDSCRIPT) -nostartfiles -Wl,--gc-sections \
-		   -mthumb -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
+		   $(ARCH_FLAGS)  $(FP_FLAGS)
 OBJS		+= $(BINARY).o
 
 GENFILES	?= *.o
@@ -76,7 +89,7 @@ endif
 
 all: images
 
-include $(TOOLCHAIN_DIR)/ld/Makefile.linker
+include $(SRCLIBDIR)/ld/Makefile.linker
 
 images: $(BINARY).images
 flash: $(BINARY).flash
@@ -100,7 +113,7 @@ flash: $(BINARY).flash
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf: $(OBJS) $(LDSCRIPT) $(TOOLCHAIN_DIR)/lib/libopencm3_stm32f4.a
+%.elf: $(OBJS) $(LDSCRIPT) $(SRCLIBDIR)/lib/libopencm3_stm32f4.a
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(LD) -o $(*).elf $(OBJS) -lopencm3_stm32f4 $(LDFLAGS)
 
@@ -153,7 +166,7 @@ else
 	@printf "  GDB   $(*).elf (flash)\n"
 	$(Q)$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
-		   -x $(TOOLCHAIN_DIR)/scripts/black_magic_probe_flash.scr \
+		   -x $(SRCLIBDIR)/scripts/black_magic_probe_flash.scr \
 		   $(*).elf
 endif
 
