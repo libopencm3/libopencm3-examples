@@ -1,0 +1,11 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This example program sends some characters on USART1 on the
+ST STM32F0DISCOVERY eval board. PA9
+
+The terminal settings for the receiving device/PC are 38400 8n1.
+
+The sending is done using newlib-nano library in a blocking way in the code.
+
