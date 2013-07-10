@@ -54,15 +54,15 @@ $(EXAMPLE_DIRS): lib
 examples: $(EXAMPLE_DIRS)
 	$(Q)true
 
-# Bleh http://www.makelinux.net/make3/make3-CHP-6-SECT-1#make3-CHP-6-SECT-1
-clean:
+clean: $(EXAMPLE_DIRS:=.clean)
 	$(Q)$(MAKE) -C libopencm3 clean
-	$(Q)for i in $(EXAMPLE_DIRS); do \
-		if [ -d $$i ]; then \
-			printf "  CLEAN   $$i\n"; \
-			$(MAKE) -C $$i clean SRCLIBDIR=$(SRCLIBDIR) || exit $?; \
-		fi; \
-	done
+
+%.clean:
+	$(Q)if [ -d $* ]; then \
+		printf "  CLEAN   $*\n"; \
+		$(MAKE) -C $* clean SRCLIBDIR=$(SRCLIBDIR) || exit $?; \
+	fi;
+
 
 .PHONY: build lib examples $(EXAMPLE_DIRS) install clean
 
