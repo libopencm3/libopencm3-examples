@@ -40,3 +40,29 @@ The red LED is lit while the UART is sending data.
 The blue LED is lit while data is read from the UART.
 The red and blue LEDs will only be lit for very short periods of time, thus they
 may be difficult to notice.
+
+------------------------------------------------------------------------------
+Windows Quirks
+------------------------------------------------------------------------------
+On openening the CDCACM port Windows send a SET_LINE_CODING request with the
+desired baud rate but without valid databits. To run this example CDDACM device
+under Windows you have to return always 1 when a SET_LINE_CODING request is
+received. The following code should work:
+
+File: usb_cdcacm.c
+Function: cdcacm_control_request()
+
+	case USB_CDC_REQ_SET_LINE_CODING:{
+			struct usb_cdc_line_coding *coding;
+
+			if (*len < sizeof(struct usb_cdc_line_coding))
+			{
+				return 0;
+			}
+
+			coding = (struct usb_cdc_line_coding *)*buf;
+			glue_set_line_coding_cb(coding->dwDTERate,
+						coding->bDataBits,
+						coding->bParityType,
+						coding->bCharFormat);
+			return 1;
