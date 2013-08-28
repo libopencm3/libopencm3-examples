@@ -19,8 +19,8 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libopencm3/stm32/l1/rcc.h>
-#include <libopencm3/stm32/l1/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 
 #define PORT_LED GPIOB
 #define PIN_LED GPIO6

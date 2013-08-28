@@ -20,10 +20,10 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libopencm3/stm32/f3/rcc.h>
-#include <libopencm3/stm32/f3/adc.h>
-#include <libopencm3/stm32/f3/usart.h>
-#include <libopencm3/stm32/f3/spi.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/adc.h>
+#include <libopencm3/stm32/usart.h>
+#include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/gpio.h>
 
 #define LBLUE GPIOE, GPIO8
