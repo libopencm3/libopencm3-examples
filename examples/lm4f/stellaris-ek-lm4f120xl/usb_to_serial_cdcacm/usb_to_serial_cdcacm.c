@@ -85,7 +85,7 @@ static void cm4f_enable_fpu(void)
 
 }
 
-void glue_data_recieved_cb(uint8_t * buf, uint16_t len)
+void glue_data_received_cb(uint8_t * buf, uint16_t len)
 {
 	/* Blue LED indicates data coming in */
 	gpio_set(RGB_PORT, LED_B);
