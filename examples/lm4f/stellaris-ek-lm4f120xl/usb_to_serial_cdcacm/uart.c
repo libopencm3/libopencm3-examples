@@ -94,6 +94,6 @@ void uart1_isr(void)
 {
 	uint8_t rx;
 	rx = uart_recv(UART1);
-	glue_data_recieved_cb(&rx, 1);
+	glue_data_received_cb(&rx, 1);
 	uart_clear_interrupt_flag(UART1, UART_INT_RX);
 }
