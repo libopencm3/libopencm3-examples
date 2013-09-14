@@ -77,7 +77,7 @@ void cdcacm_send_data(uint8_t *buf, uint16_t len);
 /* =============================================================================
  * CDCACM <-> UART glue
  * ---------------------------------------------------------------------------*/
-void glue_data_recieved_cb(uint8_t *buf, uint16_t len);
+void glue_data_received_cb(uint8_t *buf, uint16_t len);
 void glue_set_line_state_cb(uint8_t dtr, uint8_t rts);
 int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 			    enum usb_cdc_line_coding_bParityType cdc_parity,
