@@ -1,0 +1,113 @@
+This is a port of Martin Thomas's DS18x20 library and demo application
+from http://siwawi.bauing.uni-kl.de/avr_projects/tempsensor/index.html
+
+The port is fairly straightforward and was tested on an
+stm32vldiscovery board with one DS18B20 sensor attached in parasite
+power mode and an additional 15m line with seven DS18B20 sensors in
+both parasite and externally powered modes. The DQ pins were connected
+to PC6 shorted with PC7.
+
+This is also an example of using direct register access to handle GPIO
+to show off the fastest possible way to handle it, loosing
+cross-target portability of course.
+
+The output is automatically redirected to the machine running debugger
+via ARM semihosting (works out of the box with BMP; OpenOCD needs "arm
+semihosting enable" command to receive the output), no extra UART
+connections needed.
+
+Differences from the original code:
+
+1. Multi-bus support removed
+2. Output beautifications
+
+Example output:
+
+DS18x20 1-Wire demo by Martin Thomas
+------------------------------------
+
+Scanning bus for DS18x20
+8 DS18x20 sensor(s) available:
+    #1 - FC: 28 (18B) SN: 97 44 D5 04 00 00  CRC: C2 (OK)
+    #1 is a DS18B20 which is externally powered
+    #2 - FC: 28 (18B) SN: 07 28 D6 04 00 00  CRC: CB (OK)
+    #2 is a DS18B20 which is externally powered
+    #3 - FC: 28 (18B) SN: AB 75 D6 04 00 00  CRC: 93 (OK)
+    #3 is a DS18B20 which is externally powered
+    #4 - FC: 28 (18B) SN: 09 72 D6 04 00 00  CRC: F0 (OK)
+    #4 is a DS18B20 which is externally powered
+    #5 - FC: 28 (18B) SN: B1 57 D5 04 00 00  CRC: F4 (OK)
+    #5 is a DS18B20 which is externally powered
+    #6 - FC: 28 (18B) SN: A1 56 D5 04 00 00  CRC: 62 (OK)
+    #6 is a DS18B20 which is externally powered
+    #7 - FC: 28 (18B) SN: 01 EF DD 03 00 00  CRC: E4 (OK)
+    #7 is a DS18B20 which is parasite powered
+    #8 - FC: 28 (18B) SN: DE F2 D5 04 00 00  CRC: F2 (OK)
+    #8 is a DS18B20 which is externally powered
+
+Convert_T and Read sensor by sensor (reverse order):
+Sensor #8 = 221 deci°C, +22.1 °C
+Sensor #7 = 205 deci°C, +20.5 °C
+Sensor #6 = 225 deci°C, +22.5 °C
+Sensor #5 = 221 deci°C, +22.1 °C
+Sensor #4 = 223 deci°C, +22.3 °C
+Sensor #3 = 219 deci°C, +21.9 °C
+Sensor #2 = 222 deci°C, +22.2 °C
+Sensor #1 = 219 deci°C, +21.9 °C
+
+Convert_T for all sensors and Read sensor by sensor:
+Sensor #1 = 219 deci°C, +21.9 °C
+Sensor #2 = 222 deci°C, +22.2 °C
+Sensor #3 = 220 deci°C, +22.0 °C
+Sensor #4 = 223 deci°C, +22.3 °C
+Sensor #5 = 221 deci°C, +22.1 °C
+Sensor #6 = 226 deci°C, +22.6 °C
+Sensor #7 = 206 deci°C, +20.6 °C
+Sensor #8 = 221 deci°C, +22.1 °C
+
+Maximum resolution data:
+Sensor #1 = 218750 °Ce-4, +21.8750 °C
+Sensor #2 = 221875 °Ce-4, +22.1875 °C
+Sensor #3 = 220000 °Ce-4, +22.0000 °C
+Sensor #4 = 222500 °Ce-4, +22.2500 °C
+Sensor #5 = 221250 °Ce-4, +22.1250 °C
+Sensor #6 = 225625 °Ce-4, +22.5625 °C
+Sensor #7 = 205625 °Ce-4, +20.5625 °C
+Sensor #8 = 220625 °Ce-4, +22.0625 °C
+
+Verbose output:
+FC: 28 (18B) SN: 97 44 D5 04 00 00  CRC: C2 (OK)
+SP: 5E 01 4B 46 7F FF 02 10  CRC: 8D (OK)
+T_raw = 0x015E (B20/12) +21.8750°C conv: 219 deci°C fmt: +21.9 °C
+
+FC: 28 (18B) SN: 07 28 D6 04 00 00  CRC: CB (OK)
+SP: 64 01 4B 46 7F FF 0C 10  CRC: 01 (OK)
+T_raw = 0x0164 (B20/12) +22.2500°C conv: 223 deci°C fmt: +22.3 °C
+
+FC: 28 (18B) SN: AB 75 D6 04 00 00  CRC: 93 (OK)
+SP: 60 01 4B 46 7F FF 10 10  CRC: B5 (OK)
+T_raw = 0x0160 (B20/12) +22.0000°C conv: 220 deci°C fmt: +22.0 °C
+
+FC: 28 (18B) SN: 09 72 D6 04 00 00  CRC: F0 (OK)
+SP: 64 01 4B 46 7F FF 0C 10  CRC: 01 (OK)
+T_raw = 0x0164 (B20/12) +22.2500°C conv: 223 deci°C fmt: +22.3 °C
+
+FC: 28 (18B) SN: B1 57 D5 04 00 00  CRC: F4 (OK)
+SP: 62 01 4B 46 7F FF 0E 10  CRC: 03 (OK)
+T_raw = 0x0162 (B20/12) +22.1250°C conv: 221 deci°C fmt: +22.1 °C
+
+FC: 28 (18B) SN: A1 56 D5 04 00 00  CRC: 62 (OK)
+SP: 68 01 4B 46 7F FF 08 10  CRC: 05 (OK)
+T_raw = 0x0168 (B20/12) +22.5000°C conv: 225 deci°C fmt: +22.5 °C
+
+FC: 28 (18B) SN: 01 EF DD 03 00 00  CRC: E4 (OK)
+SP: 49 01 4B 46 7F FF 07 10  CRC: F6 (OK)
+T_raw = 0x0149 (B20/12) +20.5625°C conv: 206 deci°C fmt: +20.6 °C
+
+FC: 28 (18B) SN: DE F2 D5 04 00 00  CRC: F2 (OK)
+SP: 61 01 4B 46 7F FF 0F 10  CRC: 02 (OK)
+T_raw = 0x0161 (B20/12) +22.0625°C conv: 221 deci°C fmt: +22.1 °C
+
+
+Happy hacking,
+Paul Fertser
