@@ -66,7 +66,7 @@ else
 LDFLAGS += -Wl,--print-gc-sections
 endif
 
-.SUFFIXES: .elf .bin .hex .srec .list .images
+.SUFFIXES: .elf .map .bin .hex .srec .list .images
 .SECONDEXPANSION:
 .SECONDARY:
 
@@ -75,7 +75,7 @@ all: images
 images: $(BINARY).images
 flash: $(BINARY).flash
 
-%.images: %.bin %.hex %.srec %.list
+%.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
 
 %.bin: %.elf
@@ -98,6 +98,10 @@ flash: $(BINARY).flash
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(LD) -o $(*).elf $(OBJS) -lopencm3_stm32f2 $(LDFLAGS)
 
+%.elf %.map: $(OBJS) $(LDSCRIPT) $(TOOLCHAIN_DIR)/lib/libopencm3_stm32f0.a
+	@#printf "  LD/MAP  $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(LD) -o $(*).elf $(OBJS) -lopencm3_stm32f2 -Wl,-Map=$(*).map $(LDFLAGS)
+
 %.o: %.c Makefile
 	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
@@ -106,6 +110,7 @@ clean:
 	$(Q)rm -f *.o
 	$(Q)rm -f *.d
 	$(Q)rm -f *.elf
+	$(Q)rm -f *.map
 	$(Q)rm -f *.bin
 	$(Q)rm -f *.hex
 	$(Q)rm -f *.srec
