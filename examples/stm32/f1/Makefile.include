@@ -27,7 +27,7 @@ OBJDUMP		= $(PREFIX)-objdump
 GDB		= $(PREFIX)-gdb
 
 TOOLCHAIN_DIR ?= ../../../../../libopencm3
-ifeq ($(wildcard ../../../../../libopencm3/lib/libopencm3_stm32f1.a),)
+ifeq ($(wildcard $(TOOLCHAIN_DIR)/lib/libopencm3_stm32f1.a),)
 ifneq ($(strip $(shell which $(CC))),)
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 endif
