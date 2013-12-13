@@ -23,14 +23,14 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/dbgmcu.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/pwr.h>
-#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/rtc.h>
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/usart.h>
-#include <libopencm3/stm32/rtc.h>
-#include <libopencm3/stm32/l1/rcc.h>
-#include <libopencm3/stm32/l1/flash.h>
 
 #include "syscfg.h"
 
