@@ -1,0 +1,11 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This is the smallest-possible example program using libopencm3.
+
+It's intended for the ST STM32F0DISCOVERY eval board. It should read from the 
+ADC_IN1 (PA1) pin its voltage and print it to the serial port on pin PA9 with
+parameters (38400,8,N,1)
+
+
