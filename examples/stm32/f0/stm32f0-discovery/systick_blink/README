@@ -1,0 +1,9 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This example is the same as fancy_blink except that it uses the systick timer
+to generate time accurate delays. The blue LED flashes four times per second.
+
+On pin PA9, there is MCO output of internal reference clock. This can be used
+to debug the PLL clock setup by scope.
