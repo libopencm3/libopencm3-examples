@@ -1,0 +1,6 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This example blinks the blue LED on the ST STM32F0DISCOVERY eval board. It
+uses the systick timer interrupt.
