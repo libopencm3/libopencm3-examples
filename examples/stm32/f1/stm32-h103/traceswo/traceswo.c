@@ -42,9 +42,6 @@ static void trace_setup(void)
 	TPIU_SPPR = TPIU_SPPR_ASYNC_MANCHESTER;
 	TPIU_ACPR = 7;
 
-	/* Data width is 1 byte. */
-	TPIU_CSPSR = TPIU_CSPSR_BYTE;
-
 	/* Formatter and flush control. */
 	TPIU_FFCR &= ~TPIU_FFCR_ENFCONT;
 
@@ -70,10 +67,10 @@ static void gpio_setup(void)
 
 static void trace_send_blocking(char c)
 {
-	while (!(ITM_STIM[0] & ITM_STIM_FIFOREADY))
+	while (!(ITM_STIM8(0) & ITM_STIM_FIFOREADY))
 		;
 
-	ITM_STIM[0] = c;
+	ITM_STIM8(0) = c;
 }
 
 int main(void)
