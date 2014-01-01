@@ -21,7 +21,7 @@
  */
 
 #include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/f3/adc.h>
+#include <libopencm3/stm32/adc.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/gpio.h>
 
@@ -44,7 +44,8 @@
 #define LD6 GPIOE, GPIO15
 
 
-void adc_setup(void) {
+static void adc_setup(void)
+{
 	//ADC
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_ADC12EN);
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
@@ -53,91 +54,93 @@ void adc_setup(void) {
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
 	adc_off(ADC1);
 	adc_set_clk_prescale(ADC_CCR_CKMODE_DIV2);
-        adc_set_single_conversion_mode(ADC1);
-        adc_disable_external_trigger_regular(ADC1);
-        adc_set_right_aligned(ADC1);
-        /* We want to read the temperature sensor, so we have to enable it. */
-        adc_enable_temperature_sensor();
-        adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR1_SMP_61DOT5CYC);
+	adc_set_single_conversion_mode(ADC1);
+	adc_disable_external_trigger_regular(ADC1);
+	adc_set_right_aligned(ADC1);
+	/* We want to read the temperature sensor, so we have to enable it. */
+	adc_enable_temperature_sensor();
+	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR1_SMP_61DOT5CYC);
 	uint8_t channel_array[16];
 	channel_array[0]=16; // Vts (Internal temperature sensor
 	channel_array[0]=1; //ADC1_IN1 (PA0)
 	adc_set_regular_sequence(ADC1, 1, channel_array);
 	adc_set_resolution(ADC1, ADC_CFGR_RES_12_BIT);
-        adc_power_on(ADC1);
+	adc_power_on(ADC1);
 
-        /* Wait for ADC starting up. */
+	/* Wait for ADC starting up. */
 	int i;
-        for (i = 0; i < 800000; i++)    /* Wait a bit. */
-                __asm__("nop");
+	for (i = 0; i < 800000; i++)
+		__asm__("nop");
 
 }
 
-void usart_setup(void) {
-  /* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
+static void usart_setup(void)
+{
+	/* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
 
-  /* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
+	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
 
-  /* Setup UART parameters. */
-  usart_set_baudrate(USART2, 115200);
-  usart_set_databits(USART2, 8);
-  usart_set_stopbits(USART2, USART_STOPBITS_1);
-  usart_set_mode(USART2, USART_MODE_TX_RX);
-  usart_set_parity(USART2, USART_PARITY_NONE);
-  usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+	/* Setup UART parameters. */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_stopbits(USART2, USART_STOPBITS_1);
+	usart_set_mode(USART2, USART_MODE_TX_RX);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
 
-  /* Finally enable the USART. */
-  usart_enable(USART2);
+	/* Finally enable the USART. */
+	usart_enable(USART2);
 }
 
-void gpio_setup(void)
+static void gpio_setup(void)
 {
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
-	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8| GPIO9| GPIO10| GPIO11| GPIO12| GPIO13| GPIO14| GPIO15);
+	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+		GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 |
+		GPIO14 | GPIO15);
 }
 
-void my_usart_print_int(uint32_t usart, int16_t value)
+static void my_usart_print_int(uint32_t usart, int16_t value)
 {
-        int8_t i;
-        int8_t nr_digits = 0;
-        char buffer[25];
+	int8_t i;
+	int8_t nr_digits = 0;
+	char buffer[25];
 
-        if (value < 0) {
-                usart_send_blocking(usart, '-');
-                value = value * -1;
-        }
+	if (value < 0) {
+		usart_send_blocking(usart, '-');
+		value = value * -1;
+	}
 
-        if (value == 0) {
-                usart_send_blocking(usart, '0');
-        }
+	if (value == 0) {
+		usart_send_blocking(usart, '0');
+	}
 
-        while (value > 0) {
-                buffer[nr_digits++] = "0123456789"[value % 10];
-                value /= 10;
-        }
+	while (value > 0) {
+		buffer[nr_digits++] = "0123456789"[value % 10];
+		value /= 10;
+	}
 
-        for (i = nr_digits-1; i >= 0; i--) {
-                usart_send_blocking(usart, buffer[i]);
-        }
+	for (i = nr_digits-1; i >= 0; i--) {
+		usart_send_blocking(usart, buffer[i]);
+	}
 
-        usart_send_blocking(usart, '\r');
-        usart_send_blocking(usart, '\n');
+	usart_send_blocking(usart, '\r');
+	usart_send_blocking(usart, '\n');
 }
 
-void clock_setup(void) {
-  //rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_44MHZ]);
-  rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
+static void clock_setup(void)
+{
+	rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
 }
 
-extern unsigned _stack;
 
 int main(void)
 {
-       	uint16_t temp;
+	uint16_t temp;
 
 	clock_setup();
 	gpio_setup();
@@ -145,11 +148,11 @@ int main(void)
 	usart_setup();
 
 	while (1) {
-	  adc_start_conversion_regular(ADC1);
-	  while (!(adc_eoc(ADC1)));
-	  temp=adc_read_regular(ADC1);
- 	  gpio_port_write(GPIOE, temp << 4);
-	  my_usart_print_int(USART2, temp);
+		adc_start_conversion_regular(ADC1);
+		while (!(adc_eoc(ADC1)));
+		temp=adc_read_regular(ADC1);
+ 		gpio_port_write(GPIOE, temp << 4);
+		my_usart_print_int(USART2, temp);
 	}
 
 	return 0;
