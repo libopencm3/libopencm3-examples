@@ -43,86 +43,91 @@
 #define LD8 GPIOE, GPIO14
 #define LD6 GPIOE, GPIO15
 
-void i2c_setup(void) {
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C1EN);
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPBEN);
-  rcc_set_i2c_clock_hsi(I2C1);
+static void i2c_setup(void)
+{
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C1EN);
+	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPBEN);
+	rcc_set_i2c_clock_hsi(I2C1);
 
-  i2c_reset(I2C1);
-  /* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
-  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
-  gpio_set_af(GPIOB, GPIO_AF4, GPIO6| GPIO7);
-  i2c_peripheral_disable(I2C1);
-  //configure ANFOFF DNF[3:0] in CR1
-  i2c_enable_analog_filter(I2C1);
-  i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
-  //Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0]  SCLH[7:0] SCLL[7:0] in TIMINGR
-  i2c_100khz_i2cclk8mhz(I2C1);
-  //configure No-Stretch CR1 (only relevant in slave mode)
-  i2c_enable_stretching(I2C1);
-  //addressing mode
-  i2c_set_7bit_addr_mode(I2C1);
-  i2c_peripheral_enable(I2C1);
+	i2c_reset(I2C1);
+	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
+	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
+	gpio_set_af(GPIOB, GPIO_AF4, GPIO6| GPIO7);
+	i2c_peripheral_disable(I2C1);
+	//configure ANFOFF DNF[3:0] in CR1
+	i2c_enable_analog_filter(I2C1);
+	i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
+	//Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0] SCLH[7:0] SCLL[7:0]
+	// in TIMINGR
+	i2c_100khz_i2cclk8mhz(I2C1);
+	//configure No-Stretch CR1 (only relevant in slave mode)
+	i2c_enable_stretching(I2C1);
+	//addressing mode
+	i2c_set_7bit_addr_mode(I2C1);
+	i2c_peripheral_enable(I2C1);
 }
 
-void usart_setup(void) {
-  /* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
+static void usart_setup(void)
+{
+	/* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
 
-  /* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
+	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
 
-  /* Setup UART parameters. */
-  usart_set_baudrate(USART2, 115200);
-  usart_set_databits(USART2, 8);
-  usart_set_stopbits(USART2, USART_STOPBITS_1);
-  usart_set_mode(USART2, USART_MODE_TX_RX);
-  usart_set_parity(USART2, USART_PARITY_NONE);
-  usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+	/* Setup UART parameters. */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_stopbits(USART2, USART_STOPBITS_1);
+	usart_set_mode(USART2, USART_MODE_TX_RX);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
 
-  /* Finally enable the USART. */
-  usart_enable(USART2);
+	/* Finally enable the USART. */
+	usart_enable(USART2);
 }
 
-void gpio_setup(void)
+static void gpio_setup(void)
 {
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
-	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8| GPIO9| GPIO10| GPIO11| GPIO12| GPIO13| GPIO14| GPIO15);
+	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+		GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 |
+		GPIO14 | GPIO15);
 }
 
-void my_usart_print_int(uint32_t usart, int32_t value)
+static void my_usart_print_int(uint32_t usart, int32_t value)
 {
-        int8_t i;
-        int8_t nr_digits = 0;
-        char buffer[25];
+	int8_t i;
+	int8_t nr_digits = 0;
+	char buffer[25];
 
-        if (value < 0) {
-                usart_send_blocking(usart, '-');
-                value = value * -1;
-        }
+	if (value < 0) {
+		usart_send_blocking(usart, '-');
+		value = value * -1;
+	}
 
-        if (value == 0) {
-                usart_send_blocking(usart, '0');
-        }
+	if (value == 0) {
+		usart_send_blocking(usart, '0');
+	}
 
-        while (value > 0) {
-                buffer[nr_digits++] = "0123456789"[value % 10];
-                value /= 10;
-        }
+	while (value > 0) {
+		buffer[nr_digits++] = "0123456789"[value % 10];
+		value /= 10;
+	}
 
-        for (i = nr_digits-1; i >= 0; i--) {
-                usart_send_blocking(usart, buffer[i]);
-        }
+	for (i = nr_digits-1; i >= 0; i--) {
+		usart_send_blocking(usart, buffer[i]);
+	}
 
-        usart_send_blocking(usart, '\r');
-        usart_send_blocking(usart, '\n');
+	usart_send_blocking(usart, '\r');
+	usart_send_blocking(usart, '\n');
 }
 
-void clock_setup(void) {
-  /*rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_44MHZ]);*/
-  rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
+static void clock_setup(void)
+{
+	rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
 }
 
 #define I2C_ACC_ADDR 0x19
@@ -155,16 +160,16 @@ int main(void)
 
 	while (1) {
 
-	  read_i2c(I2C1, I2C_ACC_ADDR, ACC_STATUS, 1, data);
-	  /*my_usart_print_int(USART2, data[0]);*/
-	  read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_L_A, 1, data);
-	  acc_x=data[0];
-	  read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_H_A, 1, data);
-	  acc_x|=(data[0] << 8);
-	  my_usart_print_int(USART2, (int16_t) acc_x);
-	  //int i;
-	  //for (i = 0; i < 800000; i++)    /* Wait a bit. */
-	  //  __asm__("nop");
+		read_i2c(I2C1, I2C_ACC_ADDR, ACC_STATUS, 1, data);
+		/*my_usart_print_int(USART2, data[0]);*/
+		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_L_A, 1, data);
+		acc_x=data[0];
+		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_H_A, 1, data);
+		acc_x|=(data[0] << 8);
+		my_usart_print_int(USART2, (int16_t) acc_x);
+		//int i;
+		//for (i = 0; i < 800000; i++)    /* Wait a bit. */
+		//  __asm__("nop");
 	}
 
 	return 0;

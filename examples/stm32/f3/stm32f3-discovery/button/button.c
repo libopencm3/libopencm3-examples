@@ -27,12 +27,12 @@
 uint16_t exti_line_state;
 
 /* Set STM32 to 64 MHz. */
-void clock_setup(void)
+static void clock_setup(void)
 {
 	rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
 }
 
-void gpio_setup(void)
+static void gpio_setup(void)
 {
 	/* Enable GPIOD clock. */
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
@@ -42,7 +42,7 @@ void gpio_setup(void)
 			GPIO_PUPD_NONE, GPIO8 | GPIO9 | GPIO10 | GPIO11);
 }
 
-void button_setup(void)
+static void button_setup(void)
 {
 	/* Enable GPIOA clock. */
 	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
