@@ -74,7 +74,7 @@ int main(void)
 	temp32 = 0;
 
 	/* 72MHz / 8 => 9000000 counts per second */
-	systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB_DIV8);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 
 	/* 9000000/9000 = 1000 overflows per second - every 1ms one interrupt */
 	/* SysTick interrupt every N clock pulses: set reload to N-1 */
