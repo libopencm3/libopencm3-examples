@@ -29,6 +29,8 @@ Q := @
 MAKEFLAGS += --no-print-directory
 endif
 
+OPENCM3_DIR := $(realpath libopencm3)
+
 all: build
 
 build: lib examples
@@ -49,7 +51,7 @@ lib:
 EXAMPLE_DIRS:=$(sort $(dir $(wildcard $(addsuffix /*/*/Makefile,$(addprefix examples/,$(TARGETS))))))
 $(EXAMPLE_DIRS): lib
 	@printf "  BUILD   $@\n";
-	$(Q)$(MAKE) --directory=$@
+	$(Q)$(MAKE) --directory=$@ OPENCM3_DIR=$(OPENCM3_DIR)
 
 examples: $(EXAMPLE_DIRS)
 	$(Q)true
@@ -60,7 +62,7 @@ clean: $(EXAMPLE_DIRS:=.clean)
 %.clean:
 	$(Q)if [ -d $* ]; then \
 		printf "  CLEAN   $*\n"; \
-		$(MAKE) -C $* clean SRCLIBDIR=$(SRCLIBDIR) || exit $?; \
+		$(MAKE) -C $* clean OPENCM3_DIR=$(OPENCM3_DIR) || exit $?; \
 	fi;
 
 
