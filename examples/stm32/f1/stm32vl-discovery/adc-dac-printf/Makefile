@@ -18,7 +18,7 @@
 ##
 
 BINARY = adc-dac-printf
-LDSCRIPT = ../../../../../libopencm3/lib/stm32/f1/stm32f100xb.ld
+LDSCRIPT = $(TOOLCHAIN_DIR)/lib/stm32/f1/stm32f100xb.ld
 
 include ../../Makefile.include
 

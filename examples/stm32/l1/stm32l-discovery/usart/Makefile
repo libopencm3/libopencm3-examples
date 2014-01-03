@@ -19,7 +19,7 @@
 
 BINARY = usart
 
-LDSCRIPT = ../../../../../libopencm3/lib/stm32/l1/stm32l15xxb.ld
+LDSCRIPT = $(TOOLCHAIN_DIR)/lib/stm32/l1/stm32l15xxb.ld
 
 include ../../Makefile.include
 
