@@ -29,8 +29,10 @@ endif
 PREFIX		?= arm-none-eabi
 
 CC		= $(PREFIX)-gcc
-CPP		= $(PREFIX)-g++
+CXX		= $(PREFIX)-g++
 LD		= $(PREFIX)-gcc
+AR		= $(PREFIX)-ar
+AS		= $(PREFIX)-as
 OBJCOPY		= $(PREFIX)-objcopy
 OBJDUMP		= $(PREFIX)-objdump
 GDB		= $(PREFIX)-gdb
@@ -75,11 +77,11 @@ CFLAGS		+= -I$(INCLUDE_DIR)
 
 # C++ flags
 
-CPPFLAGS	+= -Os -g $(ARCH_FLAGS) -MD $(DEFS)
-CPPFLAGS	+= -Wall -Wextra -Wimplicit-function-declaration
-CPPFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
-CPPFLAGS	+= -Wundef -Wshadow -fno-common
-CPPFLAGS	+= -I$(INCLUDE_DIR)
+CXXFLAGS	+= -Os -g $(ARCH_FLAGS) -MD $(DEFS)
+CXXFLAGS	+= -Wall -Wextra -Wimplicit-function-declaration
+CXXFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+CXXFLAGS	+= -Wundef -Wshadow -fno-common
+CXXFLAGS	+= -I$(INCLUDE_DIR)
 
 # Linker flags
 
@@ -130,11 +132,15 @@ flash: $(BINARY).flash
 
 %.o: %.c
 	@#printf "  CC      $(*).c\n"
-	$(Q)$(CC) $(CFLAGS) -o $(*).o -c $(*).c
+	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
+
+%.o: %.cxx
+	@#printf "  CXX     $(*).cxx\n"
+	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cxx
 
 %.o: %.cpp
-	@#printf "  CPP     $(*).cpp\n"
-	$(Q)$(CPP) $(CPPFLAGS) -o $(*).o -c $(*).cpp
+	@#printf "  CXX     $(*).cpp\n"
+	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cpp
 
 clean:
 	@#printf "  CLEAN\n"
