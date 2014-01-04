@@ -69,7 +69,7 @@ SCRIPT_DIR	= $(OPENCM3_DIR)/scripts
 
 # C flags
 
-CFLAGS		+= -Os -g $(ARCH_FLAGS) -MD $(DEFS)
+CFLAGS		+= -Os -g -MD $(DEFS)
 CFLAGS		+= -Wall -Wextra -Wimplicit-function-declaration
 CFLAGS		+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS		+= -Wundef -Wshadow -fno-common
@@ -77,7 +77,7 @@ CFLAGS		+= -I$(INCLUDE_DIR)
 
 # C++ flags
 
-CXXFLAGS	+= -Os -g $(ARCH_FLAGS) -MD $(DEFS)
+CXXFLAGS	+= -Os -g -MD $(DEFS)
 CXXFLAGS	+= -Wall -Wextra -Wimplicit-function-declaration
 CXXFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS	+= -Wundef -Wshadow -fno-common
@@ -85,7 +85,7 @@ CXXFLAGS	+= -I$(INCLUDE_DIR)
 
 # Linker flags
 
-LDFLAGS		+= --static -nostartfiles $(ARCH_FLAGS) -l$(LIBNAME)
+LDFLAGS		+= --static -nostartfiles  -l$(LIBNAME)
 LDFLAGS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 LDFLAGS		+= -Wl,--gc-sections
 LDFLAGS		+= -L$(LIB_DIR)
@@ -128,19 +128,19 @@ flash: $(BINARY).flash
 
 %.elf %.map: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
 	@#printf "  LD      $(*).elf\n"
-	$(Q)$(LD) -o $(*).elf $(OBJS) $(LDFLAGS)
+	$(Q)$(LD) -o $(*).elf $(OBJS) $(LDFLAGS) $(ARCH_FLAGS)
 
 %.o: %.c
 	@#printf "  CC      $(*).c\n"
-	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
+	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).c
 
 %.o: %.cxx
 	@#printf "  CXX     $(*).cxx\n"
-	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cxx
+	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).cxx
 
 %.o: %.cpp
 	@#printf "  CXX     $(*).cpp\n"
-	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cpp
+	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).cpp
 
 clean:
 	@#printf "  CLEAN\n"
