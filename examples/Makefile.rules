@@ -58,7 +58,8 @@ OPENCM3_DIR := $(wildcard $(LIBPATHS:=/locm3.sublime-project))
 OPENCM3_DIR := $(firstword $(shell dirname $(OPENCM3_DIR)))
 
 ifeq ($(strip $(OPENCM3_DIR)),)
-$(error Cannot find libopencm3 library in the standard search paths.)
+$(warning Cannot find libopencm3 library in the standard search paths.)
+$(error Please specify it through OPENCM3_DIR variable!)
 endif
 endif
 
@@ -160,14 +161,7 @@ flash: $(BINARY).flash
 
 clean:
 	@#printf "  CLEAN\n"
-	$(Q)rm -f *.o
-	$(Q)rm -f *.d
-	$(Q)rm -f *.elf
-	$(Q)rm -f *.bin
-	$(Q)rm -f *.hex
-	$(Q)rm -f *.srec
-	$(Q)rm -f *.list
-	$(Q)rm -f *.map
+	$(Q)$(RM) *.o *.d *.elf *.bin *.hex *.srec *.list *.map
 
 %.stlink-flash: %.bin
 	@printf "  FLASH  $<\n"
