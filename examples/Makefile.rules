@@ -25,18 +25,23 @@ Q		:= @
 NULL		:= 2>/dev/null
 endif
 
+###############################################################################
+# Executables
 
 PREFIX		?= arm-none-eabi
 
-CC		= $(PREFIX)-gcc
-CXX		= $(PREFIX)-g++
-LD		= $(PREFIX)-gcc
-AR		= $(PREFIX)-ar
-AS		= $(PREFIX)-as
-OBJCOPY		= $(PREFIX)-objcopy
-OBJDUMP		= $(PREFIX)-objdump
-GDB		= $(PREFIX)-gdb
+CC		:= $(PREFIX)-gcc
+CXX		:= $(PREFIX)-g++
+LD		:= $(PREFIX)-gcc
+AR		:= $(PREFIX)-ar
+AS		:= $(PREFIX)-as
+OBJCOPY		:= $(PREFIX)-objcopy
+OBJDUMP		:= $(PREFIX)-objdump
+GDB		:= $(PREFIX)-gdb
 STFLASH		= $(shell which st-flash)
+
+###############################################################################
+# Source files
 
 LDSCRIPT	?= $(BINARY).ld
 
@@ -65,38 +70,49 @@ INCLUDE_DIR	= $(OPENCM3_DIR)/include
 LIB_DIR		= $(OPENCM3_DIR)/lib
 SCRIPT_DIR	= $(OPENCM3_DIR)/scripts
 
-
-
+###############################################################################
 # C flags
 
-CFLAGS		+= -Os -g -MD $(DEFS)
-CFLAGS		+= -Wall -Wextra -Wimplicit-function-declaration
+CFLAGS		+= -Os -g
+CFLAGS		+= -Wextra -Wshadow -Wimplicit-function-declaration
 CFLAGS		+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
-CFLAGS		+= -Wundef -Wshadow -fno-common
-CFLAGS		+= -I$(INCLUDE_DIR)
+CFLAGS		+= -fno-common -ffunction-sections -fdata-sections
 
+###############################################################################
 # C++ flags
 
-CXXFLAGS	+= -Os -g -MD $(DEFS)
-CXXFLAGS	+= -Wall -Wextra -Wimplicit-function-declaration
-CXXFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
-CXXFLAGS	+= -Wundef -Wshadow -fno-common
-CXXFLAGS	+= -I$(INCLUDE_DIR)
+CXXFLAGS	+= -Os -g
+CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls  -Weffc++
+CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 
+###############################################################################
+# C & C++ preprocessor common flags
+
+CPPFLAGS	+= -MD
+CPPFLAGS	+= -Wall -Wundef
+CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
+
+###############################################################################
 # Linker flags
 
-LDFLAGS		+= --static -nostartfiles  -l$(LIBNAME)
-LDFLAGS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
-LDFLAGS		+= -Wl,--gc-sections
+LDFLAGS		+= --static -nostartfiles
 LDFLAGS		+= -L$(LIB_DIR)
 LDFLAGS		+= -T$(LDSCRIPT)
 LDFLAGS		+= -Wl,-Map=$(*).map
+LDFLAGS		+= -Wl,--gc-sections
 ifeq ($(V),1)
 LDFLAGS		+= -Wl,--print-gc-sections
 endif
 
+###############################################################################
+# Used libraries
 
+LDLIBS		+= -l$(LIBNAME)
+LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 
+###############################################################################
+###############################################################################
+###############################################################################
 
 .SUFFIXES: .elf .bin .hex .srec .list .map .images
 .SECONDEXPANSION:
@@ -128,7 +144,7 @@ flash: $(BINARY).flash
 
 %.elf %.map: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
 	@#printf "  LD      $(*).elf\n"
-	$(Q)$(LD) -o $(*).elf $(OBJS) $(LDFLAGS) $(ARCH_FLAGS)
+	$(Q)$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
 
 %.o: %.c
 	@#printf "  CC      $(*).c\n"
