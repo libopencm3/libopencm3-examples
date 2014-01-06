@@ -87,6 +87,7 @@ LDFLAGS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 LDFLAGS		+= -Wl,--gc-sections
 LDFLAGS		+= -L$(LIB_DIR)
 LDFLAGS		+= -T$(LDSCRIPT)
+LDFLAGS		+= -Wl,-Map=$(*).map
 ifeq ($(V),1)
 LDFLAGS		+= -Wl,--print-gc-sections
 endif
@@ -94,7 +95,7 @@ endif
 
 
 
-.SUFFIXES: .elf .bin .hex .srec .list .images
+.SUFFIXES: .elf .bin .hex .srec .list .map .images
 .SECONDEXPANSION:
 .SECONDARY:
 
@@ -103,7 +104,7 @@ all: images
 images: $(BINARY).images
 flash: $(BINARY).flash
 
-%.images: %.bin %.hex %.srec %.list
+%.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
 
 %.bin: %.elf
@@ -122,7 +123,7 @@ flash: $(BINARY).flash
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
+%.elf %.map: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
 	@#printf "  LD      $(*).elf\n"
 	$(Q)$(LD) -o $(*).elf $(OBJS) $(LDFLAGS)
 
@@ -143,6 +144,7 @@ clean:
 	$(Q)rm -f *.hex
 	$(Q)rm -f *.srec
 	$(Q)rm -f *.list
+	$(Q)rm -f *.map
 
 %.stlink-flash: %.bin
 	@printf "  FLASH  $<\n"
