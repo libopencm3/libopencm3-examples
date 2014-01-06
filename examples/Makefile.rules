@@ -40,27 +40,28 @@ LDSCRIPT	?= $(BINARY).ld
 
 OBJS		+= $(BINARY).o
 
-TOOLCHAIN_DIR	?= ../../../../../libopencm3
-ifeq ($(wildcard $(TOOLCHAIN_DIR)/lib/lib$(LIBNAME).a),)
-ifneq ($(strip $(shell which $(CC))),)
-TOOLCHAIN_DIR	:= $(shell dirname `which $(CC)`)/../$(PREFIX)
+
+ifeq ($(strip $(OPENCM3_DIR)),)
+# user has not specified the library path, so we try to detect it
+
+# where we search for the library
+LIBPATHS := ./libopencm3 ../../../../../libopencm3
+
+OPENCM3_DIR := $(wildcard $(LIBPATHS:=/locm3.sublime-project))
+OPENCM3_DIR := $(firstword $(shell dirname $(OPENCM3_DIR)))
+
+ifeq ($(strip $(OPENCM3_DIR)),)
+$(error Cannot find libopencm3 library in the standard search paths.)
 endif
-else
+endif
+
 ifeq ($(V),1)
-$(info Building the example in the source directory. Using local library!)
+$(info Using $(OPENCM3_DIR) path to library)
 endif
-endif
 
-
-INCLUDE_DIR	= $(TOOLCHAIN_DIR)/include
-LIB_DIR		= $(TOOLCHAIN_DIR)/lib
-SCRIPT_DIR	= $(TOOLCHAIN_DIR)/share/libopencm3/scripts
-
-ifneq ($(OPENCM3_DIR),)
 INCLUDE_DIR	= $(OPENCM3_DIR)/include
 LIB_DIR		= $(OPENCM3_DIR)/lib
 SCRIPT_DIR	= $(OPENCM3_DIR)/scripts
-endif
 
 
 
