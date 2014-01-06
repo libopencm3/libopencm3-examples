@@ -41,7 +41,7 @@ LDSCRIPT	?= $(BINARY).ld
 OBJS		+= $(BINARY).o
 
 TOOLCHAIN_DIR	?= ../../../../../libopencm3
-ifeq ($(wildcard ../../../../../libopencm3/lib/lib$(LIBNAME).a),)
+ifeq ($(wildcard $(TOOLCHAIN_DIR)/lib/lib$(LIBNAME).a),)
 ifneq ($(strip $(shell which $(CC))),)
 TOOLCHAIN_DIR	:= $(shell dirname `which $(CC)`)/../$(PREFIX)
 endif
