@@ -19,106 +19,29 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-PREFIX		?= arm-none-eabi
-CC		= $(PREFIX)-gcc
-LD		= $(PREFIX)-gcc
-OBJCOPY		= $(PREFIX)-objcopy
-OBJDUMP		= $(PREFIX)-objdump
+LIBNAME		= opencm3_lm4f
+DEFS		= -DLM4F
 
-TOOLCHAIN_DIR ?= ../../../../libopencm3
-ifeq ($(wildcard ../../../../libopencm3/lib/libopencm3_lm4f.a),)
-ifneq ($(strip $(shell which $(CC))),)
-TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
-endif
-else
-ifeq ($(V),1)
-$(info We seem to be building the example in the source directory. Using local library!)
-endif
-endif
+ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-ARCH_FLAGS      = -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS		+= -O0 -g3 \
-		   -Wall -Wextra -Wimplicit-function-declaration \
-		   -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
-		   -Wundef -Wshadow \
-		   -I$(TOOLCHAIN_DIR)/include \
-		   -fno-common $(ARCH_FLAGS) -MD -DLM4F
-LDSCRIPT	?= $(BINARY).ld
-LDFLAGS         += --static -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group \
-		   -L$(TOOLCHAIN_DIR)/lib \
-		   -T$(LDSCRIPT) -nostartfiles -Wl,--gc-sections \
-		   $(ARCH_FLAGS)
-
-OBJS		+= $(BINARY).o
+################################################################################
+# OpenOCD specific variables
 
 # Support for ICDI is available starting with openocd 0.7.0
+
 OOCD		?= openocd
+OOCD_INTERFACE	?= flossjtag
 OOCD_BOARD	?= ek-lm4f120xl
 
-# Be silent per default, but 'make V=1' will show all compiler calls.
-ifneq ($(V),1)
-Q := @
-NULL := 2>/dev/null
-else
-LDFLAGS += -Wl,--print-gc-sections
-endif
+################################################################################
+# Black Magic Probe specific variables
+# Set the BMP_PORT to a serial port and then BMP is used for flashing
+BMP_PORT	?=
 
-.SUFFIXES: .elf .bin .hex .srec .list .images
-.SECONDEXPANSION:
-.SECONDARY:
+################################################################################
+# texane/stlink specific variables
+#STLINK_PORT	?= :4242
 
-all: images
 
-images: $(BINARY).images
-flash: $(BINARY).flash
-
-%.images: %.bin %.hex %.srec %.list
-	@#printf "*** $* images generated ***\n"
-
-%.bin: %.elf
-	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
-
-%.hex: %.elf
-	@#printf "  OBJCOPY $(*).hex\n"
-	$(Q)$(OBJCOPY) -Oihex $(*).elf $(*).hex
-
-%.srec: %.elf
-	@#printf "  OBJCOPY $(*).srec\n"
-	$(Q)$(OBJCOPY) -Osrec $(*).elf $(*).srec
-
-%.list: %.elf
-	@#printf "  OBJDUMP $(*).list\n"
-	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
-
-%.elf: $(OBJS) $(LDSCRIPT) $(TOOLCHAIN_DIR)/lib/libopencm3_lm4f.a
-	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(LD) -o $(*).elf $(OBJS) -lopencm3_lm4f $(LDFLAGS)
-
-%.o: %.c Makefile
-	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
-
-clean:
-	$(Q)rm -f *.o
-	$(Q)rm -f *.d
-	$(Q)rm -f *.elf
-	$(Q)rm -f *.bin
-	$(Q)rm -f *.hex
-	$(Q)rm -f *.srec
-	$(Q)rm -f *.list
-
-# FIXME: Replace STM32 stuff with proper Stellaris support.
-%.flash: %.hex
-	@printf "  FLASH   $<\n"
-	@# IMPORTANT: Don't use "resume", only "reset" will work correctly!
-	$(Q)$(OOCD) -f board/$(OOCD_BOARD).cfg \
-		    -c "init" -c "reset init" \
-		    -c "flash write_image erase $(*).hex 0" \
-		    -c "reset" \
-		    -c "shutdown" $(NULL)
-
-.PHONY: images clean
-
--include $(OBJS:.o=.d)
+include ../../../Makefile.rules
 
