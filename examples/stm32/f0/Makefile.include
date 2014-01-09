@@ -21,7 +21,8 @@
 LIBNAME		= opencm3_stm32f0
 DEFS		= -DSTM32F0
 
-ARCH_FLAGS	= -mthumb -mcpu=cortex-m0 -msoft-float
+FP_FLAGS	?= -msoft-float
+ARCH_FLAGS	= -mthumb -mcpu=cortex-m0 $(FP_FLAGS)
 
 ################################################################################
 # OpenOCD specific variables

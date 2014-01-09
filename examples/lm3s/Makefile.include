@@ -21,7 +21,8 @@
 LIBNAME		= opencm3_lm3s
 DEFS		= -DLM3S
 
-ARCH_FLAGS	= -mthumb -mcpu=cortex-m3 -msoft-float
+FP_FLAGS	?= -msoft-float
+ARCH_FLAGS	= -mthumb -mcpu=cortex-m3 $(FP_FLAGS)
 
 ################################################################################
 # OpenOCD specific variables

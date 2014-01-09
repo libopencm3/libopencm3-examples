@@ -24,7 +24,8 @@
 LIBNAME		= opencm3_lpc43xx
 DEFS		= -DLPC43XX
 
-ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
+ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
 
 ################################################################################
 # OpenOCD specific variables
