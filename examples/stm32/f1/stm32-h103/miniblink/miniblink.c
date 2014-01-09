@@ -26,7 +26,7 @@ static void gpio_setup(void)
 	/* Manually: */
 	// RCC_APB2ENR |= RCC_APB2ENR_IOPCEN;
 	/* Using API functions: */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Set GPIO12 (in GPIO port C) to 'output push-pull'. */
 	/* Manually: */

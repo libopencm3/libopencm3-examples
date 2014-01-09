@@ -22,20 +22,17 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-#define PORT_LED GPIOB
-#define PIN_LED GPIO6
-
 static void gpio_setup(void)
 {
 	/* Enable GPIOB clock. */
 	/* Manually: */
 	//RCC_AHBENR |= RCC_AHBENR_GPIOBEN;
 	/* Using API functions: */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* Set GPIO6 (in GPIO port B) to 'output push-pull'. */
 	/* Using API functions: */
-	gpio_mode_setup(PORT_LED, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, PIN_LED);
+	gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6);
 }
 
 int main(void)
@@ -47,23 +44,23 @@ int main(void)
 	/* Blink the LED (PC8) on the board. */
 	while (1) {
 		/* Manually: */
-		// GPIOD_BSRR = GPIO12;		/* LED off */
+		// GPIOD_BSRR = GPIO6;		/* LED off */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		// 	__asm__("nop");
-		// GPIOD_BRR = GPIO12;		/* LED on */
+		// GPIOD_BRR = GPIO6;		/* LED on */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		// 	__asm__("nop");
 
 		/* Using API functions gpio_set()/gpio_clear(): */
-		// gpio_set(GPIOD, GPIO12);	/* LED off */
+		// gpio_set(GPIOD, GPIO6);	/* LED off */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		// 	__asm__("nop");
-		// gpio_clear(GPIOD, GPIO12);	/* LED on */
+		// gpio_clear(GPIOD, GPIO6);	/* LED on */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		// 	__asm__("nop");
 
 		/* Using API function gpio_toggle(): */
-		gpio_toggle(PORT_LED, PIN_LED);	/* LED on/off */
+		gpio_toggle(GPIOB, GPIO6);	/* LED on/off */
 		for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 	}

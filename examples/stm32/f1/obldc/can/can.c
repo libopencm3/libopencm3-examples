@@ -50,10 +50,10 @@ struct can_rx_msg can_rx_msg;
 static void gpio_setup(void)
 {
 	/* Enable GPIOA clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Enable GPIOB clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	gpio_set(GPIOA, GPIO6); /* LED0 off */
 	gpio_set(GPIOA, GPIO7); /* LED1 off */
@@ -91,9 +91,9 @@ static void systick_setup(void)
 static void can_setup(void)
 {
 	/* Enable peripheral clocks. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_CANEN);
+	rcc_periph_clock_enable(RCC_AFIO);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_CAN);
 
 	/* Configure CAN pin: RX (input pull-up). */
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT,

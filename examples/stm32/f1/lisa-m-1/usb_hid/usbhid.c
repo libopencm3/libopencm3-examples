@@ -325,11 +325,11 @@ int main(void)
 
 	rcc_clock_setup_in_hse_12mhz_out_72mhz();
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_GPIOC);
+	rcc_periph_clock_enable(RCC_SPI2);
+	rcc_periph_clock_enable(RCC_OTGFS);
 
 	/* Configure SPI2: PB13(SCK), PB14(MISO), PB15(MOSI). */
 	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_10_MHZ,

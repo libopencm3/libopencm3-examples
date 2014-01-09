@@ -26,9 +26,9 @@ static void clock_setup(void)
 	rcc_clock_setup_in_hsi_out_64mhz();
 
 	/* Enable clocks for GPIO port B (for GPIO_USART1_TX and LED) and USART1. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
+	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_AFIO);
+	rcc_periph_clock_enable(RCC_USART1);
 }
 
 static void usart_setup(void)

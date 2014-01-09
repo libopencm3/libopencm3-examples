@@ -26,10 +26,10 @@ static void rcc_setup(void)
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
 	/* Enable GPIOD clock for onboard leds. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
 
 	/* Enable rng clock */
-	rcc_peripheral_enable_clock(&RCC_AHB2ENR, RCC_AHB2ENR_RNGEN);
+	rcc_periph_clock_enable(RCC_RNG);
 }
 
 static void rng_setup(void)

@@ -26,10 +26,10 @@ static void clock_setup(void)
 	rcc_clock_setup_in_hsi_out_64mhz();
 
 	/* Enable alternate function peripheral clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+	rcc_periph_clock_enable(RCC_AFIO);
 
 	/* Enable GPIOB clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 }
 
 static void gpio_setup(void)

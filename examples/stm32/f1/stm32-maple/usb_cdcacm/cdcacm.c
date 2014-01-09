@@ -243,8 +243,8 @@ int main(void)
 
 	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN |
-				    RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Setup GPIOC Pin 12 to pull up the D+ high, so autodect works
 	 * with the bootloader.  The circuit is active low. */

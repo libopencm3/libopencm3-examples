@@ -33,7 +33,7 @@ static void clock_setup(void)
 static void gpio_setup(void)
 {
 	/* Enable GPIOD clock. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
 
 	/* Set GPIO12 (in GPIO port D) to 'output push-pull'. */
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT,
@@ -43,7 +43,7 @@ static void gpio_setup(void)
 static void button_setup(void)
 {
 	/* Enable GPIOA clock. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Set GPIO0 (in GPIO port A) to 'input open-drain'. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);

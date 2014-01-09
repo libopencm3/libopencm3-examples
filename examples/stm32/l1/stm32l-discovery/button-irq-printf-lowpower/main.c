@@ -136,7 +136,7 @@ static void setup_button_press_timer(void)
 static int setup_rtc(void)
 {
 	/* turn on power block to enable unlocking */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_PWREN);
+	rcc_periph_clock_enable(RCC_PWR);
 	pwr_disable_backup_domain_write_protect();
 
 	/* reset rtc */
@@ -269,13 +269,13 @@ static void reset_clocks(void)
 	rcc_clock_setup_msi(&myclock_config);
 
 	/* buttons and uarts */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 	/* user feedback leds */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 	/* Enable clocks for USART2. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_USART2);
 	/* And a timers for button presses */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM7EN);
+	rcc_periph_clock_enable(RCC_TIM7);
 }
 
 int main(void)

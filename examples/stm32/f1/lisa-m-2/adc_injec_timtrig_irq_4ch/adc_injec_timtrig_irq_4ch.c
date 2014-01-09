@@ -36,8 +36,8 @@ uint8_t channel_array[4]; /* for injected sampling, 4 channels max, for regular,
 static void usart_setup(void)
 {
 	/* Enable clocks for GPIO port A (for GPIO_USART1_TX) and USART1. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_USART2);
 
 	/* Setup GPIO pin GPIO_USART1_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
@@ -58,8 +58,8 @@ static void usart_setup(void)
 static void gpio_setup(void)
 {
 	/* Enable GPIO clocks. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Setup the LEDs. */
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
@@ -76,14 +76,9 @@ static void timer_setup(void)
 {
 	/* Set up the timer TIM2 for injected sampling */
 	uint32_t timer;
-    volatile uint32_t *rcc_apbenr;
-    uint32_t rcc_apb;
 
 	timer   = TIM2;
-    rcc_apbenr = &RCC_APB1ENR;
-    rcc_apb = RCC_APB1ENR_TIM2EN;
-
-	rcc_peripheral_enable_clock(rcc_apbenr, rcc_apb);
+	rcc_periph_clock_enable(RCC_TIM2);
 
 	/* Time Base configuration */
     timer_reset(timer);
@@ -108,7 +103,7 @@ static void adc_setup(void)
 {
 	int i;
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
+	rcc_periph_clock_enable(RCC_ADC1);
 
 	/* Make sure the ADC doesn't run during config. */
 	adc_off(ADC1);

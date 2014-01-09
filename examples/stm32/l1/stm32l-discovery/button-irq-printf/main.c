@@ -37,15 +37,15 @@ static void clock_setup(void)
 {
 	rcc_clock_setup_pll(&clock_config[CLOCK_VRANGE1_HSI_PLL_24MHZ]);
 	/* Lots of things on all ports... */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOAEN);
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOBEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* Enable clocks for USART2. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_USART2);
 
 	/* And timers. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM7EN);
+	rcc_periph_clock_enable(RCC_TIM6);
+	rcc_periph_clock_enable(RCC_TIM7);
 
 }
 

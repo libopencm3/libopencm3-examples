@@ -26,14 +26,14 @@
 static void clock_setup(void)
 {
 	/* Enable GPIOD clock for LED & USARTs. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Enable clocks for USART2. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_USART2);
 	
 	/* Enable clocks for CRYP. */
-	rcc_peripheral_enable_clock(&RCC_AHB2ENR, RCC_AHB2ENR_CRYPEN);
+	rcc_periph_clock_enable(RCC_CRYP);
 }
 
 static void usart_setup(void)
