@@ -39,6 +39,10 @@ OBJCOPY		:= $(PREFIX)-objcopy
 OBJDUMP		:= $(PREFIX)-objdump
 GDB		:= $(PREFIX)-gdb
 STFLASH		= $(shell which st-flash)
+STYLECHECK	:= /checkpatch.pl
+STYLECHECKFLAGS	:= --no-tree -f --terse --mailback
+STYLECHECKFILES	:= $(shell find . -name '*.[ch]')
+
 
 ###############################################################################
 # Source files
@@ -163,6 +167,22 @@ clean:
 	@#printf "  CLEAN\n"
 	$(Q)$(RM) *.o *.d *.elf *.bin *.hex *.srec *.list *.map
 
+stylecheck: $(STYLECHECKFILES:=.stylecheck)
+styleclean: $(STYLECHECKFILES:=.styleclean)
+
+# the cat is due to multithreaded nature - we like to have consistent chunks of text on the output
+%.stylecheck: %
+	$(Q)$(SCRIPT_DIR)$(STYLECHECK) $(STYLECHECKFLAGS) $* > $*.stylecheck; \
+		if [ -s $*.stylecheck ]; then \
+			cat $*.stylecheck; \
+		else \
+			rm -f $*.stylecheck; \
+		fi;
+
+%.styleclean:
+	$(Q)rm -f $*.stylecheck;
+
+
 %.stlink-flash: %.bin
 	@printf "  FLASH  $<\n"
 	$(Q)$(STFLASH) write $(*).bin 0x8000000
@@ -208,6 +228,6 @@ else
 		   $(*).elf
 endif
 
-.PHONY: images clean
+.PHONY: images clean stylecheck styleclean
 
 -include $(OBJS:.o=.d)

@@ -62,12 +62,22 @@ examples: $(EXAMPLE_DIRS)
 clean: $(EXAMPLE_DIRS:=.clean)
 	$(Q)$(MAKE) -C libopencm3 clean
 
+stylecheck: $(EXAMPLE_DIRS:=.stylecheck)
+styleclean: $(EXAMPLE_DIRS:=.styleclean)
+
+
 %.clean:
 	$(Q)if [ -d $* ]; then \
 		printf "  CLEAN   $*\n"; \
 		$(MAKE) -C $* clean OPENCM3_DIR=$(OPENCM3_DIR) || exit $?; \
 	fi;
 
+%.styleclean:
+	$(Q)$(MAKE) -C $* styleclean OPENCM3_DIR=$(OPENCM3_DIR)
 
-.PHONY: build lib examples $(EXAMPLE_DIRS) install clean
+%.stylecheck:
+	$(Q)$(MAKE) -C $* stylecheck OPENCM3_DIR=$(OPENCM3_DIR)
+
+
+.PHONY: build lib examples $(EXAMPLE_DIRS) install clean stylecheck styleclean
 
