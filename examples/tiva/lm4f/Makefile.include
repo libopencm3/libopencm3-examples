@@ -3,11 +3,10 @@
 ##
 ## Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
 ## Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
-## Copyright (C) 2012 Michael Ossmann <mike@ossmann.com>
-## Copyright (C) 2012 Benjamin Vernoux <titanmkd@gmail.com>
+## Copyright (C) 2012 Alexandru Gagniuc <mr.nuke.me@gmail.com>
 ##
 ## This library is free software: you can redistribute it and/or modify
-## it under the terms of the GNU Lesser General Public License as published by
+## it undebipr the terms of the GNU Lesser General Public License as published by
 ## the Free Software Foundation, either version 3 of the License, or
 ## (at your option) any later version.
 ##
@@ -20,9 +19,8 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-
-LIBNAME		= opencm3_lpc43xx
-DEFS		= -DLPC43XX
+LIBNAME		= opencm3_lm4f
+DEFS		= -DLM4F
 
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
@@ -30,9 +28,11 @@ ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
 ################################################################################
 # OpenOCD specific variables
 
+# Support for ICDI is available starting with openocd 0.7.0
+
 OOCD		?= openocd
 OOCD_INTERFACE	?= flossjtag
-OOCD_BOARD	?= olimex_stm32_h103
+OOCD_BOARD	?= ek-lm4f120xl
 
 ################################################################################
 # Black Magic Probe specific variables
@@ -44,4 +44,5 @@ BMP_PORT	?=
 #STLINK_PORT	?= :4242
 
 
-include ../../../Makefile.rules
+include ../../../../Makefile.rules
+
