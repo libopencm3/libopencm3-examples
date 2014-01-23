@@ -52,8 +52,9 @@ int main(void)
 	while (1) {
 		/* Toggle LEDs. */
 		gpio_toggle(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-		for (i = 0; i < 6000000; i++) /* Wait a bit. */
+		for (i = 0; i < 6000000; i++) { /* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

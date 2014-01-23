@@ -35,8 +35,8 @@ static void systick_setup(int freq)
 {
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 	/* clear counter so it starts right away */
-	STK_CVR=0;
-	
+	STK_CVR = 0;
+
 	systick_set_reload(rcc_core_frequency / freq);
 	systick_counter_enable();
 	systick_interrupt_enable();
@@ -79,5 +79,5 @@ int main(void)
 	systick_setup(8);
 
 	/* Do nothing in main loop */
-	while(1);
+	while (1);
 }

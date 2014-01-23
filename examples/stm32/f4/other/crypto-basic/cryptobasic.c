@@ -31,7 +31,7 @@ static void clock_setup(void)
 
 	/* Enable clocks for USART2. */
 	rcc_periph_clock_enable(RCC_USART2);
-	
+
 	/* Enable clocks for CRYP. */
 	rcc_periph_clock_enable(RCC_CRYP);
 }
@@ -62,12 +62,12 @@ static void gpio_setup(void)
 	gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
 }
 
-static uint64_t key[4] = {0x11223344,0x44556677,0x77889900, 0x99005522};
-static uint64_t iv[4] = {0x01020304,0x02030405,0x09080706, 0x55245711};
+static uint64_t key[4] = {0x11223344, 0x44556677, 0x77889900, 0x99005522};
+static uint64_t iv[4] = {0x01020304, 0x02030405, 0x09080706, 0x55245711};
 
-static uint8_t plaintext[8] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-static uint8_t ciphertext[8] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-static uint8_t plaintext2[8] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}; 
+static uint8_t plaintext[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static uint8_t ciphertext[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static uint8_t plaintext2[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 int main(void)
 {
@@ -81,44 +81,45 @@ int main(void)
 	/* Blink the LED (PD12) on the board with every transmitted byte. */
 	while (1) {
 		gpio_toggle(GPIOD, GPIO12);	/* LED on/off */
-		
+
 		/* encode the plaintext message into ciphertext */
 
-		crypto_set_key(CRYPTO_KEY_128BIT,key);
+		crypto_set_key(CRYPTO_KEY_128BIT, key);
 		crypto_set_iv(iv); /* only in CBC or CTR mode */
 		crypto_set_datatype(CRYPTO_DATA_32BIT);
 		crypto_set_algorithm(ENCRYPT_DES_ECB);
 
 		crypto_start();
-		crypto_process_block((uint32_t*)plaintext,
-				     (uint32_t*)ciphertext,
+		crypto_process_block((uint32_t *)plaintext,
+				     (uint32_t *)ciphertext,
 				      8 / sizeof(uint32_t));
 		crypto_stop();
 
 		/* decode the previously encoded message
 		   from ciphertext to plaintext2 */
 
-		crypto_set_key(CRYPTO_KEY_128BIT,key);
+		crypto_set_key(CRYPTO_KEY_128BIT, key);
 		crypto_set_iv(iv); /* only in CBC or CTR mode */
 		crypto_set_datatype(CRYPTO_DATA_32BIT);
 		crypto_set_algorithm(DECRYPT_DES_ECB);
 
 		crypto_start();
-		crypto_process_block((uint32_t*)ciphertext,
-				     (uint32_t*)plaintext2,
+		crypto_process_block((uint32_t *)ciphertext,
+				     (uint32_t *)plaintext2,
 				      8 / sizeof(uint32_t));
-		crypto_stop();	
+		crypto_stop();
 
 		/* compare the two plaintexts if they are same */
 		iserr = 0;
-		for (i=0; i<8; i++)
-		{
-			if (plaintext[i] != plaintext2[i])
+		for (i = 0; i < 8; i++) {
+			if (plaintext[i] != plaintext2[i]) {
 				iserr = true;
+			}
 		}
 
-		if (iserr)
-			gpio_toggle(GPIOD,GPIO12); /* something went wrong. */
+		if (iserr) {
+			gpio_toggle(GPIOD, GPIO12); /* something went wrong. */
+		}
 	}
 
 	return 0;

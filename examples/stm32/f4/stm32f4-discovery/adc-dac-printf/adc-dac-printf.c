@@ -137,8 +137,8 @@ int main(void)
 	dac_setup();
 
 	/* green led for ticking */
-	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_DISCO_GREEN_PIN);
-
+	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			LED_DISCO_GREEN_PIN);
 
 	while (1) {
 		uint16_t input_adc0 = read_adc_naiive(0);
@@ -148,9 +148,13 @@ int main(void)
 		uint16_t input_adc1 = read_adc_naiive(1);
 		printf("tick: %d: adc0= %u, target adc1=%d, adc1=%d\n",
 			j++, input_adc0, target, input_adc1);
-		gpio_toggle(LED_DISCO_GREEN_PORT, LED_DISCO_GREEN_PIN); /* LED on/off */
-		for (i = 0; i < 1000000; i++) /* Wait a bit. */
+
+		/* LED on/off */
+		gpio_toggle(LED_DISCO_GREEN_PORT, LED_DISCO_GREEN_PIN);
+
+		for (i = 0; i < 1000000; i++) { /* Wait a bit. */
 			__asm__("NOP");
+		}
 	}
 
 	return 0;

@@ -27,22 +27,22 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
-void msleep(uint32_t);
-
 /* monotonically increasing number of milliseconds from reset
  * overflows every 49 days if you're wondering
  */
 volatile uint32_t system_millis;
 
 /* Called when systick fires */
-void sys_tick_handler(void) {
+void sys_tick_handler(void)
+{
 	system_millis++;
 }
 
 /* sleep for delay milliseconds */
-void msleep(uint32_t delay) {
+static void msleep(uint32_t delay)
+{
 	uint32_t wake = system_millis + delay;
-	while (wake > system_millis) ;
+	while (wake > system_millis;
 }
 
 /* Set up a timer to create 1mS ticks. */
@@ -68,8 +68,8 @@ static void clock_setup(void)
 static void gpio_setup(void)
 {
 	/* Set GPIO11-15 (in GPIO port D) to 'output push-pull'. */
-	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT,
-			GPIO_PUPD_NONE, GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15);
+	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15);
 }
 
 int main(void)

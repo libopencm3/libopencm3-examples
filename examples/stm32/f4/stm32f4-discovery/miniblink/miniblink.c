@@ -48,23 +48,24 @@ int main(void)
 		/* Manually: */
 		// GPIOD_BSRR = GPIO12;		/* LED off */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
+		//	__asm__("nop");
 		// GPIOD_BRR = GPIO12;		/* LED on */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
+		//	__asm__("nop");
 
 		/* Using API functions gpio_set()/gpio_clear(): */
 		// gpio_set(GPIOD, GPIO12);	/* LED off */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
+		//	__asm__("nop");
 		// gpio_clear(GPIOD, GPIO12);	/* LED on */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
+		//	__asm__("nop");
 
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOD, GPIO12);	/* LED on/off */
-		for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

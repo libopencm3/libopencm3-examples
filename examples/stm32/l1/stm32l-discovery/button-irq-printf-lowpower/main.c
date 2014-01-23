@@ -38,7 +38,7 @@ static volatile struct state_t state;
 
 int _write(int file, char *ptr, int len);
 
-__attribute__((always_inline)) static inline void __WFI(void)
+static inline __attribute__((always_inline)) void __WFI(void)
 {
 	__asm volatile ("wfi");
 }
@@ -46,8 +46,11 @@ __attribute__((always_inline)) static inline void __WFI(void)
 static void gpio_setup(void)
 {
 	/* green led for ticking, blue for button feedback */
-	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_DISCO_GREEN_PIN);
-	gpio_mode_setup(LED_DISCO_BLUE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_DISCO_BLUE_PIN);
+	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			LED_DISCO_GREEN_PIN);
+
+	gpio_mode_setup(LED_DISCO_BLUE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			LED_DISCO_BLUE_PIN);
 
 	/* Setup GPIO pins for USART2 transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2);
@@ -76,7 +79,8 @@ static void setup_buttons(void)
 	/* Enable EXTI0 interrupt. */
 	nvic_enable_irq(BUTTON_DISCO_USER_NVIC);
 
-	gpio_mode_setup(BUTTON_DISCO_USER_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, BUTTON_DISCO_USER_PIN);
+	gpio_mode_setup(BUTTON_DISCO_USER_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE,
+			BUTTON_DISCO_USER_PIN);
 
 	/* Configure the EXTI subsystem. */
 	exti_select_source(BUTTON_DISCO_USER_EXTI, BUTTON_DISCO_USER_PORT);
@@ -128,7 +132,7 @@ int _write(int file, char *ptr, int len)
 static void setup_button_press_timer(void)
 {
 	timer_reset(TIMER_BUTTON_PRESS);
-	timer_set_prescaler(TIMER_BUTTON_PRESS, 3999); // 4Mhz/1000hz - 1
+	timer_set_prescaler(TIMER_BUTTON_PRESS, 3999); /* 4Mhz/1000hz - 1 */
 	timer_set_period(TIMER_BUTTON_PRESS, 0xffff);
 	timer_enable_counter(TIMER_BUTTON_PRESS);
 }
@@ -151,15 +155,15 @@ static int setup_rtc(void)
 	rcc_rtc_select_clock(RCC_CSR_RTCSEL_LSE);
 
 	/* ?! Stdperiph examples don't turn this on until _afterwards_ which
-	 * simply doesn't work.  It must be on at least to be able to configure it */
+	 * simply doesn't work.  It must be on at least to be able to
+	 * configure it */
 	RCC_CSR |= RCC_CSR_RTCEN;
 
 	rtc_unlock();
 
 	/* enter init mode */
 	RTC_ISR |= RTC_ISR_INIT;
-	while ((RTC_ISR & RTC_ISR_INITF) == 0)
-		;
+	while ((RTC_ISR & RTC_ISR_INITF) == 0);
 
 	/* set synch prescaler, using defaults for 1Hz out */
 	uint32_t sync = 255;
@@ -190,8 +194,7 @@ static int setup_rtc_wakeup(int period)
 	RTC_CR &= ~RTC_CR_WUTE;
 
 	/* Wait until we can write */
-	while ((RTC_ISR & RTC_ISR_WUTWF) == 0)
-		;
+	while ((RTC_ISR & RTC_ISR_WUTWF) == 0);
 
 	RTC_WUTR = period - 1;
 
@@ -210,12 +213,13 @@ static int setup_rtc_wakeup(int period)
 	/* done with rtc registers, lock them again */
 	rtc_lock();
 
-
 	nvic_enable_irq(NVIC_RTC_WKUP_IRQ);
 
-	// EXTI configuration
+	/* EXTI configuration */
 	/* Configure the EXTI subsystem. */
-	// not needed, this chooses ports exti_select_source(EXTI20, BUTTON_DISCO_USER_PORT);
+	/* not needed, this chooses ports
+	   exti_select_source(EXTI20, BUTTON_DISCO_USER_PORT);
+	*/
 	exti_set_trigger(EXTI20, EXTI_TRIGGER_RISING);
 	exti_enable_request(EXTI20);
 	return 0;

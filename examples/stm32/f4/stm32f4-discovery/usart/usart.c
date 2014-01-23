@@ -75,8 +75,9 @@ int main(void)
 			usart_send_blocking(USART2, '\r');
 			usart_send_blocking(USART2, '\n');
 		}
-		for (i = 0; i < 3000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 3000000; i++) {	/* Wait a bit. */
 			__asm__("NOP");
+		}
 	}
 
 	return 0;

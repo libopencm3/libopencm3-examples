@@ -46,14 +46,16 @@ static void clock_setup(void)
 	/* And timers. */
 	rcc_periph_clock_enable(RCC_TIM6);
 	rcc_periph_clock_enable(RCC_TIM7);
-
 }
 
 static void gpio_setup(void)
 {
 	/* green led for ticking, blue for button feedback */
-	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_DISCO_GREEN_PIN);
-	gpio_mode_setup(LED_DISCO_BLUE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_DISCO_BLUE_PIN);
+	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			LED_DISCO_GREEN_PIN);
+
+	gpio_mode_setup(LED_DISCO_BLUE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			LED_DISCO_BLUE_PIN);
 
 	/* Setup GPIO pins for USART2 transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2);
@@ -117,7 +119,7 @@ void BUTTON_DISCO_USER_isr(void)
 	}
 }
 
-static volatile int t6ovf = 0;
+static volatile int t6ovf;
 
 void tim6_isr(void)
 {
@@ -136,13 +138,13 @@ void tim6_isr(void)
 static void setup_tim6(void)
 {
 	timer_reset(TIM6);
-	// 24Mhz / 10khz -1.
-	timer_set_prescaler(TIM6, 2399); // 24Mhz/10000hz - 1
-	// 10khz for 10 ticks = 1 khz overflow = 1ms overflow interrupts
+	/* 24Mhz / 10khz -1. */
+	timer_set_prescaler(TIM6, 2399); /* 24Mhz/10000hz - 1 */
+	/* 10khz for 10 ticks = 1 khz overflow = 1ms overflow interrupts */
 	timer_set_period(TIM6, 10);
 
 	nvic_enable_irq(NVIC_TIM6_IRQ);
-	timer_enable_update_event(TIM6); // default at reset!
+	timer_enable_update_event(TIM6); /* default at reset! */
 	timer_enable_irq(TIM6, TIM_DIER_UIE);
 	timer_enable_counter(TIM6);
 }
@@ -153,7 +155,7 @@ static void setup_tim6(void)
 static void setup_tim7(void)
 {
 	timer_reset(TIM7);
-	timer_set_prescaler(TIM7, 23999); // 24Mhz/1000hz - 1
+	timer_set_prescaler(TIM7, 23999); /* 24Mhz/1000hz - 1 */
 	timer_set_period(TIM7, 0xffff);
 	timer_enable_counter(TIM7);
 }
@@ -163,7 +165,8 @@ static void setup_buttons(void)
 	/* Enable EXTI0 interrupt. */
 	nvic_enable_irq(BUTTON_DISCO_USER_NVIC);
 
-	gpio_mode_setup(BUTTON_DISCO_USER_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, BUTTON_DISCO_USER_PIN);
+	gpio_mode_setup(BUTTON_DISCO_USER_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE,
+			BUTTON_DISCO_USER_PIN);
 
 	/* Configure the EXTI subsystem. */
 	exti_select_source(BUTTON_DISCO_USER_EXTI, BUTTON_DISCO_USER_PORT);
