@@ -27,27 +27,6 @@
 #include <libopencm3/usb/cdc.h>
 
 /* =============================================================================
- * Definitions missing from cdc.h
- *
- * TODO: Integrate those definitions into cdc.h
- * ---------------------------------------------------------------------------*/
-
-/* Table 17: Line Coding Structure */
-enum usb_cdc_line_coding_bCharFormat {
-	USB_CDC_1_STOP_BITS			= 0,
-	USB_CDC_1_5_STOP_BITS			= 1,
-	USB_CDC_2_STOP_BITS			= 2,
-};
-
-enum usb_cdc_line_coding_bParityType {
-	USB_CDC_NO_PARITY			= 0,
-	USB_CDC_ODD_PARITY			= 1,
-	USB_CDC_EVEN_PARITY			= 2,
-	USB_CDC_MARK_PARITY			= 3,
-	USB_CDC_SPACE_PARITY			= 4,
-};
-
-/* =============================================================================
  * UART control
  * ---------------------------------------------------------------------------*/
 enum rs232pin {
