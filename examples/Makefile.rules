@@ -148,6 +148,9 @@ endif
 clean:
 	@#printf "  CLEAN\n"
 	$(Q)$(RM) *.o *.d *.elf *.bin *.hex *.srec *.list *.map
+ifneq ($(DEVICE),)
+	$(Q)$(RM) $(DEVICE).ld
+endif
 
 stylecheck: $(STYLECHECKFILES:=.stylecheck)
 styleclean: $(STYLECHECKFILES:=.styleclean)
