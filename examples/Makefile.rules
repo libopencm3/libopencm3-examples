@@ -28,16 +28,6 @@ endif
 ###############################################################################
 # Executables
 
-PREFIX		?= arm-none-eabi
-
-CC		:= $(PREFIX)-gcc
-CXX		:= $(PREFIX)-g++
-LD		:= $(PREFIX)-gcc
-AR		:= $(PREFIX)-ar
-AS		:= $(PREFIX)-as
-OBJCOPY		:= $(PREFIX)-objcopy
-OBJDUMP		:= $(PREFIX)-objdump
-GDB		:= $(PREFIX)-gdb
 STFLASH		= $(shell which st-flash)
 STYLECHECK	:= /checkpatch.pl
 STYLECHECKFLAGS	:= --no-tree -f --terse --mailback
@@ -102,8 +92,6 @@ CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
 
 LDFLAGS		+= --static -nostartfiles
 LDFLAGS		+= -L$(LIB_DIR)
-LDFLAGS		+= -T$(LDSCRIPT)
-LDFLAGS		+= -Wl,-Map=$(*).map
 LDFLAGS		+= -Wl,--gc-sections
 ifeq ($(V),1)
 LDFLAGS		+= -Wl,--print-gc-sections
@@ -115,9 +103,13 @@ endif
 LDLIBS		+= -l$(LIBNAME)
 LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 
+LIBDEPS		+= $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
+
+include $(OPENCM3_DIR)/mk/gcc-config.mk
 
 .SUFFIXES: .elf .bin .hex .srec .list .map .images
 .SECONDEXPANSION:
@@ -137,37 +129,14 @@ flash: $(BINARY).flash
 %.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
 
-%.bin: %.elf
-	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
+include $(OPENCM3_DIR)/mk/gcc-rules.mk
 
-%.hex: %.elf
-	@#printf "  OBJCOPY $(*).hex\n"
-	$(Q)$(OBJCOPY) -Oihex $(*).elf $(*).hex
+# TODO: this rule should be moved to the gcc-rules.mk to enable optionally build map file.
+%.elf %.map: $(OBJS) $(LDSCRIPT) $(LIBDEPS)
+	@printf "  LD      $(*).elf\n"
+	@printf "  MAP     $(*).map\n"
+	$(Q)$(LD) $(OBJS) $(LDLIBS) $(LDFLAGS) -Wl,-Map=$(*).map -T$(LDSCRIPT) $(ARCH_FLAGS)  -o $(*).elf
 
-%.srec: %.elf
-	@#printf "  OBJCOPY $(*).srec\n"
-	$(Q)$(OBJCOPY) -Osrec $(*).elf $(*).srec
-
-%.list: %.elf
-	@#printf "  OBJDUMP $(*).list\n"
-	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
-
-%.elf %.map: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
-	@#printf "  LD      $(*).elf\n"
-	$(Q)$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
-
-%.o: %.c
-	@#printf "  CC      $(*).c\n"
-	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).c
-
-%.o: %.cxx
-	@#printf "  CXX     $(*).cxx\n"
-	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).cxx
-
-%.o: %.cpp
-	@#printf "  CXX     $(*).cpp\n"
-	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).cpp
 
 clean:
 	@#printf "  CLEAN\n"
