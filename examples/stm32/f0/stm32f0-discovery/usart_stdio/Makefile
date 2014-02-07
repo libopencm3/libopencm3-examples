@@ -19,7 +19,7 @@
 
 BINARY = usart_stdio
 
-LDSCRIPT = ../stm32f0-discovery.ld
+DEVICE = stm32f051r8t6
 
 #using newlib-nano
 CFLAGS += --specs=nano.specs
