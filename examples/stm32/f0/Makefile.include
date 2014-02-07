@@ -18,7 +18,7 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-LIBNAME		= opencm3_stm32f0
+OPENCM3_LIBNAME	= opencm3_stm32f0
 DEFS		= -DSTM32F0
 
 FP_FLAGS	?= -msoft-float

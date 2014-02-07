@@ -19,7 +19,7 @@
 ##
 
 
-LIBNAME		= opencm3_lpc17xx
+OPENCM3_LIBNAME	= opencm3_lpc17xx
 DEFS		= -DLPC17XX
 
 FP_FLAGS	?= -msoft-float

@@ -100,16 +100,20 @@ endif
 ###############################################################################
 # Used libraries
 
-LDLIBS		+= -l$(LIBNAME)
+LDLIBS		+= -l$(OPENCM3_LIBNAME)
 LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 
-LIBDEPS		+= $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
+LIBDEPS		+= $(OPENCM3_DIR)/lib/lib$(OPENCM3_LIBNAME).a
 
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
 include $(OPENCM3_DIR)/mk/gcc-config.mk
+
+ifneq ($(DEVICE),)
+include $(OPENCM3_DIR)/mk/genlink-config.mk
+endif
 
 .SUFFIXES: .elf .bin .hex .srec .list .map .images
 .SECONDEXPANSION:
@@ -137,6 +141,9 @@ include $(OPENCM3_DIR)/mk/gcc-rules.mk
 	@printf "  MAP     $(*).map\n"
 	$(Q)$(LD) $(OBJS) $(LDLIBS) $(LDFLAGS) -Wl,-Map=$(*).map -T$(LDSCRIPT) $(ARCH_FLAGS)  -o $(*).elf
 
+ifneq ($(DEVICE),)
+include $(OPENCM3_DIR)/mk/genlink-rules.mk
+endif
 
 clean:
 	@#printf "  CLEAN\n"

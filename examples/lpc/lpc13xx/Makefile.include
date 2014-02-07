@@ -18,7 +18,7 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-LIBNAME		= opencm3_lpc13xx
+OPENCM3_LIBNAME	= opencm3_lpc13xx
 DEFS		= -DLPC13XX
 
 FP_FLAGS	?= -msoft-float
