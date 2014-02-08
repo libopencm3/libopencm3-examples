@@ -1,0 +1,7 @@
+Systick Blink
+-------------
+
+This version of blink is slightly more sophisticated, it shows how you
+can initialize the Cortex M SYSTICK register to give a regular interrupt.
+It adds a function for doing precise delays. The original blink code
+is then rewritten with this in mind to create a 10Hz blinking pattern.

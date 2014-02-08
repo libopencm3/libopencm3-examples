@@ -1,0 +1,8 @@
+README
+------
+
+The "HelloWorld" of embedded systems. This code is really really simple,
+it sets up the system clock at a known frequency (168Mhz) and enables
+a GPIO pin as an output, that happens to be connected to an LED. And it
+blinks it on and off.
+
