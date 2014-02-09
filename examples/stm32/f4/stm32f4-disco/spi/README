@@ -1,0 +1,17 @@
+README spi-mems
+---------------
+
+This example sets up the SPI port which is connected to
+an onboard MEMS gyroscope. It uses SPI5 which happens to
+be one of the SPI ports that aren't defined for other
+variants of the STM32F4 family.
+
+I'll confess that this mostly is a way to learn to use
+the SPI port so that I can use it in the next example
+with the LCD, but since the gyro was there I decided
+to use it. Unfortunately I'm not at all sure how to
+really use the Gyro. If you read the data sheet from
+ST Micro it seems like it should do something useful
+when you move the board around but I didn't achieve
+that. Feel free to update this example with better
+settings for the gyro chip.
