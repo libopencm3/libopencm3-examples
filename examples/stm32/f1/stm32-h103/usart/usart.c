@@ -26,15 +26,14 @@ static void clock_setup(void)
 	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 
 	/* Enable GPIOC clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR,
-				    RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |
-				    RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Enable clocks for GPIO port B (for GPIO_USART3_TX) and USART3. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR,
-				    RCC_APB1ENR_USART2EN |
-				    RCC_APB1ENR_USART3EN);
+	rcc_periph_clock_enable(RCC_USART1);
+	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_USART3);
 }
 
 static void usart_setup(void)

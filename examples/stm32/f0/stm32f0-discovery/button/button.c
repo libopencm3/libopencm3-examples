@@ -62,13 +62,15 @@ int main(void)
 		gpio_toggle(GPIOC, GPIO8);
 
 		/* Upon button press, blink more slowly. */
-		if (gpio_get(GPIOA,GPIO0)) {
-			for (i = 0; i < 300000; i++)	/* Wait a bit. */
+		if (gpio_get(GPIOA, GPIO0)) {
+			for (i = 0; i < 300000; i++) {	/* Wait a bit. */
 				__asm__("nop");
+			}
 		}
 
-		for (i = 0; i < 300000; i++)		/* Wait a bit. */
+		for (i = 0; i < 300000; i++) {		/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

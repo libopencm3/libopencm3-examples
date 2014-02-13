@@ -59,7 +59,7 @@ static void clock_setup(void)
 static void gpio_setup(void)
 {
 	/* Enable GPIOC clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Set GPIO12 (in GPIO port C) to 'output push-pull'. */
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
@@ -71,7 +71,7 @@ static void gpio_setup(void)
 static void tim_setup(void)
 {
 	/* Enable TIM2 clock. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+	rcc_periph_clock_enable(RCC_TIM2);
 
 	/* Enable TIM2 interrupt. */
 	nvic_enable_irq(NVIC_TIM2_IRQ);

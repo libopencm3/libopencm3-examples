@@ -53,7 +53,7 @@ static const struct usb_endpoint_descriptor comm_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
 	.wMaxPacketSize = 16,
 	.bInterval = 255,
-}};
+} };
 
 static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
@@ -69,7 +69,7 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}};
+} };
 
 static const struct {
 	struct usb_cdc_header_descriptor header;
@@ -121,7 +121,7 @@ static const struct usb_interface_descriptor comm_iface[] = {{
 
 	.extra = &cdcacm_functional_descriptors,
 	.extralen = sizeof(cdcacm_functional_descriptors)
-}};
+} };
 
 static const struct usb_interface_descriptor data_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
@@ -135,7 +135,7 @@ static const struct usb_interface_descriptor data_iface[] = {{
 	.iInterface = 0,
 
 	.endpoint = data_endp,
-}};
+} };
 
 static const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
@@ -143,7 +143,7 @@ static const struct usb_interface ifaces[] = {{
 }, {
 	.num_altsetting = 1,
 	.altsetting = data_iface,
-}};
+} };
 
 static const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -158,7 +158,7 @@ static const struct usb_config_descriptor config = {
 	.interface = ifaces,
 };
 
-static const char *usb_strings[] = {
+static const char *const usb_strings[] = {
 	"Black Sphere Technologies",
 	"CDC-ACM Demo",
 	"DEMO",
@@ -167,8 +167,9 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
-		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int cdcacm_control_request(usbd_device *usbd_dev,
+	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)complete;
 	(void)buf;
@@ -184,8 +185,9 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		return 1;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:
-		if (*len < sizeof(struct usb_cdc_line_coding))
+		if (*len < sizeof(struct usb_cdc_line_coding)) {
 			return 0;
+		}
 
 		return 1;
 	}
@@ -200,8 +202,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
 	if (len) {
-		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0)
-			;
+		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
 	}
 
 	gpio_toggle(GPIOC, GPIO5);
@@ -211,7 +212,8 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
 	(void)wValue;
 
-	usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64, cdcacm_data_rx_cb);
+	usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64,
+			cdcacm_data_rx_cb);
 	usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_BULK, 64, NULL);
 	usbd_ep_setup(usbd_dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
 
@@ -228,16 +230,20 @@ int main(void)
 
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
-	rcc_peripheral_enable_clock(&RCC_AHB2ENR, RCC_AHB2ENR_OTGFSEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_OTGFS);
 
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
 			GPIO9 | GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
 
-	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
+			usb_strings, 3,
+			usbd_control_buffer, sizeof(usbd_control_buffer));
+
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }

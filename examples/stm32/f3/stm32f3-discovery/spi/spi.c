@@ -45,11 +45,11 @@
 
 static void spi_setup(void)
 {
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
+	rcc_periph_clock_enable(RCC_SPI1);
 	/* For spi signal pins */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 	/* For spi mode select on the l3gd20 */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
+	rcc_periph_clock_enable(RCC_GPIOE);
 
 	/* Setup GPIOE3 pin for spi mode l3gd20 select. */
 	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3);
@@ -81,8 +81,8 @@ static void spi_setup(void)
 static void usart_setup(void)
 {
 	/* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
@@ -102,7 +102,7 @@ static void usart_setup(void)
 
 static void gpio_setup(void)
 {
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
+	rcc_periph_clock_enable(RCC_GPIOE);
 	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
 		GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 |
 		GPIO14 | GPIO15);

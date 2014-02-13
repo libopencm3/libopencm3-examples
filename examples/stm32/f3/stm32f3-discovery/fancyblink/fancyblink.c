@@ -28,7 +28,7 @@ static void clock_setup(void)
 	rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
 
 	/* Enable GPIOE clock. */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_IOPEEN);
+	rcc_periph_clock_enable(RCC_GPIOE);
 }
 
 static void gpio_setup(void)

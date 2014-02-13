@@ -68,7 +68,8 @@ static void timer_setup(void)
 	timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_TOGGLE);
 	timer_set_oc_value(TIM2, TIM_OC1, 500);
 	timer_disable_preload(TIM2);
-	/* Set the timer trigger output (for the DAC) to the channel 1 output compare */
+	/* Set the timer trigger output (for the DAC) to the channel 1 output
+	   compare */
 	timer_set_master_mode(TIM2, TIM_CR2_MMS_COMPARE_OC1REF);
 	timer_enable_counter(TIM2);
 }
@@ -86,8 +87,10 @@ static void dma_setup(void)
 	dma_set_peripheral_size(DMA1, DMA_STREAM5, DMA_SxCR_PSIZE_8BIT);
 	dma_enable_memory_increment_mode(DMA1, DMA_STREAM5);
 	dma_enable_circular_mode(DMA1, DMA_STREAM5);
-	dma_set_transfer_mode(DMA1, DMA_STREAM5, DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
-	/* The register to target is the DAC1 8-bit right justified data register */
+	dma_set_transfer_mode(DMA1, DMA_STREAM5,
+				DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
+	/* The register to target is the DAC1 8-bit right justified data
+	   register */
 	dma_set_peripheral_address(DMA1, DMA_STREAM5, (uint32_t) &DAC_DHR8R1);
 	/* The array v[] is filled with the waveform data to be output */
 	dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) waveform);
@@ -115,8 +118,7 @@ static void dac_setup(void)
 
 void dma1_stream5_isr(void)
 {
-	if (dma_get_interrupt_flag(DMA1, DMA_STREAM5, DMA_TCIF))
-	{
+	if (dma_get_interrupt_flag(DMA1, DMA_STREAM5, DMA_TCIF)) {
 		dma_clear_interrupt_flags(DMA1, DMA_STREAM5, DMA_TCIF);
 		/* Toggle PC1 just to keep aware of activity and frequency. */
 		gpio_toggle(GPIOC, GPIO1);
@@ -129,13 +131,18 @@ int main(void)
 	/* Fill the array with funky waveform data */
 	/* This is for dual channel 8-bit right aligned */
 	uint16_t i, x;
-	for (i=0; i<256; i++)
-	{
-		if (i<10) x=10;
-		else if (i<121) x=10+((i*i)>>7);
-		else if (i<170) x=i/2;
-		else if (i<246) x=i+(80-i/2);
-		else x=10;
+	for (i = 0; i < 256; i++) {
+		if (i < 10) {
+			x = 10;
+		} else if (i < 121) {
+			x = 10 + ((i*i) >> 7);
+		} else if (i < 170) {
+			x = i/2;
+		} else if (i < 246) {
+			x = i + (80 - i/2);
+		} else {
+			x = 10;
+		}
 		waveform[i] = x;
 	}
 	clock_setup();
@@ -144,9 +151,7 @@ int main(void)
 	dma_setup();
 	dac_setup();
 
-	while (1) {
-
-	}
+	while (1);
 
 	return 0;
 }

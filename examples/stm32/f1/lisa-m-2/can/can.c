@@ -50,16 +50,16 @@ struct can_rx_msg can_rx_msg;
 static void gpio_setup(void)
 {
         /* Enable Alternate Function clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+	rcc_periph_clock_enable(RCC_AFIO);
 
 	/* Enable GPIOA clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Enable GPIOB clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* Enable GPIOC clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Preconfigure LEDs. */
 	gpio_set(GPIOA, GPIO8);  /* LED1 off */
@@ -103,9 +103,9 @@ static void systick_setup(void)
 static void can_setup(void)
 {
 	/* Enable peripheral clocks. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_CAN1EN);
+	rcc_periph_clock_enable(RCC_AFIO);
+	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_CAN1);
 
 	AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
 

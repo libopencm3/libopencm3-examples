@@ -28,7 +28,7 @@ static void clock_setup(void)
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
 
 	/* Enable GPIOD clock. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
 }
 
 static void gpio_setup(void)
@@ -52,8 +52,9 @@ int main(void)
 	while (1) {
 		/* Toggle LEDs. */
 		gpio_toggle(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-		for (i = 0; i < 6000000; i++) /* Wait a bit. */
+		for (i = 0; i < 6000000; i++) { /* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

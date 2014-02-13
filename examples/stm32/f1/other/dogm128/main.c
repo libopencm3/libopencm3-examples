@@ -29,7 +29,7 @@
 static void gpio_setup(void)
 {
 	/* Enable GPIOB clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* Set GPIO6/7 (in GPIO port B) to 'output push-pull' for the LEDs. */
 	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
@@ -57,7 +57,7 @@ static void spi_setup(void)
 {
 	/* The DOGM128 display is connected to SPI2, so initialise it. */
 
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
+	rcc_periph_clock_enable(RCC_SPI2);
 
 	spi_set_unidirectional_mode(DOGM128_SPI); /* We want to send only. */
 	spi_disable_crc(DOGM128_SPI); /* No CRC for this slave. */

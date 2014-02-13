@@ -233,7 +233,7 @@ int main(void)
 {
 	usbd_device *usbd_dev;
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	if (!gpio_get(GPIOA, GPIO10)) {
 		/* Boot the application if it's valid. */
@@ -250,13 +250,13 @@ int main(void)
 
 	rcc_clock_setup_in_hsi_out_48mhz();
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_AFIO);
 
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+	rcc_periph_clock_enable(RCC_OTGFS);
 
 	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_control_callback(

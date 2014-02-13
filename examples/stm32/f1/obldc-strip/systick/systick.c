@@ -28,10 +28,10 @@ uint32_t temp32;
 static void gpio_setup(void)
 {
 	/* Enable alternate function peripheral clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+	rcc_periph_clock_enable(RCC_AFIO);
 
 	/* Enable GPIOB clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	gpio_clear(GPIOB, GPIO4); /* LED green on */
 	gpio_set(GPIOB, GPIO5);   /* LED red off */

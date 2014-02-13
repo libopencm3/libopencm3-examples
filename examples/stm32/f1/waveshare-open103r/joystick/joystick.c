@@ -53,7 +53,7 @@ static void clock_setup(void)
 static void led_setup(void)
 {
   /* Enable GPIOC clock. */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+  rcc_periph_clock_enable(RCC_GPIOC);
   /* Set LEDs to output push-pull. */
   gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_2_MHZ,
 		GPIO_CNF_OUTPUT_PUSHPULL, LED_ALL);
@@ -64,7 +64,7 @@ static void led_setup(void)
 static void joystick_setup(void)
 {
   /* Enable GPIOA clock. */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_periph_clock_enable(RCC_GPIOA);
   /* Set joystick pins to input. */
   gpio_set_mode(JOY_PORT, GPIO_MODE_INPUT,
 		GPIO_CNF_INPUT_PULL_UPDOWN,

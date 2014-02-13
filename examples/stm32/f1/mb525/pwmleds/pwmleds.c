@@ -241,11 +241,11 @@ static void clock_setup(void)
 	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 
 	/* Enable TIM1 clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM1EN);
+	rcc_periph_clock_enable(RCC_TIM1);
 
 	/* Enable GPIOC, Alternate Function clocks. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR,
-			RCC_APB2ENR_IOPAEN | RCC_APB2ENR_AFIOEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_AFIO);
 }
 
 static void gpio_setup(void)

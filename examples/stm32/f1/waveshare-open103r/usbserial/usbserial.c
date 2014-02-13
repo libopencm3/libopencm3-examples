@@ -247,7 +247,7 @@ int main(void)
   usbd_device *usbd_dev;
 
   rcc_clock_setup_in_hsi_out_48mhz();
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  rcc_periph_clock_enable(RCC_AFIO);
 
   AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 
