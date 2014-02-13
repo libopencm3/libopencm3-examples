@@ -19,7 +19,7 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-LIBNAME		= opencm3_lm4f
+OPENCM3_LIBNAME	= opencm3_lm4f
 DEFS		= -DLM4F
 
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16

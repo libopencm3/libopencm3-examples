@@ -21,7 +21,7 @@
 ##
 
 
-LIBNAME		= opencm3_lpc43xx
+OPENCM3_LIBNAME	= opencm3_lpc43xx
 DEFS		= -DLPC43XX
 
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16

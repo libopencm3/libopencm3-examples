@@ -19,7 +19,7 @@
 
 BINARY = usart
 
-LDSCRIPT = ../stm32f0-discovery.ld
+DEVICE = stm32f051r8t6
 
 include ../../Makefile.include
 

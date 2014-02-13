@@ -19,7 +19,7 @@
 
 BINARY = cryptobasic
 
-LDSCRIPT = ../stm32f4-discovery.ld
+DEVICE = stm32f417igt6
 
 include ../../Makefile.include
 

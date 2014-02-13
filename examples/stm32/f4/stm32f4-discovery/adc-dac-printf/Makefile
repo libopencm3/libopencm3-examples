@@ -18,7 +18,7 @@
 ##
 
 BINARY = adc-dac-printf
-LDSCRIPT = ../stm32f4-discovery.ld
+DEVICE = stm32f407vgt6
 
 include ../../Makefile.include
 

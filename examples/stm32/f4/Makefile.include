@@ -19,7 +19,7 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-LIBNAME		= opencm3_stm32f4
+OPENCM3_LIBNAME	= opencm3_stm32f4
 DEFS		= -DSTM32F4
 
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16

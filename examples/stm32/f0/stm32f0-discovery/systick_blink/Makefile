@@ -19,6 +19,6 @@
 
 BINARY = systick_blink
 
-LDSCRIPT = ../stm32f0-discovery.ld
+DEVICE = stm32f051r8t6
 
 include ../../Makefile.include
