@@ -66,4 +66,3 @@ void glue_send_data_cb(uint8_t *buf, uint16_t len);
 #endif /* __STELLARIS_EK_LM4F120XL_USB_TO_SERIAL_CDCACM_H */
 
 /**@}*/
-

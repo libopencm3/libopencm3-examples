@@ -192,7 +192,7 @@ void gpiof_isr(void)
 		/* Clear interrupt source */
 		gpio_clear_interrupt_flag(GPIOF, USR_SW1);
 	}
-	
+
 	if (gpio_is_interrupt_source(GPIOF, USR_SW2)) {
 		/* SW2 was just depressed */
 		if (!bypass) {

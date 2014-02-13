@@ -46,9 +46,9 @@ static void gpio_setup(void)
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_FAST);
-	
+
 	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST);
-	
+
 	scu_pinmux(SCU_PINMUX_BOOT0, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_BOOT1, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_BOOT2, SCU_GPIO_FAST);
@@ -123,7 +123,7 @@ static uint32_t sys_tick_delta_time_ms(uint32_t start, uint32_t end)
     {
         diff=MAX_T_U32-(start-end)+1;
     }
-    
+
     return diff;
 }
 
@@ -169,7 +169,7 @@ int main(void)
 	/* SCS & Cycle Counter enabled (used to count number of cycles executed per second see g_NbCyclePerSecond */
 	scs_dwt_cycle_counter_enabled();
 
-	while (1) 
+	while (1)
 	{
 		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
 

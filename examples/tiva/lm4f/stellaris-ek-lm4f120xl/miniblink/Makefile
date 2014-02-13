@@ -22,4 +22,3 @@ BINARY = miniblink
 LDSCRIPT = ../ek-lm4f120xl.ld
 
 include ../../Makefile.include
-

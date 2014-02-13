@@ -18,5 +18,3 @@ Pressing SW1 bypasses the PLL completely, and runs off the raw 16MHz clock
 provided by the external crystal oscillator.
 The LEDs will toggle at different speeds, depending on the system clock. The
 system clock changes are handled within the interrupt service routine.
-
-

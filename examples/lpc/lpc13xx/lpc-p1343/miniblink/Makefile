@@ -22,4 +22,3 @@ BINARY = miniblink
 LDSCRIPT = ../lpc-p1343.ld
 
 include ../../Makefile.include
-

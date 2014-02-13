@@ -63,7 +63,7 @@ int main(void)
 	gpio_set(PORT_EN1V8, PIN_EN1V8);
 
 	/* Blink LED1/2/3 on the board and Read BOOT0/1/2/3 pins. */
-	while (1) 
+	while (1)
 	{
 		boot0 = BOOT0_STATE;
 		boot1 = BOOT1_STATE;

@@ -45,4 +45,3 @@ BMP_PORT	?=
 
 
 include ../../../../Makefile.rules
-

@@ -22,4 +22,3 @@ BINARY = miniblink
 LDSCRIPT = ../lm3s811-evb.ld
 
 include ../../Makefile.include
-

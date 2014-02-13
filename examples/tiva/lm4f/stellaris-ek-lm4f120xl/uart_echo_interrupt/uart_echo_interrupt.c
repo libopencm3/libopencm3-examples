@@ -69,7 +69,7 @@ void uart0_isr(void)
 		uart_send(UART0, rx);
 		irq_clear |= UART_INT_RX;
 	}
-	
+
 	uart_clear_interrupt_flag(UART0, irq_clear);
 }
 

@@ -39,7 +39,7 @@ int main(void)
 		//GPIO1_CLR = (1 << 29);	/* LED off */
 		//for (i = 0; i < 800000; i++)	/* Wait a bit. */
 		//	__asm__("nop");
-                
+
 		gpio_set(GPIO1, GPIOPIN29); /* LED on */
 		for (i = 0; i < 800000; i++)	/* Wait a bit. */
 			__asm__("nop");

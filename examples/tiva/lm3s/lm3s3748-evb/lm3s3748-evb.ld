@@ -28,4 +28,3 @@ MEMORY
 
 /* Include the common ld script. */
 INCLUDE libopencm3_lm3s.ld
-

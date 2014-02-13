@@ -22,4 +22,3 @@ BINARY = uart_echo_simple
 LDSCRIPT = ../ek-lm4f120xl.ld
 
 include ../../Makefile.include
-

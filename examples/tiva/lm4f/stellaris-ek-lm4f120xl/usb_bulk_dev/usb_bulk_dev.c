@@ -207,7 +207,7 @@ static void usb_setup(void)
  * Enable USB interrupts
  *
  * We don't enable the USB peripheral clock here, but we need it on in order to
- * acces USB registers. Hence, this must be called after usbd_init(). 
+ * acces USB registers. Hence, this must be called after usbd_init().
  */
 static void usb_ints_setup(void)
 {
