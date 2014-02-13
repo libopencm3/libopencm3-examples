@@ -33,8 +33,21 @@ MAKEFLAGS += --no-print-directory
 endif
 
 OPENCM3_DIR := $(realpath libopencm3)
+EXAMPLE_RULES = elf
 
 all: build
+
+bin: EXAMPLE_RULES += bin
+hex: EXAMPLE_RULES += hex
+srec: EXAMPLE_RULES += srec
+list: EXAMPLE_RULES += list
+images: EXAMPLE_RULES += images
+
+bin: build
+hex: build
+srec: build
+list: build
+images: build
 
 build: lib examples
 
@@ -54,7 +67,7 @@ lib:
 EXAMPLE_DIRS:=$(sort $(dir $(wildcard $(addsuffix /*/*/Makefile,$(addprefix examples/,$(TARGETS))))))
 $(EXAMPLE_DIRS): lib
 	@printf "  BUILD   $@\n";
-	$(Q)$(MAKE) --directory=$@ OPENCM3_DIR=$(OPENCM3_DIR)
+	$(Q)$(MAKE) --directory=$@ OPENCM3_DIR=$(OPENCM3_DIR) $(EXAMPLE_RULES)
 
 examples: $(EXAMPLE_DIRS)
 	$(Q)true
@@ -79,5 +92,6 @@ styleclean: $(EXAMPLE_DIRS:=.styleclean)
 	$(Q)$(MAKE) -C $* stylecheck OPENCM3_DIR=$(OPENCM3_DIR)
 
 
-.PHONY: build lib examples $(EXAMPLE_DIRS) install clean stylecheck styleclean
+.PHONY: build lib examples $(EXAMPLE_DIRS) install clean stylecheck styleclean \
+        bin hex srec list images
 
