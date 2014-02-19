@@ -27,10 +27,10 @@ static void clock_setup(void)
 	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 
 	/* Enable GPIOA clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Enable GPIOB clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_GPIOB);
 }
 
 static void gpio_setup(void)

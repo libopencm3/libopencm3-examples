@@ -30,9 +30,9 @@ int _write(int file, char *ptr, int len);
 static void clock_setup(void)
 {
 	/* Enable clocks on all the peripherals we are going to use. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR,
-			RCC_AHB1ENR_IOPCEN | RCC_AHB1ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_USART1);
+	rcc_periph_clock_enable(RCC_GPIOC);
+	rcc_periph_clock_enable(RCC_GPIOA);
 }
 
 static void usart_setup(void)

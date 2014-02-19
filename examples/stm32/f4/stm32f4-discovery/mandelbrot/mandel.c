@@ -29,11 +29,11 @@ static void clock_setup(void)
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
 	/* Enable GPIOD clock for LED & USARTs. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Enable clocks for USART2. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_USART2);
 }
 
 static void usart_setup(void)
@@ -70,15 +70,15 @@ static char color[maxIter+1] = " .:++xxXXX%%%%%%################";
 /* Main mandelbrot calculation */
 static int iterate(float px, float py)
 {
-	int it=0;
-	float x=0,y=0;
-	while(it<maxIter)
-	{
+	int it = 0;
+	float x = 0, y = 0;
+	while (it < maxIter) {
 		float nx = x*x;
 		float ny = y*y;
-		if( (nx + ny) > 4 )
+		if ((nx + ny) > 4) {
 			return it;
-		// Zn+1 = Zn^2 + P
+		}
+		/* Zn+1 = Zn^2 + P */
 		y = 2*x*y + py;
 		x = nx - ny + px;
 		it++;
@@ -88,12 +88,10 @@ static int iterate(float px, float py)
 
 static void mandel(float cX, float cY, float scale)
 {
-	int x,y;
-	for(x=-60;x<60;x++)
-	{
-		for(y=-50;y<50;y++)
-		{
-			int i = iterate(cX+x*scale, cY+y*scale);
+	int x, y;
+	for (x = -60; x < 60; x++) {
+		for (y = -50; y < 50; y++) {
+			int i = iterate(cX + x*scale, cY + y*scale);
 			usart_send_blocking(USART2, color[i]);
 		}
 		usart_send_blocking(USART2, '\r');
@@ -111,8 +109,8 @@ int main(void)
 
 	while (1) {
 		/* Blink the LED (PD12) on the board with each fractal drawn. */
-		gpio_toggle(GPIOD, GPIO12);	/* LED on/off */
-		mandel(centerX,centerY,scale);	/* draw mandelbrot */
+		gpio_toggle(GPIOD, GPIO12);		/* LED on/off */
+		mandel(centerX, centerY, scale);	/* draw mandelbrot */
 
 		/* Change scale and center */
 		centerX += 0.175f * scale;

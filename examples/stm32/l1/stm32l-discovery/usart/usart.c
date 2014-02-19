@@ -26,11 +26,11 @@ static void clock_setup(void)
 {
 	/* We are running on MSI after boot. */
 	/* Enable GPIOD clock for LED & USARTs. */
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOAEN);
-	rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_GPIOBEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* Enable clocks for USART2. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_USART2);
 }
 
 static void usart_setup(void)
@@ -76,8 +76,9 @@ int main(void)
 			usart_send_blocking(USART2, '\r');
 			usart_send_blocking(USART2, '\n');
 		}
-		for (i = 0; i < 100000; i++) /* Wait a bit. */
+		for (i = 0; i < 100000; i++) { /* Wait a bit. */
 			__asm__("NOP");
+		}
 	}
 
 	return 0;

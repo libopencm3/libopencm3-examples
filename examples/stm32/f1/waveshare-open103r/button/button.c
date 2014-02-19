@@ -33,7 +33,7 @@ static void clock_setup(void)
 static void gpio_setup(void)
 {
 	/* Enable GPIOC clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Set GPIO9 (in GPIO port C) to 'output push-pull'. */
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
@@ -43,7 +43,7 @@ static void gpio_setup(void)
 static void button_setup(void)
 {
 	/* Enable GPIOA clock. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Set GPIO9 (in GPIO port A) to 'input with pull-up resistor'. */
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT,

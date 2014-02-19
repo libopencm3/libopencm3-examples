@@ -5,7 +5,7 @@
  * Copyright (C) 2011 Stephen Caudle <scaudle@doceme.com>
  * Modified by Fernando Cortes <fermando.corcam@gmail.com>
  * modified by Guillermo Rivera <memogrg@gmail.com>
- * modified by Frantisek Burian <BuFran@seznam.cz> 
+ * modified by Frantisek Burian <BuFran@seznam.cz>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -52,8 +52,9 @@ static void adc_setup(void)
 
 	/* Wait for ADC starting up. */
 	int i;
-	for (i = 0; i < 800000; i++)    /* Wait a bit. */
+	for (i = 0; i < 800000; i++) {    /* Wait a bit. */
 		__asm__("nop");
+	}
 
 }
 
@@ -120,10 +121,11 @@ int main(void)
 
 		temp = adc_read_regular(ADC1);
 		my_usart_print_int(USART1, temp);
-		
+
 		int i;
-		for (i = 0; i < 800000; i++)    /* Wait a bit. */
+		for (i = 0; i < 800000; i++) {   /* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

@@ -26,10 +26,10 @@
 #include <stddef.h>
 #include <sys/types.h>
 
-static ssize_t _iord(void *_cookie, char *_buf,size_t _n);
-static ssize_t _iowr(void *_cookie,const char *_buf, size_t _n);
+static ssize_t _iord(void *_cookie, char *_buf, size_t _n);
+static ssize_t _iowr(void *_cookie, const char *_buf, size_t _n);
 
-static ssize_t _iord(void *_cookie, char *_buf,size_t _n)
+static ssize_t _iord(void *_cookie, char *_buf, size_t _n)
 {
 	/* dont support reading now */
 	(void)_cookie;
@@ -38,7 +38,7 @@ static ssize_t _iord(void *_cookie, char *_buf,size_t _n)
 	return 0;
 }
 
-static ssize_t _iowr(void *_cookie,const char *_buf, size_t _n)
+static ssize_t _iowr(void *_cookie, const char *_buf, size_t _n)
 {
 	uint32_t dev = (uint32_t)_cookie;
 
@@ -51,7 +51,7 @@ static ssize_t _iowr(void *_cookie,const char *_buf, size_t _n)
 }
 
 
-static FILE* usart_setup(uint32_t dev)
+static FILE *usart_setup(uint32_t dev)
 {
 	/* Setup USART2 parameters. */
 	usart_set_baudrate(dev, 38400);
@@ -63,9 +63,9 @@ static FILE* usart_setup(uint32_t dev)
 
 	/* Finally enable the USART. */
 	usart_enable(dev);
-	
+
 	cookie_io_functions_t stub = { _iord, _iowr, NULL, NULL };
-	FILE *fp = fopencookie((void *)dev,"rw+",stub);
+	FILE *fp = fopencookie((void *)dev, "rw+", stub);
 	/* Do not buffer the serial line */
 	setvbuf(fp, NULL, _IONBF, 0);
 	return fp;
@@ -106,13 +106,14 @@ int main(void)
 	/* Blink the LED (PD12) on the board with every transmitted byte. */
 	while (1) {
 		gpio_toggle(GPIOC, GPIO8);	/* LED on/off */
-		
-		fprintf(fp,"Pass: %d\n",c);
-		
+
+		fprintf(fp, "Pass: %d\n", c);
+
 		c = (c == 200) ? 0 : c + 1;	/* Increment c. */
-		
-		for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+
+		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
 			__asm__("NOP");
+		}
 	}
 
 	return 0;

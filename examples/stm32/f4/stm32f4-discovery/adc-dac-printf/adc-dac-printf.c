@@ -38,15 +38,15 @@ static void clock_setup(void)
 {
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
 	/* Enable GPIOD clock for LED & USARTs. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
 	/* Enable clocks for USART2 and dac */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_DACEN);
+	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_DAC);
 
 	/* And ADC*/
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
+	rcc_periph_clock_enable(RCC_ADC1);
 }
 
 static void usart_setup(void)
@@ -137,8 +137,8 @@ int main(void)
 	dac_setup();
 
 	/* green led for ticking */
-	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_DISCO_GREEN_PIN);
-
+	gpio_mode_setup(LED_DISCO_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			LED_DISCO_GREEN_PIN);
 
 	while (1) {
 		uint16_t input_adc0 = read_adc_naiive(0);
@@ -148,9 +148,13 @@ int main(void)
 		uint16_t input_adc1 = read_adc_naiive(1);
 		printf("tick: %d: adc0= %u, target adc1=%d, adc1=%d\n",
 			j++, input_adc0, target, input_adc1);
-		gpio_toggle(LED_DISCO_GREEN_PORT, LED_DISCO_GREEN_PIN); /* LED on/off */
-		for (i = 0; i < 1000000; i++) /* Wait a bit. */
+
+		/* LED on/off */
+		gpio_toggle(LED_DISCO_GREEN_PORT, LED_DISCO_GREEN_PIN);
+
+		for (i = 0; i < 1000000; i++) { /* Wait a bit. */
 			__asm__("NOP");
+		}
 	}
 
 	return 0;

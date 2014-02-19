@@ -24,7 +24,7 @@
 static void gpio_setup(void)
 {
 	/* Enable GPIOC clock. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
 	/* Set GPIO3 and GPIO4 (in GPIO port C) to 'output push-pull'. */
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3 | GPIO4);

@@ -31,10 +31,11 @@ int _write(int file, char *ptr, int len);
 static void clock_setup(void)
 {
 	/* Enable clocks on all the peripherals we are going to use. */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR,
-		RCC_AHB1ENR_IOPCEN | RCC_AHB1ENR_IOPAEN | RCC_AHB1ENR_IOPBEN);
+	rcc_periph_clock_enable(RCC_SPI2);
+	rcc_periph_clock_enable(RCC_USART1);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_GPIOC);
 }
 
 static void spi_setup(void)

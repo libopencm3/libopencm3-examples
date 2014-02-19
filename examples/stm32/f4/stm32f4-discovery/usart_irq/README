@@ -5,10 +5,10 @@ README
 This example program echoes data sent in on USART2 on the
 ST STM32F4DISCOVERY eval board. Uses interrupts for that purpose.
 
-Connect your TTL RX device line to PA2 on the discovery board.
-Connect your TTL TX device line to PA3 on the discovery board.
+The sending is done in a nonblocking way.
 
-The terminal settings for the receiving device/PC are 38400 8n1.
+Board connections:
+------------------
 
-The sending is done in a blocking way in the code.
-
+  PA2	(USART2_TX)	TTL serial output (38400,8,N,1)
+  PA3	(USART2_RX)	TTL serial input (38400,8,N,1)
