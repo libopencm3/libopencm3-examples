@@ -43,7 +43,7 @@ static void usart_setup(void)
 		      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 
 	/* Setup UART parameters. */
-	usart_set_baudrate(USART1, 38400);
+	usart_set_baudrate(USART1, 115200);
 	usart_set_databits(USART1, 8);
 	usart_set_stopbits(USART1, USART_STOPBITS_1);
 	usart_set_mode(USART1, USART_MODE_TX);
@@ -83,12 +83,13 @@ void rtc_isr(void)
 	/* Display the current counter value in binary via USART1. */
 	for (j = 0; j < 32; j++) {
 		if ((c & (0x80000000 >> j)) != 0) {
-			usart_send(USART1, '1');
+			usart_send_blocking(USART1, '1');
 		} else {
-			usart_send(USART1, '0');
+			usart_send_blocking(USART1, '0');
 		}
 	}
-	usart_send(USART1, '\n');
+	usart_send_blocking(USART1, '\n');
+	usart_send_blocking(USART1, '\r');
 }
 
 int main(void)
