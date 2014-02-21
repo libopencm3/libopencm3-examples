@@ -347,9 +347,7 @@ lcd_spi_init(void) {
 	 * Set up the GPIO lines for the SPI port and
 	 * control lines on the display.
 	 */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPFEN);
+	rcc_periph_clock_enable(RCC_GPIOC | RCC_GPIOD | RCC_GPIOF);
 
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO2);
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13);
@@ -364,7 +362,7 @@ lcd_spi_init(void) {
 	/* Implement state management hack */
 	nvic_enable_irq(NVIC_SPI5_IRQ);
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI5EN);
+	rcc_periph_clock_enable(RCC_SPI5);
 	/* This should configure SPI5 as we need it configured */
 	tmp = SPI_SR(LCD_SPI);
 	SPI_CR2(LCD_SPI) |= (SPI_CR2_SSOE | SPI_CR2_RXNEIE);

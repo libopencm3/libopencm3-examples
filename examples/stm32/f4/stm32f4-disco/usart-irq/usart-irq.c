@@ -242,7 +242,7 @@ void countdown(void);
  * This provides an example function which is constantly
  * printing for 20 seconds and not looking for typed characters.
  * however with the interrupt driven receieve queue you can type
- * ^C while it is counting down and it will be interrupted. 
+ * ^C while it is counting down and it will be interrupted.
  */
 void countdown(void) {
 	int i = 200;
@@ -272,7 +272,7 @@ int main(void) {
 	clock_setup(); // initialize our clock
 
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+	rcc_periph_clock_enable(RCC_GPIOD);
 
 	/* This example uses PD5 and PD6 for Tx and Rx respectively
 	 * but other pins are available for this role on USART2 (our chosen
@@ -294,7 +294,7 @@ int main(void) {
 	 * attach to different buses, and even some UARTS are attached to
 	 * APB1 and some to APB2, again the data sheet is useful here.
 	 */
-	rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+	rcc_periph_clock_enable(RCC_USART2);
 
 	/* Set up USART/UART parameters using the libopencm3 helper functions */
 	usart_set_baudrate(CONSOLE_UART, 115200);

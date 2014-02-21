@@ -225,8 +225,7 @@ int main(void) {
 	console_setup(115200);
 
 	/* Enable the GPIO ports whose pins we are using */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPFEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
+	rcc_periph_clock_enable(RCC_GPIOF | RCC_GPIOC); 
 
 	gpio_mode_setup(GPIOF, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN,
 											GPIO7 | GPIO8 | GPIO9);
@@ -238,7 +237,7 @@ int main(void) {
 	gpio_set(GPIOC, GPIO1);
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI5EN);
+	rcc_periph_clock_enable(RCC_SPI5);
 
 	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 |\
 			 SPI_CR1_MSTR |\

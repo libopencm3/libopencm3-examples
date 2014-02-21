@@ -17,8 +17,8 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libopencm3/stm32/f4/rcc.h>
-#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 
 #define GREEN_LED	GPIO13
 #define RED_LED		GPIO13
@@ -31,7 +31,7 @@ int main(void)
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
 
 	/* Enable GPIOG clock. (this enables the pins to work) */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPGEN);
+	rcc_periph_clock_enable(RCC_GPIOG);
 
 	/* Set the "mode" of the GPIO pin to output, no pullups or pulldowns */
 	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GREEN_LED );

@@ -74,7 +74,7 @@ int main(void)
 	clock_setup();
 
 	/* Enable GPIOD clock. */
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPGEN);
+	rcc_periph_clock_enable(RCC_GPIOG);
 
 	/* Set GPIO13-14 (in GPIO port G) to 'output push-pull'. */
 	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13 | GPIO14);

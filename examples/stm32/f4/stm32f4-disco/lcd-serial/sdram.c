@@ -67,12 +67,8 @@ sdram_init(void) {
 	/*
 	* First all the GPIO pins that end up as SDRAM pins
 	*/
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPEEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPFEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPGEN);
+	rcc_periph_clock_enable(RCC_GPIOB | RCC_GPIOC | RCC_GPIOD |
+							RCC_GPIOE | RCC_GPIOF | RCC_GPIOG);
 
 	for (i = 0; i < 6; i++) {
 		gpio_mode_setup(sdram_pins[i].gpio, GPIO_MODE_AF, GPIO_PUPD_NONE,
@@ -83,7 +79,7 @@ sdram_init(void) {
 	}
 
 	/* Enable the SDRAM Controller */
-	rcc_peripheral_enable_clock(&RCC_AHB3ENR, RCC_AHB3ENR_FMCEN);
+	rcc_periph_clock_enable(RCC_FSMC);
 
 	/* Note the STM32F429-DISCO board has the ram attached to bank 2 */
 	/* Timing parameters computed for a 168Mhz clock */
