@@ -21,9 +21,5 @@ BINARY = usart_stdio
 
 LDSCRIPT = ../stm32f0-discovery.ld
 
-#using newlib-nano
-CFLAGS += --specs=nano.specs
-LDFLAGS += --specs=nano.specs
-
 include ../../Makefile.include
 
