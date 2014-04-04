@@ -18,6 +18,14 @@ preferably via a github pull request.
 Usage
 -----
 
+You _must_ run "make" in the top level directory first.  This builds the
+library and all examples.  If you're simply hacking on a single example after
+that, you can type "make clean; make" in any of the individual project
+directories later.
+
+For more verbose output, to see compiler command lines, use "make V=1"
+For insanity levels of verboseness, use "make V=99"
+
 The makefiles are generally useable for your own projects with
 only minimal changes for the libopencm3 install path (See Reuse)
 

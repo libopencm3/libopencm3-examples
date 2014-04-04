@@ -105,7 +105,7 @@ LDFLAGS		+= -L$(LIB_DIR)
 LDFLAGS		+= -T$(LDSCRIPT)
 LDFLAGS		+= -Wl,-Map=$(*).map
 LDFLAGS		+= -Wl,--gc-sections
-ifeq ($(V),1)
+ifeq ($(V),99)
 LDFLAGS		+= -Wl,--print-gc-sections
 endif
 
