@@ -41,21 +41,21 @@ int main(void)
 
 	gpio_setup();
 
-	/* Blink the LED (PC8) on the board. */
+	/* Blink the LED (PB6) on the board. */
 	while (1) {
 		/* Manually: */
-		// GPIOD_BSRR = GPIO6;		/* LED off */
+		// GPIOB_BSRR = GPIO6;		/* LED off */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		//	__asm__("nop");
-		// GPIOD_BRR = GPIO6;		/* LED on */
+		// GPIOB_BRR = GPIO6;		/* LED on */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		//	__asm__("nop");
 
 		/* Using API functions gpio_set()/gpio_clear(): */
-		// gpio_set(GPIOD, GPIO6);	/* LED off */
+		// gpio_set(GPIOB, GPIO6);	/* LED off */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		//	__asm__("nop");
-		// gpio_clear(GPIOD, GPIO6);	/* LED on */
+		// gpio_clear(GPIOB, GPIO6);	/* LED on */
 		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
 		//	__asm__("nop");
 
