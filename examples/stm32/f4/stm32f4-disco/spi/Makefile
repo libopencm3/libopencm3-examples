@@ -1,3 +1,4 @@
+CFLAGS = -DTEST
 OBJS = clock.o console.o
 
 BINARY = spi-mems
