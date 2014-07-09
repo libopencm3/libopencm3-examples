@@ -24,6 +24,7 @@ TARGETS		:= stm32/f0 stm32/f1 stm32/f2 stm32/f3 stm32/f4 stm32/l1
 TARGETS		+= lpc13xx lpc17xx #lpc43xx
 TARGETS		+= lm3s lm4f
 TARGETS		+= efm32/efm32tg efm32/efm32g efm32/efm32lg efm32/efm32gg
+TARGETS		+= vf6xx
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
