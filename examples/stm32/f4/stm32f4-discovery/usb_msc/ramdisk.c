@@ -22,22 +22,26 @@
 #include "ramdisk.h"
 
 #define WBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF)
-#define QBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF), (((x) >> 16) & 0xFF), (((x) >> 24) & 0xFF)
+#define QBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF),\
+		 (((x) >> 16) & 0xFF), (((x) >> 24) & 0xFF)
 
 // filesystem size is 512kB (1024 * SECTOR_SIZE)
-#define SECTOR_COUNT 1024
-#define SECTOR_SIZE 512
-#define BYTES_PER_SECTOR 512
-#define SECTORS_PER_CLUSTER 4
-#define RESERVED_SECTORS 1
-#define FAT_COPIES 2
-#define ROOT_ENTRIES 512
-#define ROOT_ENTRY_LENGTH 32
-#define FILEDATA_START_CLUSTER 3
-#define DATA_REGION_SECTOR (RESERVED_SECTORS + FAT_COPIES + (ROOT_ENTRIES * ROOT_ENTRY_LENGTH) / BYTES_PER_SECTOR)
-#define FILEDATA_START_SECTOR (DATA_REGION_SECTOR + (FILEDATA_START_CLUSTER - 2) * SECTORS_PER_CLUSTER)
+#define SECTOR_COUNT		1024
+#define SECTOR_SIZE		512
+#define BYTES_PER_SECTOR	512
+#define SECTORS_PER_CLUSTER	4
+#define RESERVED_SECTORS	1
+#define FAT_COPIES		2
+#define ROOT_ENTRIES		512
+#define ROOT_ENTRY_LENGTH	32
+#define FILEDATA_START_CLUSTER	3
+#define DATA_REGION_SECTOR	(RESERVED_SECTORS + FAT_COPIES + \
+			(ROOT_ENTRIES * ROOT_ENTRY_LENGTH) / BYTES_PER_SECTOR)
+#define FILEDATA_START_SECTOR	(DATA_REGION_SECTOR + \
+			(FILEDATA_START_CLUSTER - 2) * SECTORS_PER_CLUSTER)
+
 // filesize is 64kB (128 * SECTOR_SIZE)
-#define FILEDATA_SECTOR_COUNT 128
+#define FILEDATA_SECTOR_COUNT	128
 
 uint8_t BootSector[] = {
 	0xEB, 0x3C, 0x90,					// code to jump to the bootstrap code

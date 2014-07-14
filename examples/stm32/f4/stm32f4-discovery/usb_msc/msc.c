@@ -20,8 +20,8 @@
 
 #include <stdlib.h>
 
-#include <libopencm3/stm32/f4/rcc.h>
-#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/msc.h>
 
@@ -104,18 +104,22 @@ static uint8_t usbd_control_buffer[128];
 
 int main(void)
 {
-
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
 	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
 	rcc_peripheral_enable_clock(&RCC_AHB2ENR, RCC_AHB2ENR_OTGFSEN);
 
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO11 | GPIO12);
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
+			GPIO9 | GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
 
-	msc_dev = usbd_init(&otgfs_usb_driver, &dev_descr, &config_descr, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+	msc_dev = usbd_init(&otgfs_usb_driver, &dev_descr, &config_descr,
+			    usb_strings, 3,
+			    usbd_control_buffer, sizeof(usbd_control_buffer));
+
 	ramdisk_init();
-	usb_msc_init(msc_dev, 0x82, 64, 0x01, 64, "VendorID", "ProductID", "0.00", ramdisk_blocks(), ramdisk_read, ramdisk_write);
+	usb_msc_init(msc_dev, 0x82, 64, 0x01, 64, "VendorID", "ProductID",
+		"0.00", ramdisk_blocks(), ramdisk_read, ramdisk_write);
 
 	for (;;) {
 		usbd_poll(msc_dev);
