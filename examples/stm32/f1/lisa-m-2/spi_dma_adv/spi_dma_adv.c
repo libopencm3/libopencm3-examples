@@ -57,7 +57,7 @@ uint16_t dummy_tx_buf = 0xdd;
 uint8_t dummy_tx_buf = 0xdd;
 #endif
 
-int _write(int file, char *ptr, int len);
+int __attribute__((used)) _write(int file, char *ptr, int len);
 
 static void clock_setup(void)
 {

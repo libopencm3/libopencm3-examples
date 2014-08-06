@@ -36,7 +36,7 @@
 
 static volatile struct state_t state;
 
-int _write(int file, char *ptr, int len);
+int __attribute__((used)) _write(int file, char *ptr, int len);
 
 static inline __attribute__((always_inline)) void __WFI(void)
 {

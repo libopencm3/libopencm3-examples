@@ -31,7 +31,7 @@
 
 static struct state_t state;
 
-int _write(int file, char *ptr, int len);
+int __attribute__((used)) _write(int file, char *ptr, int len);
 
 static void clock_setup(void)
 {

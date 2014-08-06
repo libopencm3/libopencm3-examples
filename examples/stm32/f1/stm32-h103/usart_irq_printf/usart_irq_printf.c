@@ -113,7 +113,7 @@ static int32_t ring_read(struct ring *ring, uint8_t *data, ring_size_t size)
 struct ring output_ring;
 uint8_t output_ring_buffer[BUFFER_SIZE];
 
-int _write(int file, char *ptr, int len);
+int __attribute__((used)) _write(int file, char *ptr, int len);
 
 static void clock_setup(void)
 {
