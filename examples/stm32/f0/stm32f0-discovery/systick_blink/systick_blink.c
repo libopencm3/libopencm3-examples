@@ -37,7 +37,7 @@ static void systick_setup(int freq)
 	/* clear counter so it starts right away */
 	STK_CVR = 0;
 
-	systick_set_reload(rcc_core_frequency / freq);
+	systick_set_reload(rcc_ahb_frequency / freq);
 	systick_counter_enable();
 	systick_interrupt_enable();
 }
