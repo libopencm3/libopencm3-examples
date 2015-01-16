@@ -5,6 +5,7 @@
  * Copyright (C) 2011 Damjan Marion <damjan.marion@gmail.com>
  * Copyright (C) 2011 Mark Panajotovic <marko@electrontube.org>
  * Copyright (C) 2013 Chuck McManis <cmcmanis@mcmanis.com>
+ * Copyright (C) 2015 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
