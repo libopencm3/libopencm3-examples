@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This program exercises the SysTick Interrupt of ARM CortexM4 on Jellybean's LPC43xx.
 It also enable Cycle Counter to be used for accurate delay independant from Clock Frequency.

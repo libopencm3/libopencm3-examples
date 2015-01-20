@@ -1,12 +1,9 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This example randomly blinks the GREEN LED on the ST STM32F4DISCOVERY eval
 board.
 
-Board connections:
-------------------
+## Board connections
 
- <none required>
+*none required*
 

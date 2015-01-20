@@ -1,9 +1,7 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
-This example program demonstrates simple SPI transceive on Lisa/M 2.0 board 
-(http://paparazzi.enac.fr/wiki/Lisa/M_v20 for details).
+This example program demonstrates simple SPI transceive on
+[Lisa/M 2.0 board](http://paparazzi.enac.fr/wiki/Lisa/M_v20 for details).
 
 The terminal settings for the receiving device/PC are 9600 8n1.
 

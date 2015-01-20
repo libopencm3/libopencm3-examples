@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This example uses the joystick to control the four LEDs on the
 WaveShare Open103R eval board. Joystick directions referenced here are

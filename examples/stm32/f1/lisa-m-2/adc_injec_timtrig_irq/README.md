@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This is a simple example that sends the value read out from the
 temperature sensor ADC channel of the STM32 to the USART2.

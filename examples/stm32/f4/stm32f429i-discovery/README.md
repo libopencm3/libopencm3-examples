@@ -1,3 +1,5 @@
+# README
+
 This directory contains examples for the stm32f429i discovery board.
 The PCB should be labelled either MB1075B, and contains a user USB
 port, 2.4" QVGA TFT LCD display, 64Mbits external SDRAM and ST MEMS gyroscope.

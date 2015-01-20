@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This experimental program sends some characters on the TRACESWO pin using 
 the Instrumentation Trace Macrocell (ITM) and Trace Port Interface Unit (TPIU).

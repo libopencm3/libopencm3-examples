@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This program demonstrates a little DMA MEM2MEM transfer. A string is sent out
 to USART1 and afterwards copied by DMA to another memory location. To check

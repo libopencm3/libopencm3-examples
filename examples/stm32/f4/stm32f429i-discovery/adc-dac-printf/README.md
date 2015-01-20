@@ -1,3 +1,5 @@
+# README
+
 Console on PA9 (tx only)  115200@8n1
 
 * Prints the ADC value on PA0 (adc channel 0) on the console
@@ -9,9 +11,9 @@ Recommended wiring:
 * jumper from PA5 to PA1
 
 example output:
-...
-tick: 228: adc0= 3950, target adc1=1975, adc1=1979
-tick: 229: adc0= 3949, target adc1=1974, adc1=1978
-tick: 230: adc0= 3950, target adc1=1975, adc1=1979
-tick: 231: adc0= 3949, target adc1=1974, adc1=1978
-...
+    ...
+    tick: 228: adc0= 3950, target adc1=1975, adc1=1979
+    tick: 229: adc0= 3949, target adc1=1974, adc1=1978
+    tick: 230: adc0= 3950, target adc1=1975, adc1=1979
+    tick: 231: adc0= 3949, target adc1=1974, adc1=1978
+    ...

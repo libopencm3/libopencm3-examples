@@ -1,3 +1,5 @@
+# README
+
 This is _functionally_ identical to the "button-irq-printf"
 example, but has been modified to use some low power features.
 
@@ -9,8 +11,7 @@ Instead of free running timers and busy loops, this version uses the RTC
 module and attempts to sleep as much as possible, including while the button
 is pressed.
 
-Status
-~~~~~~
+## Status
 Only very basic power savings are done!
 
 Current consumption, led off/on, 16Mhz HSI:    2.7mA/5.4mA

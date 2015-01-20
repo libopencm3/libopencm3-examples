@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This example program sends some characters on USART1.
 Afterwards it connects to an STTS75 sensor (ST LM75 compatible)

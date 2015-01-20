@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This example program demonstrates simple SPI transceive on stm32vl discovery board.
 

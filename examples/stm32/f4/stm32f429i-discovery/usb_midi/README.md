@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This example implements a USB MIDI device to demonstrate the use of the
 USB device stack. It implements the device configuration found in Appendix
@@ -11,13 +9,13 @@ The 'USER' button sends note on/note off messages.
 The board will also react to identity request (or any other data sent to
 the board) by transmitting an identity message in reply.
 
-Board connections:
-------------------
+## Board connections
 
-  CN6	(USB_OTG_HS)	USB acting as device, connect to computer
+| Port  | Function       | Description                               |
+| ----- | -------------- | ----------------------------------------- |
+| `CN6` | `(USB_OTG_HS)` | USB acting as device, connect to computer |
 
-Testing
--------
+## Testing
 
 To list midi devices, which should include this demo device
 
@@ -37,7 +35,7 @@ To record events, while pushing the user button
     12 bytes read
     $
 
-To query the system identity, note this dump matches sysex_identity[] in the
+To query the system identity, note this dump matches sysex\_identity[] in the
 source.
 
     $ amidi -d -p hw:2,0,0 -s Sysexdump.syx

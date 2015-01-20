@@ -1,3 +1,5 @@
+# README
+
 DAC test with DMA and timer 2 trigger
 
 Timer 2 is setup to provide a trigger signal on OC1, with a period of 142 Hz

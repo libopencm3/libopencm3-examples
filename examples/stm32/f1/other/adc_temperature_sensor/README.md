@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This example program sends some characters on USART1.
 Afterwards it read out the internal temperature sensor of the STM32 and

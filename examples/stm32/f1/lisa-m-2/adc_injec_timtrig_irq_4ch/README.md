@@ -1,6 +1,4 @@
-------------------------------------------------------------------------------
-README
-------------------------------------------------------------------------------
+# README
 
 This is a simple example that sends the values read out from four ADC
 channels of the STM32 to the USART2.

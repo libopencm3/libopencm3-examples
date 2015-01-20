@@ -1,13 +1,11 @@
-usb_bulk_dev
-============
+# README
 
 This example demonstrates the following:
 * Setting up polled USB endpoints
 * Setting up interrupt driven USB endpoints
 * Using the UART as a debug tool
 
-USB module
-----------
+## USB module
 
 Several USB endpoints are being set up:
 * EP1 OUT - interrupt driven RX endpoint
@@ -26,7 +24,7 @@ from the USB driver. Since the USB driver is run entirely from the USB ISR,
 these callbacks are essentially interrupt driven.
 
 The polled endpoints try to continuously read and write data. Even though
-usbd_ep_read/write_packet is called continuously for these endpoints, the USB
+usbd\_ep\_read/write\_packet is called continuously for these endpoints, the USB
 driver will only write a packet to the TX FIFO if it is empty, and only read
 a packet from the FIFO if one has arrived.
 
@@ -34,8 +32,7 @@ The endpoints with a misaligned buffer show the performance drop when the buffer
 is not aligned to a 4 byte boundary. 32-bit memory accesses to the buffer are
 downgraded to 8-bit accesses by the hardware.
 
-Clock change module
--------------------
+## Clock change module
 
 Pressing SW2 toggles the system clock between 80MHz, 57MHz, 40MHz, 30MHz, 20MHz,
 and 16MHz by changing the PLL divisor.
@@ -49,8 +46,7 @@ possible to change the system clock while benchmarking the USB endpoint.
 The current system clock is printed on the debug interface. This allows testing
 the performance of the USB endpoints under different clocks.
 
-Debug module
-------------
+## Debug module
 
 printf() support is provided via UART0. The UART0 pins are connected to the
 CDCACM interface on the ICDI chip, so no extra hardware is necessary to check
@@ -58,4 +54,4 @@ the debug output. Just connect the debug USB cable and use a terminal program to
 open the ACM port with 921600-8N1.
 
 For example:
-> $ picocom /dev/ttyACM0 -b921600
+    picocom /dev/ttyACM0 -b921600

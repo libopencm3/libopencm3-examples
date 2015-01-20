@@ -1,3 +1,5 @@
+# README
+
 This directory contains examples for the _original_ stm32f4 discovery.
 The PCB should be labelled either MB997A or MB997B, and contains a user USB
 port, and an audio dac on board, along with a MEMs microphone and an
