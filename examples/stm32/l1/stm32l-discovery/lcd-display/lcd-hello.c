@@ -24,8 +24,9 @@
 static void lcd_init(void)
 {
 	/* Move all needed GPIO pins to LCD alternative mode */
-	rcc_peripheral_enable_clock (&RCC_AHBENR, RCC_AHBENR_GPIOAEN
-				     | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_peripheral_enable_clock (&RCC_AHBLPENR, RCC_AHBLPENR_GPIOALPEN
 				     | RCC_AHBLPENR_GPIOBLPEN | RCC_AHBLPENR_GPIOCLPEN);
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO1 | GPIO2
@@ -45,7 +46,8 @@ static void lcd_init(void)
 		     | GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11);
 
 	/* Enable LCD and use LSE clock as RTC/LCD clock.	*/
-	rcc_peripheral_enable_clock (&RCC_APB1ENR, RCC_APB1ENR_PWREN | RCC_APB1ENR_LCDEN);
+	rcc_periph_clock_enable(RCC_PWR);
+	rcc_periph_clock_enable(RCC_LCD);
 	pwr_disable_backup_domain_write_protect ();
 	rcc_osc_on (LSE);
 	rcc_wait_for_osc_ready (LSE);
