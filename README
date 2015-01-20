@@ -40,7 +40,31 @@ The Makefiles of the examples are configured to use a certain OpenOCD
 flash programmer, you might need to change some of the variables in the
 Makefile if you use a different one.
 
-You can also flash manually like this:
+The make flash target also supports a few other programmers. If you provide the
+Black Magic Probe serial port the target will automatically choose to program
+via Black Magic Probe. For example on linux you would do the following:
+
+ $ cd examples/stm32/f1/stm32-h103/miniblink
+ $ make flash BMP_PORT=/dev/ttyACM0
+
+This will also work with discovery boards that got the st-link firmware
+replaced with the Black Magic Probe firmware.
+
+In case you did not replace the firmware you can program using the st-flash
+program by invoking the stlink-flash target:
+
+ $ cd examples/stm32/f1/stm32vl-discovery/miniblink
+ $ make miniblink.stlink-flash
+
+If you rather use GDB to connect to the st-util you can provide the STLINK_PORT
+to the flash target.
+
+ $ cd examples/stm32/f1/stm32vl-discovery/miniblink
+ $ make flash STLINK_PORT=:4242
+
+You can also flash manually.
+
+openocd:
 
  $ openocd -f interface/jtagkey-tiny.cfg -f target/stm32f1x.cfg
  $ telnet localhost 4444
@@ -51,6 +75,39 @@ You can also flash manually like this:
 Replace the "jtagkey-tiny.cfg" with whatever JTAG device you are using, and/or
 replace "stm32f1x.cfg" with your respective config file. Replace "foobar.hex"
 with the file name of the image you want to flash.
+
+Black Magic Probe:
+ $ cd examples/stm32/f1/stm32vl-discovery/miniblink
+ $ arm-none-eabi-gdb miniblink.elf
+ (gdb) target extended_remote /dev/ttyACM0
+ (gdb) monitor swdp_scan
+ (gdb) attach 1
+ (gdb) load
+ (gdb) run
+
+To exit the gdb session type <Ctrl>-C and <Ctrl>-D. It is useful to add the
+following to the .gdbinit to make the flashing and debugging easier:
+ set target-async on
+ set confirm off
+ set mem inaccessible-by-default off
+ #set debug remote 1
+ tar ext /dev/ttyACM0
+ mon version
+ mon swdp_scan
+ att 1
+
+Having this in your .gdbinit boils down the flashing/debugging process to:
+ $ cd examples/stm32/f1/stm32vl-discovery/miniblink
+ $ arm-none-eabi-gdb miniblink.elf
+ (gdb) load
+ (gdb) run
+
+ST-Link (st-util) (https://github.com/texane/stlink):
+ $ cd examples/stm32/f1/stm32vl-discovery/miniblink
+ $ arm-none-eabi-gdb miniblink.elf
+ (gdb) tar extended-remote :4242
+ (gdb) load
+ (gdb) run
 
 Reuse
 -----
