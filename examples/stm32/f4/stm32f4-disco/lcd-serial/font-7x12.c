@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the libopencm3 project.
  *
  * Copyright (C) 2014 Chuck McManis <cmcmanis@mcmanis.com>
@@ -21,15 +21,13 @@
 #define MCMFONT_INC
 
 /* Ascii 7 x 12 font
- * 
- * This is a pretty generic 7 x 12 ASCII font that includes
- * lower case descenders (indicated by (data & 0x80) != 0 
- * on the first data byte of the character. Each row
- * represents 9 "lines" of the font, the bits in the byte
- * represent columns. When a glyph descends below the base
- * line it is rendered 3 pixels lower (hence the height of
- * 12 pixels rather than 9 even though the data is only 9
- * rows tall)
+ *
+ * This is a pretty generic 7 x 12 ASCII font that includes lower case
+ * descenders (indicated by (data & 0x80) != 0 on the first data byte of the
+ * character. Each row represents 9 "lines" of the font, the bits in the byte
+ * represent columns. When a glyph descends below the base line it is rendered
+ * 3 pixels lower (hence the height of 12 pixels rather than 9 even though the
+ * data is only 9 rows tall)
  */
 
 #define FONT_CHAR_WIDTH 7

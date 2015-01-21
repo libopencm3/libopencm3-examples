@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the libopencm3 project.
  *
  * Copyright (C) 2014 Chuck McManis (cmcmanis@mcmanis.com)

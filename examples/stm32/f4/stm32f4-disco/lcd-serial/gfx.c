@@ -94,7 +94,7 @@ void gfx_drawCircle(int16_t x0, int16_t y0, int16_t r,
     x++;
     ddF_x += 2;
     f += ddF_x;
-  
+
     gfx_drawPixel(x0 + x, y0 + y, color);
     gfx_drawPixel(x0 - x, y0 + y, color);
     gfx_drawPixel(x0 + x, y0 - y, color);
