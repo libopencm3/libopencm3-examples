@@ -36,7 +36,7 @@
  */
 
 
-#define CONSOLE_UART	USART2
+#define CONSOLE_UART	USART1
 
 /*
  * Our simple console definitions
