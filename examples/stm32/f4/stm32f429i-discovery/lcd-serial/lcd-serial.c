@@ -41,7 +41,8 @@ int main(void) {
 	lcd_spi_init();
 	console_puts("LCD Initialized\n");
 	console_puts("Should have a checker pattern, press any key to proceed\n");
-	(void) console_getc(1);
+	msleep(2000);
+//	(void) console_getc(1);
 	gfx_init(lcd_draw_pixel, 240, 320);
 	gfx_fillScreen(LCD_GREY);
 	gfx_fillRoundRect(10, 10, 220, 220, 5, LCD_WHITE);
@@ -60,7 +61,8 @@ int main(void) {
 	lcd_show_frame();
 	console_puts("Now it has a bit of structured graphics.\n");
 	console_puts("Press a key for some simple animation.\n");
-	(void) console_getc(1);
+	msleep(2000);
+//	(void) console_getc(1);
 	gfx_setTextColor(LCD_YELLOW, LCD_BLACK);
 	gfx_setTextSize(3);
 	p1 = 0;
