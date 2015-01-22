@@ -46,7 +46,12 @@ static void msleep(uint32_t delay)
 	while (wake > system_millis);
 }
 
-/* Set up a timer to create 1mS ticks. */
+/*
+ * systick_setup(void)
+ *
+ * This function sets up the 1khz "system tick" count. The SYSTICK counter is a
+ * standard feature of the Cortex-M series.
+ */
 static void systick_setup(void)
 {
 	/* clock rate / 1000 to get 1mS interrupt rate */
@@ -57,7 +62,7 @@ static void systick_setup(void)
 	systick_interrupt_enable();
 }
 
-/* Set STM32 to 168 MHz. */
+/* Set STM32 system clock to 168 MHz. */
 static void clock_setup(void)
 {
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
