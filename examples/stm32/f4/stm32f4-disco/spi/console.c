@@ -47,9 +47,9 @@ volatile int recv_ndx_nxt;		// Next place to store
 volatile int recv_ndx_cur;		// Next place to read
 
 /* For interrupt handling we add a new function which is called
- * when recieve interrupts happen. The name (usart2_isr) is created
+ * when recieve interrupts happen. The name (usart1_isr) is created
  * by the irq.json file in libopencm3 calling this interrupt for
- * USART2 'usart2', adding the suffix '_isr', and then weakly binding
+ * USART1 'usart1', adding the suffix '_isr', and then weakly binding
  * it to the 'do nothing' interrupt function in vec.c.
  *
  * By defining it in this file the linker will override that weak
@@ -57,7 +57,7 @@ volatile int recv_ndx_cur;		// Next place to read
  * right or it won't work. And you'll wonder where your interrupts
  * are going.
  */
-void usart2_isr(void) {
+void usart1_isr(void) {
 	uint32_t	reg;
 	int			i;
 
@@ -191,29 +191,30 @@ int console_gets(char *s, int len) {
 void console_setup(int baud) {
 
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
-	rcc_periph_clock_enable(RCC_GPIOD);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* This example uses PD5 and PD6 for Tx and Rx respectively
-	 * but other pins are available for this role on USART2 (our chosen
- 	 * USART) as well, such as PA2 and PA3. You can also split them
-	 * so PA2 for Tx, PD6 for Rx but you would have to enable both
-	 * the GPIOA and GPIOD clocks in that case
+	/* This example uses PA9 and PA10 for Tx and Rx respectively
+	 * but other pins are available for this role on USART1 (our chosen
+	 * USART) as well, we are using these because they are connected to the
+	 * programmer through some jumpers.
 	 */
-	gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 | GPIO6);
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
 
 	/* Actual Alternate function number (in this case 7) is part
 	 * depenedent, CHECK THE DATA SHEET for the right number to
 	 * use.
 	 */
-	gpio_set_af(GPIOD, GPIO_AF7, GPIO5 | GPIO6);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
 
 
-	/* This then enables the clock to the USART2 peripheral which is
-	 * attached inside the chip to the APB2 bus. Different peripherals
+	/* This then enables the clock to the USART1 peripheral which is
+	 * attached inside the chip to the APB1 bus. Different peripherals
 	 * attach to different buses, and even some UARTS are attached to
 	 * APB1 and some to APB2, again the data sheet is useful here.
+	 * We are using rcc_periph_clock_enable that knows which peripheral is
+	 * on which clock bus and sets up everything accordingly.
 	 */
-	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_USART1);
 
 	/* Set up USART/UART parameters using the libopencm3 helper functions */
 	usart_set_baudrate(CONSOLE_UART, baud);
@@ -225,7 +226,7 @@ void console_setup(int baud) {
 	usart_enable(CONSOLE_UART);
 
 	/* Enable interrupts from the USART */
-	nvic_enable_irq(NVIC_USART2_IRQ);
+	nvic_enable_irq(NVIC_USART1_IRQ);
 
 	/* Specifically enable recieve interrupts */
 	usart_enable_rx_interrupt(CONSOLE_UART);

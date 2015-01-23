@@ -193,11 +193,10 @@ void console_setup(int baud) {
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* This example uses PD5 and PD6 for Tx and Rx respectively
+	/* This example uses PA9 and PA10 for Tx and Rx respectively
 	 * but other pins are available for this role on USART1 (our chosen
- 	 * USART) as well, such as PA2 and PA3. You can also split them
-	 * so PA2 for Tx, PD6 for Rx but you would have to enable both
-	 * the GPIOA and GPIOD clocks in that case
+	 * USART) as well. We decided on the ones above as they are connected
+	 * to the programming circuitry through jumpers.
 	 */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
 
@@ -209,9 +208,11 @@ void console_setup(int baud) {
 
 
 	/* This then enables the clock to the USART1 peripheral which is
-	 * attached inside the chip to the APB2 bus. Different peripherals
+	 * attached inside the chip to the APB1 bus. Different peripherals
 	 * attach to different buses, and even some UARTS are attached to
 	 * APB1 and some to APB2, again the data sheet is useful here.
+	 * We use the rcc_periph_clock_enable function that knows which
+	 * peripheral is on which bus and sets it up for us.
 	 */
 	rcc_periph_clock_enable(RCC_USART1);
 

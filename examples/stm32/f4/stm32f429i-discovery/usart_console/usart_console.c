@@ -35,7 +35,7 @@
  * we can use on a serial port. 
  */
 
-#define CONSOLE_UART	USART2
+#define CONSOLE_UART	USART1
 
 void console_putc(char c);
 char console_getc(int wait);
@@ -134,28 +134,29 @@ int main(void) {
 	clock_setup(); // initialize our clock
 
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
-	rcc_periph_clock_enable(RCC_GPIOD);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* This example uses PD5 and PD6 for Tx and Rx respectively
-     * but other pins are available for this role on USART2 (our chosen
- 	 * USART) as well, such as PA2 and PA3. You can also split them
-	 * so PA2 for Tx, PD6 for Rx but you would have to enable both
-	 * the GPIOA and GPIOD clocks in that case
+	/* This example uses PA9 and PA10 for Tx and Rx respectively
+	 * but other pins are available for this role on USART1 (our chosen
+	 * USART) as it is connected to the programmer interface through
+	 * jumpers.
 	 */
-	gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 | GPIO6);
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
 
 	/* Actual Alternate function number (in this case 7) is part
 	 * depenedent, check the data sheet for the right number to
 	 * use.
 	 */
-	gpio_set_af(GPIOD, GPIO_AF7, GPIO5 | GPIO6);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
 
-	/* This then enables the clock to the USART2 peripheral which is
-	 * attached inside the chip to the APB2 bus. Different peripherals
+	/* This then enables the clock to the USART1 peripheral which is
+	 * attached inside the chip to the APB1 bus. Different peripherals
 	 * attach to different buses, and even some UARTS are attached to
 	 * APB1 and some to APB2, again the data sheet is useful here.
+	 * We use the rcc_periph_clock_enable function that knows on which bus
+	 * the peripheral is and sets things up accordingly.
 	 */
-	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_USART1);
 
 	/* Set up USART/UART parameters using the libopencm3 helper functions */
 	usart_set_baudrate(CONSOLE_UART, 115200);

@@ -22,7 +22,7 @@ BINARY = usart_irq_console
 # Example showing how to generate a map file.
 LDFLAGS += -Wl,--Map=$(BINARY).map
 
-LDSCRIPT = ../stm32f4-disco.ld
+LDSCRIPT = ../stm32f429i-discovery.ld
 
 include ../../Makefile.include
 
