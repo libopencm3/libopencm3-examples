@@ -17,7 +17,7 @@
 
 OBJS = clock.o
 
-BINARY = usart-irq
+BINARY = usart_irq_console
 
 # Example showing how to generate a map file.
 LDFLAGS += -Wl,--Map=$(BINARY).map
