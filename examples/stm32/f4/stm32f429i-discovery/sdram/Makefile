@@ -19,7 +19,7 @@ OBJS = console.o clock.o
 
 BINARY = sdram
 
-LDSCRIPT = ../stm32f4-disco.ld
+LDSCRIPT = ../stm32f429i-discovery.ld
 
 include ../../Makefile.include
 
