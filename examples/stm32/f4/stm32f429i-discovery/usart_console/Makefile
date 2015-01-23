@@ -17,9 +17,9 @@
 
 OBJS = clock.o
 
-BINARY = usart
+BINARY = usart_console
 
-LDSCRIPT = ../stm32f4-disco.ld
+LDSCRIPT = ../stm32f429i-discovery.ld
 
 include ../../Makefile.include
 
