@@ -68,23 +68,9 @@ void usart1_isr(void) {
 #ifdef RESET_ON_CTRLC
 			/* Check for "reset" */
 			if (recv_buf[recv_ndx_nxt] == '\003') {
-				/* reset the system
-				 * volatile definition of return address on the stack
-				 * to insure it gets stored, changed to point to
-				 * the trampoline function (do_the_nasty) which is
-				 * required because we need to return of an interrupt
-				 * to get the internal value of the LR register reset
-				 * and put the processor back into "Thread" mode from
-				 * "Handler" mode.
-				 *
-				 * See the PM0214 Programming Manual for Cortex M,
-				 * pg 42, to see the format of the Cortex M4 stack after
-				 * an interrupt or exception has occurred.
-				 */
-				volatile uint32_t *ret = (&reg) + 7;
-				
-				*ret = (uint32_t) &reset_handler;
-				return;
+				/* reset the system */
+				scb_reset_system();
+				return; /* not reached */
 			}
 #endif
 			/* Check for "overrun" */

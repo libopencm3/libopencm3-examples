@@ -35,30 +35,6 @@
 static int print_decimal(int v);
 static int print_hex(int v);
 
-/*
- * This is an ungainly workaround (aka hack) basically I want to know
- * when the SPI port is 'done' sending all of the bits out, and it is
- * done when it has clocked enough bits that it would have received a
- * byte. Since we're using the SPI port in write_only mode I am not
- * collecting the "received" bytes into a buffer, but one could of
- * course. I keep track of how many bytes should have been returned
- * by decrementing the 'rx_pend' volatile. When it reaches 0 we know
- * we are done.
- */
-
-volatile int rx_pend;
-volatile uint16_t spi_rx_buf;
-
-/*
- * This is the ISR we use. Note that the name is based on the name
- * in the irq.json file of libopencm3 plus the "_isr" extension.
- */
-void
-spi5_isr(void) {
-    spi_rx_buf = SPI_DR(SPI5);
-    --rx_pend;
-}
-
 /* Simple double buffering, one frame is displayed, the
  * other being built.
  */
@@ -342,10 +318,6 @@ lcd_spi_init(void) {
 
 	cur_frame = (uint16_t *)(SDRAM_BASE_ADDRESS);
 	display_frame = cur_frame + (LCD_WIDTH * LCD_HEIGHT);
-
-	rx_pend = 0;
-	/* Implement state management hack */
-	// nvic_enable_irq(NVIC_SPI5_IRQ);
 
 	rcc_periph_clock_enable(RCC_SPI5);
 	spi_init_master(LCD_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_4,
