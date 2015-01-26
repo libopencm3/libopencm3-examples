@@ -115,29 +115,15 @@ static void lcd_command(uint8_t cmd, int delay, int n_args,
  */
 static void
 lcd_command(uint8_t cmd, int delay, int n_args, const uint8_t *args) {
-	uint32_t timeout;
 	int i;
 
 	gpio_clear(GPIOC, GPIO2);	// Select the LCD
-	rx_pend++;
-	spi_send(SPI5, cmd);
-	/* We need to wait until it is sent, if we turn on the Data
-	 * line too soon, it ends up confusing the display to thinking
-	 * its a data transfer, as it samples the D/CX line on the last
-	 * bit sent.
-	 */
-	for (timeout = 0; (timeout < 1000) && (rx_pend); timeout++);
-	rx_pend = 0; // sometimes, at 10Mhz we miss this
+	(void) spi_xfer(LCD_SPI, cmd);
 	if (n_args) {
 		gpio_set(GPIOD, GPIO13);	// Set the D/CX pin
 		for (i = 0; i < n_args; i++) {
-			rx_pend++;
-			spi_send(SPI5, *(args+i));
+			(void) spi_xfer(LCD_SPI, *(args+i));
 		}
-		/* This wait so that we don't pull CS too soon after
-		 * sending the last byte of data.
-		 */
-		for (timeout = 0; (timeout < 1000) && (rx_pend); timeout++);
 	}
 	gpio_set(GPIOC, GPIO2); 	// Turn off chip select
 	gpio_clear(GPIOD, GPIO13);	// always reset D/CX
@@ -341,7 +327,6 @@ void lcd_show_frame(void) {
  */
 void
 lcd_spi_init(void) {
-	uint32_t	tmp;
 
 	/*
 	 * Set up the GPIO lines for the SPI port and
@@ -360,24 +345,16 @@ lcd_spi_init(void) {
 
 	rx_pend = 0;
 	/* Implement state management hack */
-	nvic_enable_irq(NVIC_SPI5_IRQ);
+	// nvic_enable_irq(NVIC_SPI5_IRQ);
 
 	rcc_periph_clock_enable(RCC_SPI5);
-	/* This should configure SPI5 as we need it configured */
-	tmp = SPI_SR(LCD_SPI);
-	SPI_CR2(LCD_SPI) |= (SPI_CR2_SSOE | SPI_CR2_RXNEIE);
-
-	/* device clocks on the rising edge of SCK with MSB first */
-	tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_4 |	// 10.25Mhz SPI Clock (42M/4)
-		SPI_CR1_MSTR |                  // Master Mode
-		SPI_CR1_BIDIOE |                // Write Only
-		SPI_CR1_SPE;                    // Enable SPI
-
-	SPI_CR1(LCD_SPI) = tmp;                 // Do it.
-	if (SPI_SR(LCD_SPI) & SPI_SR_MODF) {
-		SPI_CR1(LCD_SPI) = tmp;		// Re-writing will reset MODF
-		console_puts("Initial mode fault.\n");
-	}
+	spi_init_master(LCD_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+					SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+					SPI_CR1_CPHA_CLK_TRANSITION_1,
+					SPI_CR1_DFF_8BIT,
+					SPI_CR1_MSBFIRST);
+	spi_enable_ss_output(LCD_SPI);
+	spi_enable(LCD_SPI);
 
 	/* Set up the display */
 	console_puts("Initialize the display.\n");
