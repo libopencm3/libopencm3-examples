@@ -32,7 +32,7 @@
  * USART.
  *
  * These define sort of the minimum "library" of functions which
- * we can use on a serial port. 
+ * we can use on a serial port.
  */
 
 #define CONSOLE_UART	USART1
@@ -48,7 +48,8 @@ int console_gets(char *s, int len);
  * Send the character 'c' to the USART, wait for the USART
  * transmit buffer to be empty first.
  */
-void console_putc(char c) {
+void console_putc(char c)
+{
 	uint32_t	reg;
 	do {
 		reg = USART_SR(CONSOLE_UART);
@@ -63,7 +64,8 @@ void console_putc(char c) {
  * non-zero. Continue checking until a character is received
  * otherwise return 0 if called and no character was available.
  */
-char console_getc(int wait) {
+char console_getc(int wait)
+{
 	uint32_t	reg;
 	do {
 		reg = USART_SR(CONSOLE_UART);
@@ -78,7 +80,8 @@ char console_getc(int wait) {
  * after the last character, as indicated by a NUL character, is
  * reached.
  */
-void console_puts(char *s) {
+void console_puts(char *s)
+{
 	while (*s != '\000') {
 		console_putc(*s);
 		/* Add in a carraige return, after sending line feed */
@@ -96,7 +99,8 @@ void console_puts(char *s) {
  * support for editing characters (back space and delete)
  * end when a <CR> character is received.
  */
-int console_gets(char *s, int len) {
+int console_gets(char *s, int len)
+{
 	char *t = s;
 	char c;
 
@@ -119,7 +123,7 @@ int console_gets(char *s, int len) {
 		/* update end of string with NUL */
 		*t = '\000';
 	}
-	return (t - s);
+	return t - s;
 }
 
 /*
@@ -127,11 +131,12 @@ int console_gets(char *s, int len) {
  * on some of the pins, in this case connected to a
  * USART.
  */
-int main(void) {
+int main(void)
+{
 	char buf[128];
 	int	len;
 
-	clock_setup(); // initialize our clock
+	clock_setup(); /* initialize our clock */
 
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
 	rcc_periph_clock_enable(RCC_GPIOA);

@@ -27,7 +27,7 @@
  * These define sort of the minimum "library" of functions which
  * we can use on a serial port. If you wish to use a different
  * USART there are several things to change:
- * 	- CONSOLE_UART change this
+ *	- CONSOLE_UART change this
  *	- Change the peripheral enable clock
  *	- add usartx_isr for interrupts
  *	- nvic_enable_interrupt(your choice of USART/UART)

@@ -37,18 +37,15 @@
 #include <libopencm3/cm3/cortex.h>
 #include "console.h"
 
-
 /*
- * Some definitions of our console "functions" attached to the 
+ * Some definitions of our console "functions" attached to the
  * USART.
  *
  * These define sort of the minimum "library" of functions which
  * we can use on a serial port.
  */
 
-
 #define CONSOLE_UART	USART1
-
 
 /* This is a ring buffer to holding characters as they are typed
  * it maintains both the place to put the next character received
@@ -56,10 +53,10 @@
  * read by the program. See the README file for a discussion of
  * the failure semantics.
  */
-#define RECV_BUF_SIZE	128		// Arbitrary buffer size
+#define RECV_BUF_SIZE	128		/* Arbitrary buffer size */
 char recv_buf[RECV_BUF_SIZE];
-volatile int recv_ndx_nxt;		// Next place to store
-volatile int recv_ndx_cur;		// Next place to read
+volatile int recv_ndx_nxt;		/* Next place to store */
+volatile int recv_ndx_cur;		/* Next place to read */
 
 /* For interrupt handling we add a new function which is called
  * when recieve interrupts happen. The name (usart1_isr) is created
@@ -72,7 +69,8 @@ volatile int recv_ndx_cur;		// Next place to read
  * right or it won't work. And you'll wonder where your interrupts
  * are going.
  */
-void usart1_isr(void) {
+void usart1_isr(void)
+{
 	uint32_t	reg;
 	int			i;
 
@@ -84,10 +82,13 @@ void usart1_isr(void) {
 			/* Check for "reset" */
 			if (recv_buf[recv_ndx_nxt] == '\003') {
 				/* reset the system */
-				volatile uint32_t *ret = (&reg) + 7;	// Return address on stack
-				
-				*ret = (uint32_t) &reset_handler;		// force system reset
-				return;									// go to new address
+				/* Return address on stack */
+				volatile uint32_t *ret = (&reg) + 7;
+
+				/* force system reset */
+				*ret = (uint32_t) &reset_handler;
+				/* go to new address */
+				return;
 			}
 #endif
 			/* Check for "overrun" */
@@ -96,7 +97,8 @@ void usart1_isr(void) {
 				recv_ndx_nxt = i;
 			}
 		}
-	} while ((reg & USART_SR_RXNE) != 0); // can read back-to-back interrupts
+	/* can read back-to-back interrupts */
+	} while ((reg & USART_SR_RXNE) != 0);
 }
 
 /*
@@ -105,7 +107,8 @@ void usart1_isr(void) {
  * Send the character 'c' to the USART, wait for the USART
  * transmit buffer to be empty first.
  */
-void console_putc(char c) {
+void console_putc(char c)
+{
 	uint32_t	reg;
 	do {
 		reg = USART_SR(CONSOLE_UART);
@@ -123,10 +126,11 @@ void console_putc(char c) {
  * The implementation is a bit different however, now it looks
  * in the ring buffer to see if a character has arrived.
  */
-char console_getc(int wait) {
+char console_getc(int wait)
+{
 	char		c = 0;
 
-	while ((wait != 0) && (recv_ndx_cur == recv_ndx_nxt)) ;
+	while ((wait != 0) && (recv_ndx_cur == recv_ndx_nxt));
 	if (recv_ndx_cur != recv_ndx_nxt) {
 		c = recv_buf[recv_ndx_cur];
 		recv_ndx_cur = (recv_ndx_cur + 1) % RECV_BUF_SIZE;
@@ -141,7 +145,8 @@ char console_getc(int wait) {
  * after the last character, as indicated by a NUL character, is
  * reached.
  */
-void console_puts(char *s) {
+void console_puts(char *s)
+{
 	while (*s != '\000') {
 		console_putc(*s);
 		/* Add in a carraige return, after sending line feed */
@@ -159,7 +164,8 @@ void console_puts(char *s) {
  * support for editing characters (back space and delete)
  * end when a <CR> character is received.
  */
-int console_gets(char *s, int len) {
+int console_gets(char *s, int len)
+{
 	char *t = s;
 	char c;
 
@@ -182,7 +188,7 @@ int console_gets(char *s, int len) {
 		/* update end of string with NUL */
 		*t = '\000';
 	}
-	return (t - s);
+	return t - s;
 }
 
 /*
@@ -190,7 +196,8 @@ int console_gets(char *s, int len) {
  * on some of the pins, in this case connected to a
  * USART.
  */
-void console_setup(void) {
+void console_setup(void)
+{
 
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
 	rcc_periph_clock_enable(RCC_GPIOA);

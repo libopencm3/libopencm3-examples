@@ -48,8 +48,9 @@ uint16_t *display_frame;
  * of the word to store, and puts in the value we pass to it.
  */
 void
-lcd_draw_pixel(int x, int y, uint16_t color) {
-    *(cur_frame + x + y * LCD_WIDTH) = color;
+lcd_draw_pixel(int x, int y, uint16_t color)
+{
+	*(cur_frame + x + y * LCD_WIDTH) = color;
 }
 
 /*
@@ -72,9 +73,9 @@ lcd_draw_pixel(int x, int y, uint16_t color) {
  * initialization sequence for the display.
  */
 struct tft_command {
-	uint16_t delay;		// If you need a delay after
-	uint8_t cmd;		// command to send
-	uint8_t n_args;		// How many arguments it has
+	uint16_t delay;		/* If you need a delay after */
+	uint8_t cmd;		/* command to send */
+	uint8_t n_args;		/* How many arguments it has */
 };
 
 
@@ -90,21 +91,22 @@ static void lcd_command(uint8_t cmd, int delay, int n_args,
  * sends those along too.
  */
 static void
-lcd_command(uint8_t cmd, int delay, int n_args, const uint8_t *args) {
+lcd_command(uint8_t cmd, int delay, int n_args, const uint8_t *args)
+{
 	int i;
 
-	gpio_clear(GPIOC, GPIO2);	// Select the LCD
+	gpio_clear(GPIOC, GPIO2);	/* Select the LCD */
 	(void) spi_xfer(LCD_SPI, cmd);
 	if (n_args) {
-		gpio_set(GPIOD, GPIO13);	// Set the D/CX pin
+		gpio_set(GPIOD, GPIO13);	/* Set the D/CX pin */
 		for (i = 0; i < n_args; i++) {
 			(void) spi_xfer(LCD_SPI, *(args+i));
 		}
 	}
-	gpio_set(GPIOC, GPIO2); 	// Turn off chip select
-	gpio_clear(GPIOD, GPIO13);	// always reset D/CX
+	gpio_set(GPIOC, GPIO2);		/* Turn off chip select */
+	gpio_clear(GPIOD, GPIO13);	/* always reset D/CX */
 	if (delay) {
-		msleep(delay);	// wait, if called for
+		msleep(delay);		/* wait, if called for */
 	}
 }
 
@@ -122,16 +124,16 @@ static const uint8_t cmd_args[] = {
 	0x10,
 	0x45, 0x15,
 	0x90,
-//    0xc8,                 // original
-//                  11001000 = MY, MX, BGR
+/*    0xc8,*/                 /* original */
+/*                  11001000 = MY, MX, BGR */
 	0x08,
 	0xc2,
 	0x55,
 	0x0a, 0xa7, 0x27, 0x04,
 	0x00, 0x00, 0x00, 0xef,
 	0x00, 0x00, 0x01, 0x3f,
-//    0x01, 0x00, 0x06,         // original
-	0x01, 0x00, 0x00,           // modified to remove RGB mode
+/*    0x01, 0x00, 0x06,*/         /* original */
+	0x01, 0x00, 0x00,           /* modified to remove RGB mode */
 	0x01,
 	0x0F, 0x29, 0x24, 0x0C, 0x0E,
 	0x09, 0x4E, 0x78, 0x3C, 0x09,
@@ -152,30 +154,30 @@ static const uint8_t cmd_args[] = {
  * code, the data sheet, and other sources on the web.
  */
 const struct tft_command  initialization[] = {
-	{   0, 0xb1, 2 },	// 0x00, 0x1B,
-	{   0, 0xb6, 2 },	// 0x0a, 0xa2,
-	{   0, 0xc0, 1 },	// 0x10,
-	{   0, 0xc1, 1 },	// 0x10,
-	{   0, 0xc5, 2 },	// 0x45, 0x15,
-	{   0, 0xc7, 1 },	// 0x90,
-	{   0, 0x36, 1 },	// 0xc8,
-	{   0, 0xb0, 1 },	// 0xc2,
-	{   0, 0x3a, 1 },	// 0x55 **added, pixel format 16 bpp
-	{   0, 0xb6, 4 },	// 0x0a, 0xa7, 0x27, 0x04,
-	{   0, 0x2A, 4 },	// 0x00, 0x00, 0x00, 0xef,
-	{   0, 0x2B, 4 },	// 0x00, 0x00, 0x01, 0x3f,
-	{   0, 0xf6, 3 },	// 0x01, 0x00, 0x06,
+	{   0, 0xb1, 2 },	/* 0x00, 0x1B, */
+	{   0, 0xb6, 2 },	/* 0x0a, 0xa2, */
+	{   0, 0xc0, 1 },	/* 0x10, */
+	{   0, 0xc1, 1 },	/* 0x10, */
+	{   0, 0xc5, 2 },	/* 0x45, 0x15, */
+	{   0, 0xc7, 1 },	/* 0x90, */
+	{   0, 0x36, 1 },	/* 0xc8, */
+	{   0, 0xb0, 1 },	/* 0xc2, */
+	{   0, 0x3a, 1 },	/* 0x55 **added, pixel format 16 bpp */
+	{   0, 0xb6, 4 },	/* 0x0a, 0xa7, 0x27, 0x04, */
+	{   0, 0x2A, 4 },	/* 0x00, 0x00, 0x00, 0xef, */
+	{   0, 0x2B, 4 },	/* 0x00, 0x00, 0x01, 0x3f, */
+	{   0, 0xf6, 3 },	/* 0x01, 0x00, 0x06, */
 	{ 200, 0x2c, 0 },
-	{   0, 0x26, 1},	// 0x01,
-	{   0, 0xe0, 15 },	// 0x0F, 0x29, 0x24, 0x0C, 0x0E,
-				// 0x09, 0x4E, 0x78, 0x3C, 0x09,
-				// 0x13, 0x05, 0x17, 0x11, 0x00,
-	{   0, 0xe1, 15 },	// 0x00, 0x16, 0x1B, 0x04, 0x11,
-				// 0x07, 0x31, 0x33, 0x42, 0x05,
-				// 0x0C, 0x0A, 0x28, 0x2F, 0x0F,
+	{   0, 0x26, 1},	/* 0x01, */
+	{   0, 0xe0, 15 },	/* 0x0F, 0x29, 0x24, 0x0C, 0x0E, */
+				/* 0x09, 0x4E, 0x78, 0x3C, 0x09, */
+				/* 0x13, 0x05, 0x17, 0x11, 0x00, */
+	{   0, 0xe1, 15 },	/* 0x00, 0x16, 0x1B, 0x04, 0x11, */
+				/* 0x07, 0x31, 0x33, 0x42, 0x05, */
+				/* 0x0C, 0x0A, 0x28, 0x2F, 0x0F, */
 	{ 200, 0x11, 0 },
 	{   0, 0x29, 0 },
-	{   0,    0, 0 }	// cmd == 0 indicates last command
+	{   0,    0, 0 }	/* cmd == 0 indicates last command */
 };
 
 /* prototype for initialize_display */
@@ -188,7 +190,8 @@ static void initialize_display(const struct tft_command cmds[]);
  * the commands it is sending to the console.
  */
 static void
-initialize_display(const struct tft_command cmds[]) {
+initialize_display(const struct tft_command cmds[])
+{
 	int i = 0;
 	int arg_offset = 0;
 	int j;
@@ -235,18 +238,19 @@ static void test_image(void);
  * white lines. No line on the right edge and bottom of screen.
  */
 static void
-test_image(void) {
+test_image(void)
+{
 	int		x, y;
 	uint16_t	pixel;
 
 	for (x = 0; x < LCD_WIDTH; x++) {
 		for (y = 0; y < LCD_HEIGHT; y++) {
-			pixel = 0;              // all black
+			pixel = 0;			/* all black */
 			if ((x % 16) == 0) {
-				pixel = 0xffff;     // all white
+				pixel = 0xffff;		/* all white */
 			}
 			if ((y % 16) == 0) {
-				pixel = 0xffff;     // all white
+				pixel = 0xffff;		/* all white */
 			}
 			lcd_draw_pixel(x, y, pixel);
 		}
@@ -261,7 +265,8 @@ test_image(void) {
  * the implementation of SPI and the modules interpretation of
  * D/CX line.
  */
-void lcd_show_frame(void) {
+void lcd_show_frame(void)
+{
 	uint16_t	*t;
 	uint8_t size[4];
 
@@ -302,7 +307,8 @@ void lcd_show_frame(void) {
  * LCD_HEIGHT  320
  */
 void
-lcd_spi_init(void) {
+lcd_spi_init(void)
+{
 
 	/*
 	 * Set up the GPIO lines for the SPI port and
@@ -348,7 +354,8 @@ lcd_spi_init(void) {
  * number on the console.
  */
 int
-print_decimal(int num) {
+print_decimal(int num)
+{
 	int	ndx = 0;
 	char	buf[10];
 	int	len = 0;
@@ -372,7 +379,7 @@ print_decimal(int num) {
 		console_putc(buf[ndx--]);
 		len++;
 	}
-	return len; // number of characters printed
+	return len; /* number of characters printed */
 }
 
 /*
@@ -380,7 +387,8 @@ print_decimal(int num) {
  *
  * Very simple routine for printing out hex constants.
  */
-static int print_hex(int v) {
+static int print_hex(int v)
+{
 	int		ndx = 0;
 	char	buf[10];
 	int		len;
@@ -388,7 +396,7 @@ static int print_hex(int v) {
 	buf[ndx++] = '\000';
 	do {
 		char	c = v & 0xf;
-		buf[ndx++] = (c > 9) ? '7'+ c : '0' + c;
+		buf[ndx++] = (c > 9) ? '7' + c : '0' + c;
 		v = (v >> 4) & 0x0fffffff;
 	} while (v != 0);
 	ndx--;
@@ -398,5 +406,5 @@ static int print_hex(int v) {
 		console_putc(buf[ndx--]);
 		len++;
 	}
-	return len; // number of characters printed
+	return len; /* number of characters printed */
 }

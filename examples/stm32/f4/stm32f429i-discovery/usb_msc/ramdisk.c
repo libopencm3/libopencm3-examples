@@ -22,10 +22,10 @@
 #include "ramdisk.h"
 
 #define WBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF)
-#define QBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF),\
+#define QBVAL(x) ((x) & 0xFF), (((x) >> 8) & 0xFF), \
 		 (((x) >> 16) & 0xFF), (((x) >> 24) & 0xFF)
 
-// filesystem size is 512kB (1024 * SECTOR_SIZE)
+/* filesystem size is 512kB (1024 * SECTOR_SIZE) */
 #define SECTOR_COUNT		1024
 #define SECTOR_SIZE		512
 #define BYTES_PER_SECTOR	512
@@ -40,30 +40,30 @@
 #define FILEDATA_START_SECTOR	(DATA_REGION_SECTOR + \
 			(FILEDATA_START_CLUSTER - 2) * SECTORS_PER_CLUSTER)
 
-// filesize is 64kB (128 * SECTOR_SIZE)
+/* filesize is 64kB (128 * SECTOR_SIZE) */
 #define FILEDATA_SECTOR_COUNT	128
 
 uint8_t BootSector[] = {
-	0xEB, 0x3C, 0x90,					// code to jump to the bootstrap code
-	'm', 'k', 'd', 'o', 's', 'f', 's', 0x00,		// OEM ID
-	WBVAL(BYTES_PER_SECTOR),				// bytes per sector
-	SECTORS_PER_CLUSTER,					// sectors per cluster
-	WBVAL(RESERVED_SECTORS),				// # of reserved sectors (1 boot sector)
-	FAT_COPIES,						// FAT copies (2)
-	WBVAL(ROOT_ENTRIES),					// root entries (512)
-	WBVAL(SECTOR_COUNT),					// total number of sectors
-	0xF8,							// media descriptor (0xF8 = Fixed disk)
-	0x01, 0x00,						// sectors per FAT (1)
-	0x20, 0x00,						// sectors per track (32)
-	0x40, 0x00,						// number of heads (64)
-	0x00, 0x00, 0x00, 0x00,					// hidden sectors (0)
-	0x00, 0x00, 0x00, 0x00,					// large number of sectors (0)
-	0x00,							// drive number (0)
-	0x00,							// reserved
-	0x29,							// extended boot signature
-	0x69, 0x17, 0xAD, 0x53,					// volume serial number
-	'R', 'A', 'M', 'D', 'I', 'S', 'K', ' ', ' ', ' ', ' ',	// volume label
-	'F', 'A', 'T', '1', '2', ' ', ' ', ' '			// filesystem type
+	0xEB, 0x3C, 0x90,		/* code to jump to the bootstrap code */
+	'm', 'k', 'd', 'o', 's', 'f', 's', 0x00, /* OEM ID */
+	WBVAL(BYTES_PER_SECTOR),	/* bytes per sector */
+	SECTORS_PER_CLUSTER,		/* sectors per cluster */
+	WBVAL(RESERVED_SECTORS),	/* # of reserved sectors (1 boot sector) */
+	FAT_COPIES,			/* FAT copies (2) */
+	WBVAL(ROOT_ENTRIES),		/* root entries (512) */
+	WBVAL(SECTOR_COUNT),		/* total number of sectors */
+	0xF8,				/* media descriptor (0xF8 = Fixed disk) */
+	0x01, 0x00,			/* sectors per FAT (1) */
+	0x20, 0x00,			/* sectors per track (32) */
+	0x40, 0x00,			/* number of heads (64) */
+	0x00, 0x00, 0x00, 0x00,		/* hidden sectors (0) */
+	0x00, 0x00, 0x00, 0x00,		/* large number of sectors (0) */
+	0x00,				/* drive number (0) */
+	0x00,				/* reserved */
+	0x29,				/* extended boot signature */
+	0x69, 0x17, 0xAD, 0x53,		/* volume serial number */
+	'R', 'A', 'M', 'D', 'I', 'S', 'K', ' ', ' ', ' ', ' ', /* volume label */
+	'F', 'A', 'T', '1', '2', ' ', ' ', ' '	/* filesystem type */
 };
 
 uint8_t FatSector[] = {
@@ -92,29 +92,29 @@ uint8_t FatSector[] = {
 };
 
 uint8_t DirSector[] = {
-	// long filename entry
-	0x41,									// sequence number
-	WBVAL('r'), WBVAL('a'), WBVAL('m'), WBVAL('d'), WBVAL('i'),		// five name characters in UTF-16
-	0x0F,									// attributes
-	0x00,									// type
-	0x00,									// checksum of DOS filename (computed in ramdisk_init)
-	WBVAL('s'), WBVAL('k'), WBVAL('.'), WBVAL('d'), WBVAL('a'), WBVAL('t'),	// six name characters in UTF-16
-	0x00, 0x00,								// first cluster
-	WBVAL(0), WBVAL(0),							// two name characters in UTF-16
-	// actual entry
-	'R', 'A', 'M', 'D', 'I', 'S', 'K', ' ',					// filename
-	'D', 'A', 'T',								// extension
-	0x20,									// attribute byte
-	0x00,									// reserved for Windows NT
-	0x00,									// creation millisecond
-	0xCE, 0x01,								// creation time
-	0x86, 0x41,								// creation date
-	0x86, 0x41,								// last access date
-	0x00, 0x00,								// reserved for FAT32
-	0xCE, 0x01,								// last write time
-	0x86, 0x41,								// last write date
-	WBVAL(FILEDATA_START_CLUSTER),						// start cluster
-	QBVAL(FILEDATA_SECTOR_COUNT * SECTOR_SIZE)				// file size in bytes
+	/* long filename entry */
+	0x41,						/* sequence number */
+	WBVAL('r'), WBVAL('a'), WBVAL('m'), WBVAL('d'), WBVAL('i'), /* five name characters in UTF-16 */
+	0x0F,						/* attributes */
+	0x00,						/* type */
+	0x00,						/* checksum of DOS filename (computed in ramdisk_init) */
+	WBVAL('s'), WBVAL('k'), WBVAL('.'), WBVAL('d'), WBVAL('a'), WBVAL('t'),	/* six name characters in UTF-16 */
+	0x00, 0x00,					/* first cluster */
+	WBVAL(0), WBVAL(0),				/* two name characters in UTF-16 */
+	/* actual entry */
+	'R', 'A', 'M', 'D', 'I', 'S', 'K', ' ',		/* filename */
+	'D', 'A', 'T',					/* extension */
+	0x20,						/* attribute byte */
+	0x00,						/* reserved for Windows NT */
+	0x00,						/* creation millisecond */
+	0xCE, 0x01,					/* creation time */
+	0x86, 0x41,					/* creation date */
+	0x86, 0x41,					/* last access date */
+	0x00, 0x00,					/* reserved for FAT32 */
+	0xCE, 0x01,					/* last write time */
+	0x86, 0x41,					/* last write date */
+	WBVAL(FILEDATA_START_CLUSTER),			/* start cluster */
+	QBVAL(FILEDATA_SECTOR_COUNT * SECTOR_SIZE)	/* file size in bytes */
 };
 
 static uint8_t ramdata[FILEDATA_SECTOR_COUNT * SECTOR_SIZE];
@@ -123,18 +123,18 @@ int ramdisk_init(void)
 {
 	uint32_t i = 0;
 
-	// compute checksum in the directory entry
+	/* compute checksum in the directory entry */
 	uint8_t chk = 0;
 	for (i = 32; i < 43; i++) {
 		chk = (((chk & 1) << 7) | ((chk & 0xFE) >> 1)) + DirSector[i];
 	}
 	DirSector[13] = chk;
 
-	// fill ramdata
+	/* fill ramdata */
 	const uint8_t text[] = "USB Mass Storage Class example. ";
 	i = 0;
 	while (i < sizeof(ramdata)) {
-		ramdata[i] = text[i % (sizeof(text) -1)];
+		ramdata[i] = text[i % (sizeof(text) - 1)];
 		i++;
 	}
 	return 0;
@@ -144,24 +144,28 @@ int ramdisk_read(uint32_t lba, uint8_t *copy_to)
 {
 	memset(copy_to, 0, SECTOR_SIZE);
 	switch (lba) {
-		case 0: // sector 0 is the boot sector
-			memcpy(copy_to, BootSector, sizeof(BootSector));
-			copy_to[SECTOR_SIZE - 2] = 0x55;
-			copy_to[SECTOR_SIZE - 1] = 0xAA;
-			break;
-		case 1: // sector 1 is FAT 1st copy
-		case 2: // sector 2 is FAT 2nd copy
-			memcpy(copy_to, FatSector, sizeof(FatSector));
-			break;
-		case 3: // sector 3 is the directory entry
-			memcpy(copy_to, DirSector, sizeof(DirSector));
-			break;
-		default:
-			// ignore reads outside of the data section
-			if (lba >= FILEDATA_START_SECTOR && lba < FILEDATA_START_SECTOR + FILEDATA_SECTOR_COUNT) {
-				memcpy(copy_to, ramdata + (lba - FILEDATA_START_SECTOR) * SECTOR_SIZE, SECTOR_SIZE);
-			}
-			break;
+	case 0: /* sector 0 is the boot sector */
+		memcpy(copy_to, BootSector, sizeof(BootSector));
+		copy_to[SECTOR_SIZE - 2] = 0x55;
+		copy_to[SECTOR_SIZE - 1] = 0xAA;
+		break;
+	case 1: /* sector 1 is FAT 1st copy */
+	case 2: /* sector 2 is FAT 2nd copy */
+		memcpy(copy_to, FatSector, sizeof(FatSector));
+		break;
+	case 3: /* sector 3 is the directory entry */
+		memcpy(copy_to, DirSector, sizeof(DirSector));
+		break;
+	default:
+		/* ignore reads outside of the data section */
+		if (lba >= FILEDATA_START_SECTOR &&
+		    lba < FILEDATA_START_SECTOR + FILEDATA_SECTOR_COUNT) {
+			memcpy(copy_to, ramdata +
+					(lba - FILEDATA_START_SECTOR) *
+					SECTOR_SIZE,
+			       SECTOR_SIZE);
+		}
+		break;
 	}
 	return 0;
 }
@@ -170,7 +174,7 @@ int ramdisk_write(uint32_t lba, const uint8_t *copy_from)
 {
 	(void)lba;
 	(void)copy_from;
-	// ignore writes
+	/* ignore writes */
 	return 0;
 }
 

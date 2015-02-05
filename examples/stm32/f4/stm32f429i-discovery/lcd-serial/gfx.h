@@ -1,4 +1,4 @@
-/* 
+/*
  * A simple port of the AdaFruit minimal graphics code to my
  * demo code.
  */
@@ -9,7 +9,8 @@
 #define swap(a, b) { int16_t t = a; a = b; b = t; }
 
 void gfx_drawPixel(int x, int y, uint16_t color);
-void gfx_drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+void gfx_drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+		  uint16_t color);
 void gfx_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
 void gfx_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 void gfx_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
@@ -17,25 +18,25 @@ void gfx_fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void gfx_fillScreen(uint16_t color);
 
 void gfx_drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
-void gfx_drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
-      uint16_t color);
+void gfx_drawCircleHelper(int16_t x0, int16_t y0, int16_t r,
+			  uint8_t cornername, uint16_t color);
 void gfx_fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
 void gfx_init(void (*draw)(int, int, uint16_t), int, int);
 
-void gfx_fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
-      int16_t delta, uint16_t color);
+void gfx_fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
+			  uint8_t cornername, int16_t delta, uint16_t color);
 void gfx_drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-      int16_t x2, int16_t y2, uint16_t color);
+		      int16_t x2, int16_t y2, uint16_t color);
 void gfx_fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-      int16_t x2, int16_t y2, uint16_t color);
+		      int16_t x2, int16_t y2, uint16_t color);
 void gfx_drawRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h,
-      int16_t radius, uint16_t color);
+		       int16_t radius, uint16_t color);
 void gfx_fillRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h,
-      int16_t radius, uint16_t color);
+		       int16_t radius, uint16_t color);
 void gfx_drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap,
-      int16_t w, int16_t h, uint16_t color);
+		    int16_t w, int16_t h, uint16_t color);
 void gfx_drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
-      uint16_t bg, uint8_t size);
+		  uint16_t bg, uint8_t size);
 void gfx_setCursor(int16_t x, int16_t y);
 void gfx_setTextColor(uint16_t c, uint16_t bg);
 void gfx_setTextSize(uint8_t s);
@@ -53,11 +54,11 @@ uint8_t gfx_getRotation(void);
 #define GFX_HEIGHT  240
 
 struct gfx_state {
-    int16_t _width, _height, cursor_x, cursor_y;
-    uint16_t textcolor, textbgcolor;
-    uint8_t textsize, rotation;
-    uint8_t wrap;
-    void (*drawpixel)(int, int, uint16_t);
+	int16_t _width, _height, cursor_x, cursor_y;
+	uint16_t textcolor, textbgcolor;
+	uint8_t textsize, rotation;
+	uint8_t wrap;
+	void (*drawpixel)(int, int, uint16_t);
 };
 
 extern struct gfx_state __gfx_state;
@@ -73,4 +74,4 @@ extern struct gfx_state __gfx_state;
 #define GFX_COLOR_CYAN           0x7FFF
 #define GFX_COLOR_YELLOW         0xFFE0
 
-#endif // _ADAFRUIT_GFX_H
+#endif /* _ADAFRUIT_GFX_H */

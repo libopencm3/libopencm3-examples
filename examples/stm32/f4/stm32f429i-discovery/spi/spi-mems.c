@@ -36,21 +36,20 @@ void write_reg(uint8_t reg, uint8_t value);
 uint8_t read_xyz(int16_t vecs[3]);
 void spi_init(void);
 
-
 /*
  * Chart of the various SPI ports (1 - 6) and where their pins can be:
-
-		 NSS			  SCK				   MISO			MOSI
-	   --------------   -------------------   -------------   ---------------
- SPI1  PA4, PA15		PA5, PB3			  PA6, PB4		PA7, PB5
- SPI2  PB9, PB12, PI0   PB10, PB13, PD3, PI1  PB14, PC2, PI2  PB15, PC3, PI3
- SPI3  PA15*, PA4*	  PB3*, PC10*		   PB4*, PC11*	 PB5*, PD6, PC12*
- SPI4  PE4,PE11		 PE2, PE12			 PE5, PE13	   PE6, PE14
- SPI5  PF6, PH5		 PF7, PH6			  PF8			 PF9, PF11, PH7
- SPI6  PG8			  PG13				  PG12			PG14
-
- Pin name with * is alternate function 6 otherwise use alternate function 5.
-
+ *
+ *	 NSS		  SCK			MISO		MOSI
+ *	 --------------   -------------------   -------------   ---------------
+ * SPI1  PA4, PA15	  PA5, PB3		PA6, PB4	PA7, PB5
+ * SPI2  PB9, PB12, PI0   PB10, PB13, PD3, PI1  PB14, PC2, PI2  PB15, PC3, PI3
+ * SPI3  PA15*, PA4*	  PB3*, PC10*		PB4*, PC11*	PB5*, PD6, PC12*
+ * SPI4  PE4,PE11	  PE2, PE12		PE5, PE13	PE6, PE14
+ * SPI5  PF6, PH5	  PF7, PH6		PF8		PF9, PF11, PH7
+ * SPI6  PG8		  PG13			PG12		PG14
+ *
+ * Pin name with * is alternate function 6 otherwise use alternate function 5.
+ *
  * MEMS uses SPI5 - SCK (PF7), MISO (PF8), MOSI (PF9),
  * MEMS CS* (PC1)  -- GPIO
  * MEMS INT1 = PA1, MEMS INT2 = PA2
@@ -60,13 +59,14 @@ void put_status(char *m);
 
 /*
  * put_status(char *)
- * 
+ *
  * This is a helper function I wrote to watch the status register
  * it decodes the bits and prints them on the console. Sometimes
  * the SPI port comes up with the MODF flag set, you have to re-read
  * the status port and re-write the control register to clear that.
  */
-void put_status(char *m) {
+void put_status(char *m)
+{
 	uint16_t stmp;
 
 	console_puts(m);
@@ -95,7 +95,7 @@ void put_status(char *m) {
 	}
 	console_puts("\n");
 }
-	
+
 /*
  * read_reg(int reg)
  *
@@ -106,10 +106,11 @@ void put_status(char *m) {
  * be a more stable solution.
  */
 uint16_t
-read_reg(int reg) {
+read_reg(int reg)
+{
 	uint16_t d1, d2;
 
-	d1 = 0x80 | (reg & 0x3f); // Read operation
+	d1 = 0x80 | (reg & 0x3f); /* Read operation */
 	/* Nominallly a register read is a 16 bit operation */
 	gpio_clear(GPIOC, GPIO1);
 	spi_send(SPI5, d1);
@@ -136,22 +137,23 @@ read_reg(int reg) {
  * Then the status register is read and returned.
  */
 uint8_t
-read_xyz(int16_t vecs[3]) {
+read_xyz(int16_t vecs[3])
+{
 	uint8_t	 buf[7];
 	int		 i;
 
-	gpio_clear(GPIOC, GPIO1); // CS* select
+	gpio_clear(GPIOC, GPIO1); /* CS* select */
 	spi_send(SPI5, 0xc0 | 0x28);
 	(void) spi_read(SPI5);
 	for (i = 0; i < 6; i++) {
 		spi_send(SPI5, 0);
 		buf[i] = spi_read(SPI5);
 	}
-	gpio_set(GPIOC, GPIO1); // CS* deselect
+	gpio_set(GPIOC, GPIO1); /* CS* deselect */
 	vecs[0] = (buf[1] << 8 | buf[0]);
 	vecs[1] = (buf[3] << 8 | buf[2]);
 	vecs[3] = (buf[5] << 8 | buf[4]);
-	return read_reg(0x27); // Status register
+	return read_reg(0x27); /* Status register */
 }
 
 /*
@@ -161,13 +163,14 @@ read_xyz(int16_t vecs[3]) {
  * selecting it and then writing to it.
  */
 void
-write_reg(uint8_t reg, uint8_t value) {
-	gpio_clear(GPIOC, GPIO1); // CS* select
+write_reg(uint8_t reg, uint8_t value)
+{
+	gpio_clear(GPIOC, GPIO1); /* CS* select */
 	spi_send(SPI5, reg);
 	(void) spi_read(SPI5);
 	spi_send(SPI5, value);
 	(void) spi_read(SPI5);
-	gpio_set(GPIOC, GPIO1); // CS* deselect
+	gpio_set(GPIOC, GPIO1); /* CS* deselect */
 	return;
 }
 
@@ -180,7 +183,8 @@ int print_decimal(int);
  * number on the console.
  */
 int
-print_decimal(int num) {
+print_decimal(int num)
+{
 	int		ndx = 0;
 	char	buf[10];
 	int		len = 0;
@@ -204,7 +208,7 @@ print_decimal(int num) {
 		console_putc(buf[ndx--]);
 		len++;
 	}
-	return len; // number of characters printed
+	return len; /* number of characters printed */
 }
 
 char *axes[] = { "X: ", "Y: ", "Z: " };
@@ -214,7 +218,8 @@ char *axes[] = { "X: ", "Y: ", "Z: " };
  * SPI port, and then shows a continuous display of values on
  * the console once you start it. Typing ^C will reset it.
  */
-int main(void) {
+int main(void)
+{
 	int16_t vecs[3];
 	int16_t baseline[3];
 	int tmp, i;
@@ -225,13 +230,13 @@ int main(void) {
 	console_setup(115200);
 
 	/* Enable the GPIO ports whose pins we are using */
-	rcc_periph_clock_enable(RCC_GPIOF | RCC_GPIOC); 
+	rcc_periph_clock_enable(RCC_GPIOF | RCC_GPIOC);
 
 	gpio_mode_setup(GPIOF, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN,
-											GPIO7 | GPIO8 | GPIO9);
+			GPIO7 | GPIO8 | GPIO9);
 	gpio_set_af(GPIOF, GPIO_AF5, GPIO7 | GPIO8 | GPIO9);
 	gpio_set_output_options(GPIOF, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ,
-						GPIO7 | GPIO9);
+				GPIO7 | GPIO9);
 
 	/* Chip select line */
 	gpio_set(GPIOC, GPIO1);
@@ -239,11 +244,11 @@ int main(void) {
 
 	rcc_periph_clock_enable(RCC_SPI5);
 
-	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 |\
-			 SPI_CR1_MSTR |\
-			 SPI_CR1_SPE |\
-			 SPI_CR1_CPHA |\
-			 SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ;
+	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 |
+		 SPI_CR1_MSTR |
+		 SPI_CR1_SPE |
+		 SPI_CR1_CPHA |
+		 SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
 
 	put_status("\nBefore init: ");
 	SPI_CR2(SPI5) |= SPI_CR2_SSOE;
@@ -269,25 +274,25 @@ int main(void) {
 	 * temperature reading is correct and the ID code returned is
 	 * as expected so the SPI code at least is working.
 	 */
-	write_reg(0x20, 0xcf);  // Normal mode
-	write_reg(0x21, 0x07);  // standard filters
-	write_reg(0x23, 0xb0);  // 250 dps
+	write_reg(0x20, 0xcf);  /* Normal mode */
+	write_reg(0x21, 0x07);  /* standard filters */
+	write_reg(0x23, 0xb0);  /* 250 dps */
 	tmp = (int) read_reg(0x26);
-	console_puts( "Temperature: ");
+	console_puts("Temperature: ");
 	print_decimal(tmp);
-	console_puts( " C\n");
-	
+	console_puts(" C\n");
+
 	count = 0;
 	while (1) {
 		tmp = read_xyz(vecs);
 		for (i = 0; i < 3; i++) {
 			int pad;
-			console_puts( axes[i]);
+			console_puts(axes[i]);
 			tmp = vecs[i] - baseline[i];
 			pad = print_decimal(tmp);
 			pad = 15 - pad;
 			while (pad--) {
-				console_puts( " ");
+				console_puts(" ");
 			}
 		}
 		console_putc('\r');

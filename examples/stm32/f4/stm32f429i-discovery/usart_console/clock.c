@@ -34,18 +34,21 @@
 static volatile uint32_t system_millis;
 
 /* Called when systick fires */
-void sys_tick_handler(void) {
+void sys_tick_handler(void)
+{
 	system_millis++;
 }
 
 /* simple sleep for delay milliseconds */
-void msleep(uint32_t delay) {
+void msleep(uint32_t delay)
+{
 	uint32_t wake = system_millis + delay;
-	while (wake > system_millis) ;
+	while (wake > system_millis);
 }
 
 /* Getter function for the current time */
-uint32_t mtime(void) {
+uint32_t mtime(void)
+{
 	return system_millis;
 }
 

@@ -45,7 +45,7 @@
  * These define sort of the minimum "library" of functions which
  * we can use on a serial port. If you wish to use a different
  * USART there are several things to change:
- * 	- CONSOLE_UART change this
+ *	- CONSOLE_UART change this
  *	- Change the peripheral enable clock
  *	- add usartx_isr for interrupts
  *	- nvic_enable_interrupt(your choice of USART/UART)
@@ -79,9 +79,10 @@ static void do_the_nasty(void);
  * the return address of the interrupt to here, and then this function
  * does a longjump to the last place we did a setjmp.
  */
-static void do_the_nasty(void) {
+static void do_the_nasty(void)
+{
 	longjmp(jump_buf, 1);
-	while(1) ;
+	while (1);
 }
 #endif
 
@@ -91,10 +92,10 @@ static void do_the_nasty(void) {
  * read by the program. See the README file for a discussion of
  * the failure semantics.
  */
-#define RECV_BUF_SIZE	128		// Arbitrary buffer size
+#define RECV_BUF_SIZE	128		/* Arbitrary buffer size */
 char recv_buf[RECV_BUF_SIZE];
-volatile int recv_ndx_nxt;		// Next place to store
-volatile int recv_ndx_cur;		// Next place to read
+volatile int recv_ndx_nxt;		/* Next place to store */
+volatile int recv_ndx_cur;		/* Next place to read */
 
 /* For interrupt handling we add a new function which is called
  * when recieve interrupts happen. The name (usart1_isr) is created
@@ -107,7 +108,8 @@ volatile int recv_ndx_cur;		// Next place to read
  * right or it won't work. And you'll wonder where your interrupts
  * are going.
  */
-void usart1_isr(void) {
+void usart1_isr(void)
+{
 	uint32_t	reg;
 	int			i;
 
@@ -118,21 +120,22 @@ void usart1_isr(void) {
 #ifdef RESET_ON_CTRLC
 			/* Check for "reset" */
 			if (recv_buf[recv_ndx_nxt] == '\003') {
-				/* reset the system
-				 * volatile definition of return address on the stack
-				 * to insure it gets stored, changed to point to
-				 * the trampoline function (do_the_nasty) which is
-				 * required because we need to return of an interrupt
-				 * to get the internal value of the LR register reset
-				 * and put the processor back into "Thread" mode from
-				 * "Handler" mode.
+				/* reset the system volatile definition of
+				 * return address on the stack to insure it
+				 * gets stored, changed to point to the
+				 * trampoline function (do_the_nasty) which is
+				 * required because we need to return of an
+				 * interrupt to get the internal value of the
+				 * LR register reset and put the processor back
+				 * into "Thread" mode from "Handler" mode.
 				 *
-				 * See the PM0214 Programming Manual for Cortex M,
-				 * pg 42, to see the format of the Cortex M4 stack after
-				 * an interrupt or exception has occurred.
+				 * See the PM0214 Programming Manual for Cortex
+				 * M, pg 42, to see the format of the Cortex M4
+				 * stack after an interrupt or exception has
+				 * occurred.
 				 */
 				volatile uint32_t *ret = (&reg) + 7;
-				
+
 				*ret = (uint32_t) &do_the_nasty;
 				return;
 			}
@@ -143,7 +146,8 @@ void usart1_isr(void) {
 				recv_ndx_nxt = i;
 			}
 		}
-	} while ((reg & USART_SR_RXNE) != 0); // can read back-to-back interrupts
+	} while ((reg & USART_SR_RXNE) != 0); /* can read back-to-back
+						 interrupts */
 }
 
 /*
@@ -152,7 +156,8 @@ void usart1_isr(void) {
  * Send the character 'c' to the USART, wait for the USART
  * transmit buffer to be empty first.
  */
-void console_putc(char c) {
+void console_putc(char c)
+{
 	uint32_t	reg;
 	do {
 		reg = USART_SR(CONSOLE_UART);
@@ -170,10 +175,11 @@ void console_putc(char c) {
  * The implementation is a bit different however, now it looks
  * in the ring buffer to see if a character has arrived.
  */
-char console_getc(int wait) {
+char console_getc(int wait)
+{
 	char		c = 0;
 
-	while ((wait != 0) && (recv_ndx_cur == recv_ndx_nxt)) ;
+	while ((wait != 0) && (recv_ndx_cur == recv_ndx_nxt));
 	if (recv_ndx_cur != recv_ndx_nxt) {
 		c = recv_buf[recv_ndx_cur];
 		recv_ndx_cur = (recv_ndx_cur + 1) % RECV_BUF_SIZE;
@@ -188,7 +194,8 @@ char console_getc(int wait) {
  * after the last character, as indicated by a NUL character, is
  * reached.
  */
-void console_puts(char *s) {
+void console_puts(char *s)
+{
 	while (*s != '\000') {
 		console_putc(*s);
 		/* Add in a carraige return, after sending line feed */
@@ -206,7 +213,8 @@ void console_puts(char *s) {
  * support for editing characters (back space and delete)
  * end when a <CR> character is received.
  */
-int console_gets(char *s, int len) {
+int console_gets(char *s, int len)
+{
 	char *t = s;
 	char c;
 
@@ -229,7 +237,7 @@ int console_gets(char *s, int len) {
 		/* update end of string with NUL */
 		*t = '\000';
 	}
-	return (t - s);
+	return t - s;
 }
 
 void countdown(void);
@@ -244,16 +252,17 @@ void countdown(void);
  * however with the interrupt driven receieve queue you can type
  * ^C while it is counting down and it will be interrupted.
  */
-void countdown(void) {
+void countdown(void)
+{
 	int i = 200;
 	while (i-- > 0) {
 		console_puts("Countdown: ");
-		console_putc( (i / 600) + '0');
+		console_putc((i / 600) + '0');
 		console_putc(':');
-		console_putc( ((i % 600) / 100) + '0');
-		console_putc( (((i % 600) / 10) % 10) + '0');
+		console_putc(((i % 600) / 100) + '0');
+		console_putc((((i % 600) / 10) % 10) + '0');
 		console_putc('.');
-		console_putc( ((i % 600) % 10) + '0');
+		console_putc(((i % 600) % 10) + '0');
 		console_putc('\r');
 		msleep(100);
 	}
@@ -264,12 +273,13 @@ void countdown(void) {
  * on some of the pins, in this case connected to a
  * USART.
  */
-int main(void) {
+int main(void)
+{
 	char buf[128];
 	int	len;
 	bool pmask;
 
-	clock_setup(); // initialize our clock
+	clock_setup(); /* initialize our clock */
 
 	/* MUST enable the GPIO clock in ADDITION to the USART clock */
 	rcc_periph_clock_enable(RCC_GPIOA);
@@ -328,7 +338,8 @@ int main(void) {
 		if (len) {
 			if (buf[0] == 'c') {
 				console_puts("\n");
-				countdown();	// long running thing (20 seconds)
+				countdown();	/* long running thing (20
+						   seconds) */
 			}
 			console_puts("\nYou entered : '");
 			console_puts(buf);

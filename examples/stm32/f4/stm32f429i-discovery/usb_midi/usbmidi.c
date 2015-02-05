@@ -117,7 +117,7 @@ static const struct {
 } __attribute__((packed)) audio_control_functional_descriptors = {
 	.header_head = {
 		.bLength = sizeof(struct usb_audio_header_descriptor_head) +
-		           1 * sizeof(struct usb_audio_header_descriptor_body),
+			   1 * sizeof(struct usb_audio_header_descriptor_body),
 		.bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
 		.bDescriptorSubtype = USB_AUDIO_TYPE_HEADER,
 		.bcdADC = 0x0100,
@@ -268,7 +268,7 @@ static const struct usb_config_descriptor config = {
 	.interface = ifaces,
 };
 
-static const char * usb_strings[] = {
+static const char *usb_strings[] = {
 	"libopencm3.org",
 	"MIDI demo",
 };

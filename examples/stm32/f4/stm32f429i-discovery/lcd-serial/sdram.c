@@ -43,7 +43,7 @@ static struct {
 			GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15 },
 	{GPIOF, GPIO0 | GPIO1 | GPIO2 | GPIO3 | GPIO4 | GPIO5 | GPIO11 |
 			GPIO12 | GPIO13 | GPIO14 | GPIO15 },
-	{GPIOG, GPIO0 | GPIO1 | GPIO4 | GPIO5 |GPIO8 | GPIO15}
+	{GPIOG, GPIO0 | GPIO1 | GPIO4 | GPIO5 | GPIO8 | GPIO15}
 };
 
 static struct sdram_timing timing = {
@@ -62,7 +62,7 @@ static struct sdram_timing timing = {
 void
 sdram_init(void) {
 	int i;
-	uint32_t cr_tmp, tr_tmp; // control, timing registers
+	uint32_t cr_tmp, tr_tmp; /* control, timing registers */
 
 	/*
 	* First all the GPIO pins that end up as SDRAM pins
@@ -75,10 +75,10 @@ sdram_init(void) {
 	rcc_periph_clock_enable(RCC_GPIOG);
 
 	for (i = 0; i < 6; i++) {
-		gpio_mode_setup(sdram_pins[i].gpio, GPIO_MODE_AF, GPIO_PUPD_NONE,
-						sdram_pins[i].pins);
+		gpio_mode_setup(sdram_pins[i].gpio, GPIO_MODE_AF,
+				GPIO_PUPD_NONE, sdram_pins[i].pins);
 		gpio_set_output_options(sdram_pins[i].gpio, GPIO_OTYPE_PP,
-						GPIO_OSPEED_50MHZ, sdram_pins[i].pins);
+					GPIO_OSPEED_50MHZ, sdram_pins[i].pins);
 		gpio_set_af(sdram_pins[i].gpio, GPIO_AF12, sdram_pins[i].pins);
 	}
 
@@ -107,7 +107,7 @@ sdram_init(void) {
 	 */
 	FMC_SDCR1 |= (cr_tmp & FMC_SDCR_DNC_MASK);
 	FMC_SDCR2 = cr_tmp;
-	
+
 	tr_tmp = sdram_timing(&timing);
 	FMC_SDTR1 |= (tr_tmp & FMC_SDTR_DNC_MASK);
 	FMC_SDTR2 = tr_tmp;
@@ -119,12 +119,12 @@ sdram_init(void) {
 	 *	- Load the Mode Register
 	 */
 	sdram_command(SDRAM_BANK2, SDRAM_CLK_CONF, 1, 0);
-	msleep(1); // sleep at least 100uS
+	msleep(1); /* sleep at least 100uS */
 	sdram_command(SDRAM_BANK2, SDRAM_PALL, 1, 0);
 	sdram_command(SDRAM_BANK2, SDRAM_AUTO_REFRESH, 4, 0);
 	tr_tmp = SDRAM_MODE_BURST_LENGTH_2				|
 				SDRAM_MODE_BURST_TYPE_SEQUENTIAL	|
-				SDRAM_MODE_CAS_LATENCY_3			|
+				SDRAM_MODE_CAS_LATENCY_3		|
 				SDRAM_MODE_OPERATING_MODE_STANDARD	|
 				SDRAM_MODE_WRITEBURST_MODE_SINGLE;
 	sdram_command(SDRAM_BANK2, SDRAM_LOAD_MODE, 1, tr_tmp);
