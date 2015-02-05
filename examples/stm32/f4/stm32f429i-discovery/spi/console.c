@@ -108,7 +108,6 @@ void console_putc(char c) {
 		reg = USART_SR(CONSOLE_UART);
 	} while ((reg & USART_SR_TXE) == 0);
 	USART_DR(CONSOLE_UART) = (uint16_t) c & 0xff;
-	ITM_Sendchar(c);
 }
 
 /*
