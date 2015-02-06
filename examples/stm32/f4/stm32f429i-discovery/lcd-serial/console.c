@@ -67,11 +67,13 @@ void usart1_isr(void)
 		if (reg & USART_SR_RXNE) {
 			recv_buf[recv_ndx_nxt] = USART_DR(CONSOLE_UART);
 #ifdef RESET_ON_CTRLC
-			/* Check for "reset" */
+			/*
+			 * This bit of code will jump to the ResetHandler if you
+			 * hit ^C
+			 */
 			if (recv_buf[recv_ndx_nxt] == '\003') {
-				/* reset the system */
 				scb_reset_system();
-				return; /* not reached */
+				return; /* never actually reached */
 			}
 #endif
 			/* Check for "overrun" */
