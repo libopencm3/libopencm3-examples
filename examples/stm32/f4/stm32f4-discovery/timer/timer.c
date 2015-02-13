@@ -24,6 +24,8 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
 
+#include <libopencmsis/core_cm3.h>
+
 uint16_t frequency_sequence[18] = {
 	1000,
 	500,
@@ -183,8 +185,16 @@ int main(void)
 	gpio_setup();
 	tim_setup();
 
+	/* Loop calling Wait For Interrupt. In older pre cortex ARM this is
+	 * just equivalent to nop. On cortex it puts the cpu to sleep until
+	 * one of the three occurs:
+	 *
+	 * a non-masked interrupt occurs and is taken
+	 * an interrupt masked by PRIMASK becomes pending
+	 * a Debug Entry request
+	 */
 	while (1)
-		__asm("nop");
+		__WFI(); /* Wait For Interrupt. */
 
 	return 0;
 }
