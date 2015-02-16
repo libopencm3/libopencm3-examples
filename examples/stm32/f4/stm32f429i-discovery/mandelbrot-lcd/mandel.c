@@ -175,8 +175,8 @@ int main(void)
 		mandel(centerX, centerY, scale);	/* draw mandelbrot */
 		lcd_show_frame();			/* show it */
 		/* Change scale and center */
-		centerX += 0.175f * scale;
-		centerY += 0.522f * scale;
+		centerX += 0.1815f * scale;
+		centerY += 0.505f * scale;
 		scale	*= 0.875f;
 		gen++;
 		if (gen > 99) {
