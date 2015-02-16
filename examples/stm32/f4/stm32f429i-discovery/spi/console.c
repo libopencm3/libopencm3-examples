@@ -1,7 +1,7 @@
 /*
  * This file is part of the libopencm3 project.
  *
- * Copyright (C) 2013 Chuck McManis <cmcmanis@mcmanis.com>
+ * Copyright (C) 2014 Chuck McManis <cmcmanis@mcmanis.com>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -225,3 +225,31 @@ void console_setup(int baud)
 	/* Specifically enable recieve interrupts */
 	usart_enable_rx_interrupt(CONSOLE_UART);
 }
+
+int _write(int, char *, int);
+
+/* 
+ * Called by libc stdio functions
+ */
+int
+_write (int fd, char *ptr, int len) {
+    int i = 0;
+
+    /* 
+     * Write "len" of char from "ptr" to file id "fd"
+     * Return number of char written.
+     */
+    if (fd > 2) {
+        return -1;  // STDOUT, STDIN, STDERR
+    }
+    while (*ptr && (i < len)) {
+        console_putc(*ptr);
+        if (*ptr == '\n') {
+            console_putc('\r');
+        }
+        i++;
+        ptr++;
+    }
+  return i;
+}
+

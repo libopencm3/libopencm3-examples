@@ -21,6 +21,7 @@
  * SPI Port example
  */
 
+#include <stdio.h>
 #include <stdint.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -108,23 +109,18 @@ void put_status(char *m)
 uint16_t
 read_reg(int reg)
 {
-	uint16_t d1, d2;
+	uint16_t d1, d2, d3;
+	uint16_t res;
 
 	d1 = 0x80 | (reg & 0x3f); /* Read operation */
 	/* Nominallly a register read is a 16 bit operation */
 	gpio_clear(GPIOC, GPIO1);
-	spi_send(SPI5, d1);
-	d2 = spi_read(SPI5);
-	d2 <<= 8;
-	/*
-	 * You have to send as many bits as you want to read
-	 * so we send another 8 bits to get the rest of the
-	 * register.
-	 */
-	spi_send(SPI5, 0);
-	d2 |= spi_read(SPI5);
+	d2 = spi_xfer(SPI5, d1);
+	d3 = spi_xfer(SPI5, 0);
+	res = (d2 << 8) | d3;
 	gpio_set(GPIOC, GPIO1);
-	return d2;
+//	printf("0x%x (0x%02x 0x%02x)\n", res, d2, d3);
+	return res;
 }
 
 /*
@@ -146,8 +142,7 @@ read_xyz(int16_t vecs[3])
 	spi_send(SPI5, 0xc0 | 0x28);
 	(void) spi_read(SPI5);
 	for (i = 0; i < 6; i++) {
-		spi_send(SPI5, 0);
-		buf[i] = spi_read(SPI5);
+		buf[i] = spi_xfer(SPI5, 0);
 	}
 	gpio_set(GPIOC, GPIO1); /* CS* deselect */
 	vecs[0] = (buf[1] << 8 | buf[0]);
@@ -211,8 +206,7 @@ print_decimal(int num)
 	return len; /* number of characters printed */
 }
 
-char *axes[] = { "X: ", "Y: ", "Z: " };
-
+char *axes[3] = { "X = ", "Y = ", "Z = "};
 /*
  * This then is the actual bit of example. It initializes the
  * SPI port, and then shows a continuous display of values on
@@ -221,10 +215,8 @@ char *axes[] = { "X: ", "Y: ", "Z: " };
 int main(void)
 {
 	int16_t vecs[3];
-	int16_t baseline[3];
-	int tmp, i;
-	int count;
-	uint32_t cr_tmp;
+	int32_t baseline[3];
+	int tmp, i, count;
 
 	clock_setup();
 	console_setup(115200);
@@ -243,28 +235,25 @@ int main(void)
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
 
 	rcc_periph_clock_enable(RCC_SPI5);
+	spi_init_master(SPI5, SPI_CR1_BAUDRATE_FPCLK_DIV_8, 
+			SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+			SPI_CR1_CPHA_CLK_TRANSITION_2,
+			SPI_CR1_DFF_8BIT,
+			SPI_CR1_MSBFIRST);
 
-	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 |
-		 SPI_CR1_MSTR |
-		 SPI_CR1_SPE |
-		 SPI_CR1_CPHA |
-		 SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
-
-	put_status("\nBefore init: ");
-	SPI_CR2(SPI5) |= SPI_CR2_SSOE;
-	SPI_CR1(SPI5) = cr_tmp;
-	put_status("After init: ");
-
+	spi_enable_ss_output(SPI5);
 
 	baseline[0] = 0;
 	baseline[1] = 0;
 	baseline[2] = 0;
 	console_puts("MEMS demo (new version):\n");
-	console_puts("Press a key to read the registers\n");
-	console_getc(1);
+//	console_puts("Press a key to read the registers\n");
+//	console_getc(1);
 	tmp = read_reg(0xf);
 	if (tmp != 0xD4) {
 		console_puts("Maybe this isn't a Gyroscope.\n");
+		printf("Read 0x%x from register 0x0f (should be 0xD4)\n", (unsigned int) tmp);
+		while (1) ;
 	}
 	/*
 	 * These parameters are sort of random, clearly I need
@@ -284,6 +273,7 @@ int main(void)
 
 	count = 0;
 	while (1) {
+		float	x, y, z;
 		tmp = read_xyz(vecs);
 		for (i = 0; i < 3; i++) {
 			int pad;
@@ -303,6 +293,12 @@ int main(void)
 		} else {
 			count++;
 		}
+		x = vecs[0] * 0.00875;
+		y = vecs[1] * 0.00875;
+		z = vecs[2] * 0.00875;
+
+		printf("X: %5.2f Y: %5.2f Z: %5.2f\r", x, y, z);
+		fflush(stdout);
 		msleep(100);
 	}
 }
