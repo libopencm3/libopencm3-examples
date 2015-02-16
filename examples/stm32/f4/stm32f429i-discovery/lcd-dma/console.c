@@ -48,7 +48,7 @@ volatile int recv_ndx_nxt;		// Next place to store
 volatile int recv_ndx_cur;		// Next place to read
 
 /* For interrupt handling we add a new function which is called
- * when recieve interrupts happen. The name (usart1_isr) is created
+ * when receive interrupts happen. The name (usart1_isr) is created
  * by the irq.json file in libopencm3 calling this interrupt for
  * USART1 'usart1', adding the suffix '_isr', and then weakly binding
  * it to the 'do nothing' interrupt function in vec.c.
@@ -212,7 +212,7 @@ void console_setup(int baud) {
 	/* Enable interrupts from the USART */
 	nvic_enable_irq(NVIC_USART1_IRQ);
 
-	/* Specifically enable recieve interrupts */
+	/* Specifically enable receive interrupts */
 	usart_enable_rx_interrupt(CONSOLE_UART);
 }
 
