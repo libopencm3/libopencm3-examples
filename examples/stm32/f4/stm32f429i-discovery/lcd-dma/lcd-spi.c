@@ -363,24 +363,24 @@ static void test_image(void);
  * a black background and a grid 16 pixels x 16 pixels of
  * white lines. No line on the right edge and bottom of screen.
  */
-static void
-test_image(void) {
-	int		x, y;
-	uint16_t	pixel;
+// static void
+// test_image(void) {
+// 	int		x, y;
+// 	uint16_t	pixel;
 
-	for (x = 0; x < LCD_WIDTH; x++) {
-		for (y = 0; y < LCD_HEIGHT; y++) {
-			pixel = 0;              // all black
-			if ((x % 16) == 0) {
-				pixel = 0xffff;     // all white
-			}
-			if ((y % 16) == 0) {
-				pixel = 0xffff;     // all white
-			}
-			lcd_draw_pixel(x, y, pixel);
-		}
-	}
-}
+// 	for (x = 0; x < LCD_WIDTH; x++) {
+// 		for (y = 0; y < LCD_HEIGHT; y++) {
+// 			pixel = 0;              // all black
+// 			if ((x % 16) == 0) {
+// 				pixel = 0xffff;     // all white
+// 			}
+// 			if ((y % 16) == 0) {
+// 				pixel = 0xffff;     // all white
+// 			}
+// 			lcd_draw_pixel(x, y, pixel);
+// 		}
+// 	}
+// }
 
 /*
  * void lcd_show_frame(void)
@@ -417,7 +417,7 @@ void lcd_show_frame(void) {
  * Initialize the SPI port, and the through that port
  * initialize the LCD controller. Note that this code
  * will expect to be able to draw into the SDRAM on
- * the board, so the sdram much be initialized before
+> * the board, so the sdram much be initialized before
  * calling this function.
  *
  * SPI Port and GPIO Defined - for STM32F4-Disco
@@ -476,7 +476,7 @@ lcd_spi_init(void) {
 
 	/* create a test image */
 	// console_puts("Generating Test Image\n");
-	test_image();
+	// test_image();
 
 	/* display it on the LCD */
 	// console_puts("And ... voila\n");

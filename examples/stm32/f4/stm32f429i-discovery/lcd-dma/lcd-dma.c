@@ -1,6 +1,8 @@
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/ltdc.h>
@@ -24,13 +26,25 @@
 
 // Layer 1 (bottom layer) is ARGB8888 format, full screen.
 
+
 typedef uint32_t layer1_pixel;
+#define LCD_LAYER1_PIXFORMAT LTDC_LxPFCR_PF_ARGB8888
 layer1_pixel *const lcd_layer1_frame_buffer = (void *)SDRAM_BASE_ADDRESS;
 #define LCD_LAYER1_PIXEL_SIZE (sizeof (layer1_pixel))
 #define LCD_LAYER1_WIDTH  LCD_WIDTH
 #define LCD_LAYER1_HEIGHT LCD_HEIGHT
 #define LCD_LAYER1_PIXELS (LCD_LAYER1_WIDTH * LCD_LAYER1_HEIGHT)
 #define LCD_LAYER1_BYTES  (LCD_LAYER1_PIXELS * LCD_LAYER1_PIXEL_SIZE)
+
+typedef uint16_t layer2_pixel;
+#define LCD_LAYER2_PIXFORMAT LTDC_LxPFCR_PF_ARGB4444
+layer2_pixel *const lcd_layer2_frame_buffer =
+    (void *)SDRAM_BASE_ADDRESS + LCD_LAYER1_BYTES;
+#define LCD_LAYER2_PIXEL_SIZE (sizeof (layer2_pixel))
+#define LCD_LAYER2_WIDTH 64
+#define LCD_LAYER2_HEIGHT 64
+#define LCD_LAYER2_PIXELS (LCD_LAYER2_WIDTH * LCD_LAYER2_HEIGH)
+#define LCD_LAYER2_BYTES (LCD_LAYER2_PIXELS * LCD_LAYER2_PIXEL_SIZE)
 
 // Layer 2 (top layer) is I8, 64x64 pixels.
 
@@ -115,11 +129,6 @@ static void lcd_dma_init(void)
     gpio_set_af(GPIOG, GPIO_AF14, GPIO6 | GPIO7 | GPIO11);
 
     // Configure the pixel clock.
-    // uint32_t total_v = VSYNC + VBP + LCD_HEIGHT + VFP;
-    // uint32_t total_h = HSYNC + HBP + LCD_WIDTH + HFP;
-    // uint32_t clocks_per_frame = total_v * total_h;
-    // uint32_t pixclock = clocks_per_frame * REFRESH_RATE;
-    // pixclock = pixclock;
     uint32_t sain = 192;
     uint32_t saiq = RCC_PLLSAICFGR &
                    (RCC_PLLSAICFGR_PLLSAIQ_MASK << RCC_PLLSAICFGR_PLLSAIQ_MASK);
@@ -127,9 +136,7 @@ static void lcd_dma_init(void)
     RCC_PLLSAICFGR = (sain << RCC_PLLSAICFGR_PLLSAIN_SHIFT |
                       saiq |
                       sair << RCC_PLLSAICFGR_PLLSAIR_SHIFT);
-    // printf("RCC DCKCFGR = %#08" PRIx32 "\n", RCC_DCKCFGR);
     RCC_DCKCFGR |= RCC_DCKCFGR_PLLSAIDIVR_DIV8;
-    // printf("RCC DCKCFGR = %#08" PRIx32 "\n", RCC_DCKCFGR);
     RCC_CR |= RCC_CR_PLLSAION;
     while ((RCC_CR & RCC_CR_PLLSAIRDY) == 0)
         continue;
@@ -155,16 +162,16 @@ static void lcd_dma_init(void)
     LTDC_GCR |= LTDC_GCR_PCPOL;
 
     // If needed, configure the background color.
-    LTDC_BCCR = 0x000000FF;
+    LTDC_BCCR = 0x00000000;
 
     // Configure the needed interrupts.
-    // (none for now)
+    LTDC_IER = LTDC_IER_RRIE;
+    nvic_enable_irq(NVIC_LCD_TFT_IRQ);
 
     // Configure the Layer 1 parameters.
     // (Layer 1 is the bottom layer.)
     {
         // The Layer window horizontal and vertical position
-        // (use default)
         uint32_t h_start = HSYNC + HBP + 0;
         uint32_t h_stop = HSYNC + HBP + LCD_LAYER1_WIDTH - 1;
         LTDC_L1WHPCR = h_stop << LTDC_LxWHPCR_WHSPPOS_SHIFT |
@@ -175,8 +182,7 @@ static void lcd_dma_init(void)
                        v_start << LTDC_LxWVPCR_WVSTPOS_SHIFT;
 
         // The pixel input format
-        // use ARGB8888.
-        LTDC_L1PFCR = LTDC_LxPFCR_PF_ARGB8888;
+        LTDC_L1PFCR = LCD_LAYER1_PIXFORMAT;
 
         // The color frame buffer start address
         LTDC_L1CFBAR = (uint32_t)lcd_layer1_frame_buffer;
@@ -188,46 +194,129 @@ static void lcd_dma_init(void)
                        length << LTDC_LxCFBLR_CFBLL_SHIFT;
 
         // The number of lines of the color frame buffer
-        LTDC_L1CFBLNR = LCD_HEIGHT;
+        LTDC_L1CFBLNR = LCD_LAYER1_HEIGHT;
 
         // If needed, load the CLUT with the RGB values and its address
         // (not using CLUT)
 
         // If needed, configure the default color and blending factors
-        // LTDC_L1DCCR = 0xFF0000FF;
         LTDC_L1CACR = 0x000000FF;
         LTDC_L1BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONSTANT_ALPHA |
                       LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONSTANT_ALPHA;
-        // LTDC_L1BFCR = LTDC_LxBFCR_BF1_CONSTANT_ALPHA |
-        //               LTDC_LxBFCR_BF2_CONSTANT_ALPHA;
     }
 
     // Configure the Layer 2 parameters.
     {
         // The Layer window horizontal and vertical position
+        uint32_t h_start = HSYNC + HBP + 0;
+        uint32_t h_stop = HSYNC + HBP + LCD_LAYER2_WIDTH - 1;
+        LTDC_L2WHPCR = h_stop << LTDC_LxWHPCR_WHSPPOS_SHIFT |
+                       h_start << LTDC_LxWHPCR_WHSTPOS_SHIFT;
+        uint32_t v_start = VSYNC + VBP + 0;
+        uint32_t v_stop = VSYNC + VBP + LCD_LAYER2_HEIGHT - 1;
+        LTDC_L2WVPCR = v_stop << LTDC_LxWVPCR_WVSPPOS_SHIFT |
+                       v_start << LTDC_LxWVPCR_WVSTPOS_SHIFT;
+
         // The pixel input format
+        LTDC_L2PFCR = LCD_LAYER2_PIXFORMAT;
+
         // The color frame buffer start address
+        LTDC_L2CFBAR = (uint32_t)lcd_layer2_frame_buffer;
+
         // The line length and pitch of the color frame buffer
+        uint32_t pitch = LCD_LAYER2_WIDTH * LCD_LAYER2_PIXEL_SIZE;
+        uint32_t length = LCD_LAYER2_WIDTH * LCD_LAYER2_PIXEL_SIZE + 3;
+        LTDC_L2CFBLR = pitch << LTDC_LxCFBLR_CFBP_SHIFT |
+                       length << LTDC_LxCFBLR_CFBLL_SHIFT;
+
         // The number of lines of the color frame buffer
+        LTDC_L2CFBLNR = LCD_LAYER2_HEIGHT;
+
         // If needed, load the CLUT with the RGB values and its address
+        // (not using CLUT)
+
         // If needed, configure the default color and blending factors
+        LTDC_L2CACR = 0x000000BB;
+        LTDC_L2BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONSTANT_ALPHA |
+                      LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONSTANT_ALPHA;
     }
 
     // Enable Layer1 and if needed the CLUT
     LTDC_L1CR |= LTDC_LxCR_LEN;
 
     // Enable Layer2 and if needed the CLUT
+    LTDC_L2CR |= LTDC_LxCR_LEN;
 
     // If needed, enable dithering and/or color keying.
 
     // Reload the shadow registers to active registers.
-    LTDC_SRCR |= LTDC_SRCR_IMR;
+    LTDC_SRCR |= LTDC_SRCR_VBR;
 
     // Enable the LCD-TFT controller.
     LTDC_GCR |= LTDC_GCR_LTDCEN;
 }
 
-static void test_screen(void)
+static void mutate_background_color(void)
+{
+    static uint32_t ints = 0;
+    ints += 3;
+    uint32_t shift = ints >> 9;
+    if (shift >= 3)
+        ints = shift = 0;
+    uint32_t component = ints & 0xFF;
+    if (ints & 0x100)
+        component = 0xff - component;
+
+    LTDC_BCCR = component << 8 * shift;
+}
+
+static void move_sprite(void)
+{
+    static int8_t dx = 1, dy = 1;
+    static int16_t x = 0, y = 0;
+    x += dx;
+    y += dy;
+    if (x < 0) {
+        dy = rand() % 7 - 3;
+        dx = -dx;
+        x = 0;
+    } else if (x >= LCD_WIDTH - LCD_LAYER2_WIDTH) {
+        dy = rand() % 7 - 3;
+        dx = -dx;
+        x = LCD_WIDTH - LCD_LAYER2_WIDTH - 1;
+    }
+    if (y < 0) {
+        dx = rand() % 7 - 3;
+        dy = -dy;
+        y = 0;
+    } else if (y >= LCD_HEIGHT - LCD_LAYER2_HEIGHT) {
+        dx = rand() % 7 - 3;
+        dy = -dy;
+        y = LCD_HEIGHT - LCD_LAYER2_HEIGHT - 1;
+    }
+    if (dy == 0 && dx == 0)
+        dy = y ? -1 : +1;
+    uint32_t h_start = HSYNC + HBP + x;
+    uint32_t h_stop = h_start + LCD_LAYER2_WIDTH - 1;
+    LTDC_L2WHPCR = h_stop << LTDC_LxWHPCR_WHSPPOS_SHIFT |
+                   h_start << LTDC_LxWHPCR_WHSTPOS_SHIFT;
+    uint32_t v_start = VSYNC + VBP + y;
+    uint32_t v_stop = v_start + LCD_LAYER2_HEIGHT - 1;
+    LTDC_L2WVPCR = v_stop << LTDC_LxWVPCR_WVSPPOS_SHIFT |
+                   v_start << LTDC_LxWVPCR_WVSTPOS_SHIFT;
+}
+
+void lcd_tft_isr(void)
+{
+    LTDC_ICR |= LTDC_ICR_CRRIF;
+
+    mutate_background_color();
+    move_sprite();
+
+    LTDC_SRCR |= LTDC_SRCR_VBR;
+}
+
+static void draw_layer_1(void)
 {
     int row, col;
     
@@ -235,20 +324,39 @@ static void test_screen(void)
         for (col = 0; col < LCD_LAYER1_WIDTH; col++) {
             size_t i = row * LCD_LAYER1_WIDTH + col;
             uint8_t a = (row + col) & 0xFF;
-            uint8_t r = (row * 10) & 0xFF;
-            uint8_t g = col & 0xFF;
+            uint8_t r = (row * 5) & 0xFF;
+            uint8_t g = (col * 9) & 0xFF;
             uint8_t b = (row - 2 * col) & 0xFF;
-            // a = 0xFF;
-            // r = 0x00;
-            // g = 0;
-            // g = (uint8_t)((uint32_t)g & 0xFF);
-            // b = 0;
-            uint32_t pix = a << 24 | r << 16 | g << 8 | b << 0;
+            layer1_pixel pix = a << 24 | r << 16 | g << 8 | b << 0;
             if (row == 0 || col == 0 || row == 319 || col == 239)
                 pix = 0xFFFFFFFF;
             else if (row < 20 && col < 20)
                 pix = 0xFF000000;
             lcd_layer1_frame_buffer[i] = pix;
+        }
+    }
+}
+
+static void draw_layer_2(void)
+{
+    int row, col;
+    const uint8_t hw = LCD_LAYER2_WIDTH / 2;
+    const uint8_t hh = LCD_LAYER2_HEIGHT / 2;
+    const uint8_t sz = (hw + hh) / 2;
+    
+    for (row = 0; row < LCD_LAYER2_HEIGHT; row++) {
+        for (col = 0; col < LCD_LAYER2_WIDTH; col++) {
+            size_t i = row * LCD_LAYER2_WIDTH + col;
+            uint8_t dx = abs(col  - hw);
+            uint8_t dy = abs(row  - hh);
+            uint8_t a = dx + dy <= sz ? 0xF * (dx + dy) / sz: 0x0;
+            uint8_t r = dx >= dy ? 0xF : 0x0;
+            uint8_t g = dy >= dx ? 0xF : 0x0;
+            uint8_t b = 0xF;
+            if (dx + dy >= sz - 2)
+                r = g = b = 0;
+            layer2_pixel pix = a << 12 | r << 8 | g << 4 | b << 0;
+            lcd_layer2_frame_buffer[i] = pix;
         }
     }
 }
@@ -266,12 +374,13 @@ int main(void)
 
     printf("Hello stdio!\n");
 
+    draw_layer_1();
+    draw_layer_2();
+
     lcd_dma_init();
     lcd_spi_init();
 
     printf("Initialized.\n");
-
-    test_screen();
 
     while (1)
         continue;
