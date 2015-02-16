@@ -132,7 +132,7 @@ srec: $(BINARY).srec
 list: $(BINARY).list
 
 images: $(BINARY).images
-flash: $(BINARY).flash
+flash: $(BINARY).stlink-flash
 
 %.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
