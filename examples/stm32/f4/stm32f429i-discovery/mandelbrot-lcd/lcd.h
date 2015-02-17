@@ -42,20 +42,7 @@ void lcd_draw_pixel(int x, int y, uint16_t color);
 #define LCD_WHITE   0xFFFF
 #define LCD_GREY    0xc339
 
-/*
- * SPI Port and GPIO Defined - for STM32F4-Disco
- */
-/* #define LCD_RESET   PA3  not used */
-#define LCD_CS      PC2     /* CH 1 */
-#define LCD_SCK     PF7     /* CH 2 */
-#define LCD_DC      PD13    /* CH 4 */
-#define LCD_MOSI    PF9     /* CH 3 */
-
-#define LCD_SPI     SPI5
-
 #define LCD_WIDTH   240
 #define LCD_HEIGHT  320
 
-#define FRAME_SIZE  (LCD_WIDTH * LCD_HEIGHT)
-#define FRAME_SIZE_BYTES    (FRAME_SIZE * 2)
 #endif

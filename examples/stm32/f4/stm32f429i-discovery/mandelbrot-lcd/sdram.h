@@ -24,9 +24,4 @@
 
 /* Initialize the SDRAM chip on the board */
 void sdram_init(void);
-
-#ifndef NULL
-#define NULL	(void *)(0)
-#endif
-
 #endif

@@ -17,7 +17,7 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-OBJS = sdram.o lcd.o
+OBJS = sdram.o lcd.o clock.o
 
 BINARY = mandel
 

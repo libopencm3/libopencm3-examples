@@ -25,9 +25,12 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/fsmc.h>
+#include "clock.h"
 #include "sdram.h"
 
-extern void msleep(int);
+#ifndef NULL
+#define NULL	(void *)(0)
+#endif
 
 /*
  * This is just syntactic sugar but it helps, all of these

@@ -26,9 +26,23 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/cm3/nvic.h>
+#include "sdram.h"
 #include "lcd.h"
 
-#define SDRAM_BASE_ADDRESS ((uint8_t *)(0xd0000000))
+/*
+ * SPI Port and GPIO Defined - for STM32F4-Disco
+ */
+
+/* #define LCD_RESET   PA3  not used */
+#define LCD_CS      PC2     /* CH 1 */
+#define LCD_SCK     PF7     /* CH 2 */
+#define LCD_DC      PD13    /* CH 4 */
+#define LCD_MOSI    PF9     /* CH 3 */
+
+#define LCD_SPI     SPI5
+
+#define FRAME_SIZE  (LCD_WIDTH * LCD_HEIGHT)
+#define FRAME_SIZE_BYTES    (FRAME_SIZE * 2)
 
 /* from the retarget.c file */
 extern void msleep(int);

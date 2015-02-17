@@ -27,19 +27,13 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/systick.h>
-
-/* provided by sdram.c and lcd.c */
-extern void sdram_init(void);
-extern void lcd_init(void);
-extern void lcd_draw_pixel(int, int, uint16_t);
-extern void lcd_show_frame(void);
+#include "clock.h"
+#include "sdram.h"
+#include "lcd.h"
 
 /* utility functions */
 void uart_putc(char c);
 int _write (int fd, char *ptr, int len);
-void sys_tick_handler(void);
-void msleep(uint32_t);
-uint32_t mtime(void);
 
 void mandel(float, float, float);
 
@@ -151,15 +145,8 @@ int main(void)
 	float scale = 0.25f, centerX = -0.5f, centerY = 0.0f;
 
 
-	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
-
-	/* set up the SysTick function (1mS interrupts) */
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	STK_CVR = 0;
-	systick_set_reload(rcc_ahb_frequency / 1000);
-	systick_counter_enable();
-	systick_interrupt_enable();
-
+	/* Clock setup */
+	clock_setup();
 	/* USART and GPIO setup */
 	gpio_setup();
 	/* Enable the SDRAM attached to the board */
@@ -190,50 +177,6 @@ int main(void)
 	}
 
 	return 0;
-}
-
-/* simple millisecond counter */
-static volatile uint32_t system_millis;
-static volatile uint32_t delay_timer;
-
-
-/*
- * Simple systick handler
- *
- * Increments a 32 bit value once per millesecond
- * which rolls over every 49 days.
- */
-void
-sys_tick_handler(void) {
-	system_millis++;
-	if (delay_timer > 0) {
-		delay_timer--;
-	}
-}
-
-/*
- * Simple spin loop waiting for time to pass
- * 
- * A couple of things to note:
- * First,  you can't just compare to 
- * system_millis because doing so will mean 
- * you delay forever if you happen to hit a 
- * time where it is rolling over.
- * Second, accuracy is "at best" 1mS as you
- * may call this "just before" the systick hits
- * with a value of '1' and it would return 
- * nearly immediately. So if you need really
- * precise delays, use one of the timers.
- */
-void
-msleep(uint32_t delay) {
-	delay_timer = delay;
-	while (delay_timer) ;
-}
-
-uint32_t
-mtime(void) {
-	return system_millis;
 }
 
 /*
