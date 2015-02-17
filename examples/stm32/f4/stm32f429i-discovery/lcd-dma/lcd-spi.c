@@ -349,20 +349,20 @@ initialize_display(const struct tft_command cmds[]) {
 	// console_puts("Done.\n");
 }
 
-/* prototype for test_image */
-static void test_image(void);
+// /* prototype for test_image */
+// static void test_image(void);
 
-/*
- * Interesting questions:
- *   - How quickly can I write a full frame?
- *      * Take the bits sent (16 * width * height)
- *        and divide by the  baud rate (10.25Mhz)
- *      * Tests in main.c show that yes, it taks 74ms.
- *
- * Create non-random data in the frame buffer. In our case
- * a black background and a grid 16 pixels x 16 pixels of
- * white lines. No line on the right edge and bottom of screen.
- */
+// /*
+//  * Interesting questions:
+//  *   - How quickly can I write a full frame?
+//  *      * Take the bits sent (16 * width * height)
+//  *        and divide by the  baud rate (10.25Mhz)
+//  *      * Tests in main.c show that yes, it taks 74ms.
+//  *
+//  * Create non-random data in the frame buffer. In our case
+//  * a black background and a grid 16 pixels x 16 pixels of
+//  * white lines. No line on the right edge and bottom of screen.
+//  */
 // static void
 // test_image(void) {
 // 	int		x, y;

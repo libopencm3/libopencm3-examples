@@ -41,8 +41,8 @@ typedef uint16_t layer2_pixel;
 layer2_pixel *const lcd_layer2_frame_buffer =
     (void *)SDRAM_BASE_ADDRESS + LCD_LAYER1_BYTES;
 #define LCD_LAYER2_PIXEL_SIZE (sizeof (layer2_pixel))
-#define LCD_LAYER2_WIDTH 64
-#define LCD_LAYER2_HEIGHT 64
+#define LCD_LAYER2_WIDTH 128
+#define LCD_LAYER2_HEIGHT 128
 #define LCD_LAYER2_PIXELS (LCD_LAYER2_WIDTH * LCD_LAYER2_HEIGH)
 #define LCD_LAYER2_BYTES (LCD_LAYER2_PIXELS * LCD_LAYER2_PIXEL_SIZE)
 
@@ -236,7 +236,7 @@ static void lcd_dma_init(void)
         // (not using CLUT)
 
         // If needed, configure the default color and blending factors
-        LTDC_L2CACR = 0x000000BB;
+        LTDC_L2CACR = 0x000000FF;
         LTDC_L2BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONSTANT_ALPHA |
                       LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONSTANT_ALPHA;
     }
@@ -274,25 +274,30 @@ static void move_sprite(void)
 {
     static int8_t dx = 1, dy = 1;
     static int16_t x = 0, y = 0;
+    static int16_t age = 0;
     x += dx;
     y += dy;
     if (x < 0) {
         dy = rand() % 7 - 3;
         dx = -dx;
         x = 0;
+        age = 0;
     } else if (x >= LCD_WIDTH - LCD_LAYER2_WIDTH) {
         dy = rand() % 7 - 3;
         dx = -dx;
         x = LCD_WIDTH - LCD_LAYER2_WIDTH - 1;
+        age = 0;
     }
     if (y < 0) {
         dx = rand() % 7 - 3;
         dy = -dy;
         y = 0;
+        age = 0;
     } else if (y >= LCD_HEIGHT - LCD_LAYER2_HEIGHT) {
         dx = rand() % 7 - 3;
         dy = -dy;
         y = LCD_HEIGHT - LCD_LAYER2_HEIGHT - 1;
+        age = 0;
     }
     if (dy == 0 && dx == 0)
         dy = y ? -1 : +1;
@@ -304,6 +309,10 @@ static void move_sprite(void)
     uint32_t v_stop = v_start + LCD_LAYER2_HEIGHT - 1;
     LTDC_L2WVPCR = v_stop << LTDC_LxWVPCR_WVSPPOS_SHIFT |
                    v_start << LTDC_LxWVPCR_WVSTPOS_SHIFT;
+
+    if ((age += 2) > 0xFF)
+        age = 0xFF;
+    LTDC_L2CACR = 0x000000FF - age;
 }
 
 void lcd_tft_isr(void)
@@ -316,17 +325,46 @@ void lcd_tft_isr(void)
     LTDC_SRCR |= LTDC_SRCR_VBR;
 }
 
+// static void draw_layer_1(void)
+// {
+//     int row, col;
+    
+//     for (row = 0; row < LCD_LAYER1_HEIGHT; row++) {
+//         for (col = 0; col < LCD_LAYER1_WIDTH; col++) {
+//             size_t i = row * LCD_LAYER1_WIDTH + col;
+//             uint8_t a = (row + col) & 0xFF;
+//             uint8_t r = (row * 5) & 0xFF;
+//             uint8_t g = (col * 9) & 0xFF;
+//             uint8_t b = (row - 2 * col) & 0xFF;
+//             layer1_pixel pix = a << 24 | r << 16 | g << 8 | b << 0;
+//             if (row == 0 || col == 0 || row == 319 || col == 239)
+//                 pix = 0xFFFFFFFF;
+//             else if (row < 20 && col < 20)
+//                 pix = 0xFF000000;
+//             lcd_layer1_frame_buffer[i] = pix;
+//         }
+//     }
+// }
+
 static void draw_layer_1(void)
 {
     int row, col;
+    int cel_count = (LCD_LAYER1_WIDTH >> 5) + (LCD_LAYER1_HEIGHT >> 5);
+    
     
     for (row = 0; row < LCD_LAYER1_HEIGHT; row++) {
         for (col = 0; col < LCD_LAYER1_WIDTH; col++) {
             size_t i = row * LCD_LAYER1_WIDTH + col;
-            uint8_t a = (row + col) & 0xFF;
-            uint8_t r = (row * 5) & 0xFF;
-            uint8_t g = (col * 9) & 0xFF;
-            uint8_t b = (row - 2 * col) & 0xFF;
+            uint32_t cel = (row >> 5) + (col >> 5);
+            uint8_t a = cel & 1 ? 0 : 0xFF;
+            uint8_t r = row * 0xFF / LCD_LAYER1_HEIGHT;
+            uint8_t g = col * 0xFF / LCD_LAYER1_WIDTH;
+            uint8_t b = cel & 3 ? 0xFF * (cel_count - cel - 1) / cel_count: 0;
+            // r = g = b = 0;
+            if (row % 32 == 0 || col % 32 == 0) {
+                r = g = b = a ? 0xFF : 0;
+                a = 0xFF;
+            }
             layer1_pixel pix = a << 24 | r << 16 | g << 8 | b << 0;
             if (row == 0 || col == 0 || row == 319 || col == 239)
                 pix = 0xFFFFFFFF;
@@ -349,11 +387,11 @@ static void draw_layer_2(void)
             size_t i = row * LCD_LAYER2_WIDTH + col;
             uint8_t dx = abs(col  - hw);
             uint8_t dy = abs(row  - hh);
-            uint8_t a = dx + dy <= sz ? 0xF * (dx + dy) / sz: 0x0;
+            uint8_t a = dx + dy <= sz ? 0xF * (dx + dy) / (sz/2): 0x0;
             uint8_t r = dx >= dy ? 0xF : 0x0;
             uint8_t g = dy >= dx ? 0xF : 0x0;
             uint8_t b = 0xF;
-            if (dx + dy >= sz - 2)
+            if (dx + dy >= sz - 2 || dx == dy)
                 r = g = b = 0;
             layer2_pixel pix = a << 12 | r << 8 | g << 4 | b << 0;
             lcd_layer2_frame_buffer[i] = pix;
@@ -384,4 +422,12 @@ int main(void)
 
     while (1)
         continue;
+}
+
+#include <math.h>
+
+float foo(float x);
+float foo(float x)
+{
+    return tanhf(x);
 }
