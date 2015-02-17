@@ -44,9 +44,6 @@
 #define FRAME_SIZE  (LCD_WIDTH * LCD_HEIGHT)
 #define FRAME_SIZE_BYTES    (FRAME_SIZE * 2)
 
-/* from the retarget.c file */
-extern void msleep(int);
-
 /* Simple double buffering, one frame is displayed, the
  * other being built.
  */
