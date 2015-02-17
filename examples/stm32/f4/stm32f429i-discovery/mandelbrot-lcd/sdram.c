@@ -119,10 +119,13 @@ sdram_init(void) {
 	 *	- Load the Mode Register
 	 */
 	sdram_command(SDRAM_BANK2, SDRAM_CLK_CONF, 1, 0);
+	/* sleep at least 100uS */
 	msleep(1);
-//	for (i = 0; i < 1000; i++) {
-//		__asm("nop");
-//	} /* sleep at least 100uS */
+/*
+	for (i = 0; i < 1000; i++) {
+		__asm("nop");
+	}
+*/
 	sdram_command(SDRAM_BANK2, SDRAM_PALL, 1, 0);
 	sdram_command(SDRAM_BANK2, SDRAM_AUTO_REFRESH, 4, 0);
 	tr_tmp = SDRAM_MODE_BURST_LENGTH_2				|

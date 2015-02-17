@@ -33,7 +33,7 @@
 
 /* utility functions */
 void uart_putc(char c);
-int _write (int fd, char *ptr, int len);
+int _write(int fd, char *ptr, int len);
 
 void mandel(float, float, float);
 
@@ -59,7 +59,7 @@ static void gpio_setup(void)
 }
 
 /* Maximum number of iterations for the escape-time calculation */
-#define maxIter 32
+#define max_iter 32
 uint16_t lcd_colors[] = {
 	0x0,
 	0x1f00,
@@ -108,7 +108,7 @@ static int iterate(float px, float py)
 {
 	int it = 0;
 	float x = 0, y = 0;
-	while (it < maxIter) {
+	while (it < max_iter) {
 		float nx = x*x;
 		float ny = y*y;
 		if ((nx + ny) > 4) {
@@ -122,15 +122,15 @@ static int iterate(float px, float py)
 	return 0;
 }
 
-void mandel(float cX, float cY, float scale)
+void mandel(float cx, float cy, float scale)
 {
 	int x, y;
 	int change = 0;
 	for (x = -120; x < 120; x++) {
 		for (y = -160; y < 160; y++) {
-			int i = iterate(cX + x*scale, cY + y*scale);
-			if (i >= maxIter) {
-				i = maxIter;
+			int i = iterate(cx + x*scale, cy + y*scale);
+			if (i >= max_iter) {
+				i = max_iter;
 			} else {
 				change++;
 			}
@@ -142,7 +142,7 @@ void mandel(float cX, float cY, float scale)
 int main(void)
 {
 	int gen = 0;
-	float scale = 0.25f, centerX = -0.5f, centerY = 0.0f;
+	float scale = 0.25f, center_x = -0.5f, center_y = 0.0f;
 
 
 	/* Clock setup */
@@ -159,21 +159,24 @@ int main(void)
 	while (1) {
 		/* Blink the LED (PG13) on the board with each fractal drawn. */
 		gpio_toggle(GPIOG, GPIO13);		/* LED on/off */
-		mandel(centerX, centerY, scale);	/* draw mandelbrot */
+		mandel(center_x, center_y, scale);	/* draw mandelbrot */
 		lcd_show_frame();			/* show it */
 		/* Change scale and center */
-		centerX += 0.1815f * scale;
-		centerY += 0.505f * scale;
+		center_x += 0.1815f * scale;
+		center_y += 0.505f * scale;
 		scale	*= 0.875f;
 		gen++;
 		if (gen > 99) {
 			scale = 0.25f;
-			centerX = -0.5f;
-			centerY = 0.0f;
+			center_x = -0.5f;
+			center_y = 0.0f;
 			gen = 0;
 		}
-		// printf("Generation: %d\n", generation);
-		// printf("Cx, Cy = %9.2f, %9.2f, scale = %9.2f\n", centerX, centerY, scale);
+		/*
+		printf("Generation: %d\n", generation);
+		printf("Cx, Cy = %9.2f, %9.2f, scale = %9.2f\n",
+				center_x, center_y, scale);
+		*/
 	}
 
 	return 0;
@@ -192,23 +195,24 @@ int main(void)
 void
 uart_putc(char c) {
 
-	while ((USART_SR(USART1) & USART_SR_TXE) == 0) ;
+	while ((USART_SR(USART1) & USART_SR_TXE) == 0);
 	USART_DR(USART1) = c;
 }
 
-/* 
+/*
  * Called by libc stdio functions
  */
-int 
-_write (int fd, char *ptr, int len) {
+int
+_write(int fd, char *ptr, int len)
+{
 	int i = 0;
 
-	/* 
+	/*
 	 * Write "len" of char from "ptr" to file id "fd"
 	 * Return number of char written.
 	 */
 	if (fd > 2) {
-		return -1;  // STDOUT, STDIN, STDERR
+		return -1;  /* STDOUT, STDIN, STDERR */
 	}
 	while (*ptr && (i < len)) {
 		uart_putc(*ptr);
@@ -218,6 +222,6 @@ _write (int fd, char *ptr, int len) {
 		i++;
 		ptr++;
 	}
-  return i;
+	return i;
 }
 

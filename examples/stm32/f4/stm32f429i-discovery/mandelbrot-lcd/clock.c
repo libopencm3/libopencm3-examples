@@ -62,15 +62,15 @@ void sys_tick_handler(void)
 
 /*
  * Simple spin loop waiting for time to pass
- * 
+ *
  * A couple of things to note:
- * First,  you can't just compare to 
- * system_millis because doing so will mean 
- * you delay forever if you happen to hit a 
+ * First,  you can't just compare to
+ * system_millis because doing so will mean
+ * you delay forever if you happen to hit a
  * time where it is rolling over.
  * Second, accuracy is "at best" 1mS as you
  * may call this "just before" the systick hits
- * with a value of '1' and it would return 
+ * with a value of '1' and it would return
  * nearly immediately. So if you need really
  * precise delays, use one of the timers.
  */
@@ -78,7 +78,7 @@ void
 msleep(uint32_t delay)
 {
 	delay_timer = delay;
-	while (delay_timer) ;
+	while (delay_timer);
 }
 
 uint32_t
