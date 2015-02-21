@@ -245,24 +245,6 @@ static ssize_t console_write(void *cookie, const char *buf, size_t size)
     return size;
 }
 
-// static void try_it(void)
-// {
-//     fprintf(stderr, "Kilroy stderr, ");
-//     printf("Kilroy stdout\n");
-//     fflush(stderr);
-//     printf("three is %d\n", 3);
-//     printf("Enter text: ");
-//     fflush(stdout);
-//     char buf[100];
-//     fgets(buf, sizeof buf, stdin);
-//     printf("\nYou entered:\n");
-//     size_t i;
-//     for (i = 0; i < sizeof buf && buf[i]; i++) {
-//         char c = buf[i];
-//         printf("    %#o = %c\n", c & 0377, c);
-//     }           
-// }
-
 void console_stdio_setup()
 {
     cookie_io_functions_t console_input_fns = {

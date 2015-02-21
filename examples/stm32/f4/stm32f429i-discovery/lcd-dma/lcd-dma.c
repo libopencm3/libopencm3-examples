@@ -26,7 +26,6 @@
 
 // Layer 1 (bottom layer) is ARGB8888 format, full screen.
 
-
 typedef uint32_t layer1_pixel;
 #define LCD_LAYER1_PIXFORMAT LTDC_LxPFCR_ARGB8888
 layer1_pixel *const lcd_layer1_frame_buffer = (void *)SDRAM_BASE_ADDRESS;
@@ -35,6 +34,8 @@ layer1_pixel *const lcd_layer1_frame_buffer = (void *)SDRAM_BASE_ADDRESS;
 #define LCD_LAYER1_HEIGHT LCD_HEIGHT
 #define LCD_LAYER1_PIXELS (LCD_LAYER1_WIDTH * LCD_LAYER1_HEIGHT)
 #define LCD_LAYER1_BYTES  (LCD_LAYER1_PIXELS * LCD_LAYER1_PIXEL_SIZE)
+
+// Layer 2 (top layer) is ARGB4444, a 128x128 square.
 
 typedef uint16_t layer2_pixel;
 #define LCD_LAYER2_PIXFORMAT LTDC_LxPFCR_ARGB4444
@@ -45,8 +46,6 @@ layer2_pixel *const lcd_layer2_frame_buffer =
 #define LCD_LAYER2_HEIGHT 128
 #define LCD_LAYER2_PIXELS (LCD_LAYER2_WIDTH * LCD_LAYER2_HEIGH)
 #define LCD_LAYER2_BYTES (LCD_LAYER2_PIXELS * LCD_LAYER2_PIXEL_SIZE)
-
-// Layer 2 (top layer) is I8, 64x64 pixels.
 
 // Pin assignments
 //  R2      = PC10, AF14
@@ -129,6 +128,31 @@ static void lcd_dma_init(void)
     gpio_set_af(GPIOG, GPIO_AF14, GPIO6 | GPIO7 | GPIO11);
 
     // Configure the pixel clock.
+    //
+    // The datasheet says:
+    //
+    //   PLLLSAI_clock_input is either HSI or HSE.
+    //   f_VCO_clock = f_PLLSAI_clock_input * PLLSAIN / PLLM
+    //   f_PLL_LCD = f_VCO_clock / PLLSAIR
+    //   f_LCD_clock = f_PLL_LCD / PLLSAIDIVR
+    //
+    // PLLM is in the RCC_PLLCFGR register.
+    // PLLSAIN and PLLSAIR are in RCC_PLLSAICFGR.
+    // PLLSAIDIVR is in RCC_DCKCFGR;
+    //
+    // In our case, we're using HSE, which is 8 MHz.
+    // PLLM is already set to 8
+    // We set PLLSAIN = 192 and 
+    // f_VCO_clock = 8 MHz * 192 / 8 = 192 MHz.
+    // f_PLL_LCD = 192 MHz / 4 = 48 MHz.
+    // 
+    // The number of clocks per frame is
+    // (VSYNC + VBP + LCD_HEIGHT + VFP) * (HSYNC + HBP + LCD_WIDTH + HFP) =
+    // (2 + 2 + 320 + 4) * (10 + 20 + 240 + 10) = 91840.
+    //
+    // So the refresh frequency is 48 MHz / 91840 = 522 Hz.
+    
+
     uint32_t sain = 192;
     uint32_t saiq = RCC_PLLSAICFGR &
                   (RCC_PLLSAICFGR_PLLSAIQ_MASK << RCC_PLLSAICFGR_PLLSAIQ_SHIFT);
@@ -145,20 +169,16 @@ static void lcd_dma_init(void)
     // Configure the Synchronous timings: VSYNC, HSNC, Vertical and
     // Horizontal back porch, active data area, and the front porch
     // timings.
-    LTDC_SSCR = ((HSYNC - 1) << LTDC_SSCR_HSW_SHIFT |
-                 (VSYNC - 1) << LTDC_SSCR_VSH_SHIFT);
-    LTDC_BPCR = ((HSYNC + HBP - 1) << LTDC_BPCR_AHBP_SHIFT |
-                 (VSYNC + VBP - 1) << LTDC_BPCR_AVBP_SHIFT);
-    LTDC_AWCR = ((HSYNC + HBP + LCD_WIDTH - 1) << LTDC_AWCR_AAW_SHIFT |
-                 (VSYNC + VBP + LCD_HEIGHT - 1) << LTDC_AWCR_AAH_SHIFT);
+    LTDC_SSCR = (HSYNC - 1) << LTDC_SSCR_HSW_SHIFT |
+                (VSYNC - 1) << LTDC_SSCR_VSH_SHIFT;
+    LTDC_BPCR = (HSYNC + HBP - 1) << LTDC_BPCR_AHBP_SHIFT |
+                (VSYNC + VBP - 1) << LTDC_BPCR_AVBP_SHIFT;
+    LTDC_AWCR = (HSYNC + HBP + LCD_WIDTH - 1) << LTDC_AWCR_AAW_SHIFT |
+                (VSYNC + VBP + LCD_HEIGHT - 1) << LTDC_AWCR_AAH_SHIFT;
     LTDC_TWCR = (HSYNC + HBP + LCD_WIDTH + HFP - 1) << LTDC_TWCR_TOTALW_SHIFT |
                 (VSYNC + VBP + LCD_HEIGHT + VFP - 1) << LTDC_TWCR_TOTALH_SHIFT;
 
     // Configure the synchronous signals and clock polarity.
-    // hsync low, vsync low, DE high, pixclock falling edge
-    // LTDC_GCR |= LTDC_GCR_HSPOL;
-    // LTDC_GCR |= LTDC_GCR_VSPOL;
-    // LTDC_GCR |= LTDC_GCR_DEPOL;
     LTDC_GCR |= LTDC_GCR_PCPOL_ACTIVE_HIGH;
 
     // If needed, configure the background color.
@@ -270,6 +290,18 @@ static void mutate_background_color(void)
     LTDC_BCCR = component << 8 * shift;
 }
 
+
+// The sprite bounce algorithm works surprisingly well for a first
+// guess.  Whenever the sprite touches a wall, we reverse its velocity
+// normal to the wall, and pick a random velocity from -3 to +3
+// parallel to the wall.  (e.g., if it touches a side, reverse the X
+// velocity and pick a random Y velocity.)  That gives enough
+// unpredictability to make it interesting.
+//
+// The random numbers come from rand(), and we do not call srand().
+// That means the sprite makes exactly the same moves every time the
+// demo is run.  (Repeatability is a feature.)
+
 static void move_sprite(void)
 {
     static int8_t dx = 1, dy = 1;
@@ -310,10 +342,14 @@ static void move_sprite(void)
     LTDC_L2WVPCR = v_stop << LTDC_LxWVPCR_WVSPPOS_SHIFT |
                    v_start << LTDC_LxWVPCR_WVSTPOS_SHIFT;
 
+    // The sprite fades away as it ages.
     if ((age += 2) > 0xFF)
         age = 0xFF;
     LTDC_L2CACR = 0x000000FF - age;
 }
+
+// Here is where all the work is done.  We poke a total of 6 registers
+// for each frame.
 
 void lcd_tft_isr(void)
 {
@@ -325,26 +361,8 @@ void lcd_tft_isr(void)
     LTDC_SRCR |= LTDC_SRCR_VBR;
 }
 
-// static void draw_layer_1(void)
-// {
-//     int row, col;
-    
-//     for (row = 0; row < LCD_LAYER1_HEIGHT; row++) {
-//         for (col = 0; col < LCD_LAYER1_WIDTH; col++) {
-//             size_t i = row * LCD_LAYER1_WIDTH + col;
-//             uint8_t a = (row + col) & 0xFF;
-//             uint8_t r = (row * 5) & 0xFF;
-//             uint8_t g = (col * 9) & 0xFF;
-//             uint8_t b = (row - 2 * col) & 0xFF;
-//             layer1_pixel pix = a << 24 | r << 16 | g << 8 | b << 0;
-//             if (row == 0 || col == 0 || row == 319 || col == 239)
-//                 pix = 0xFFFFFFFF;
-//             else if (row < 20 && col < 20)
-//                 pix = 0xFF000000;
-//             lcd_layer1_frame_buffer[i] = pix;
-//         }
-//     }
-// }
+// Checkerboard pattern.  Odd squares are transparent; even squares are
+// all different colors.
 
 static void draw_layer_1(void)
 {
@@ -360,20 +378,28 @@ static void draw_layer_1(void)
             uint8_t r = row * 0xFF / LCD_LAYER1_HEIGHT;
             uint8_t g = col * 0xFF / LCD_LAYER1_WIDTH;
             uint8_t b = cel & 3 ? 0xFF * (cel_count - cel - 1) / cel_count: 0;
-            // r = g = b = 0;
+
+            // Put black and white borders around the squares.
             if (row % 32 == 0 || col % 32 == 0) {
                 r = g = b = a ? 0xFF : 0;
                 a = 0xFF;
             }
             layer1_pixel pix = a << 24 | r << 16 | g << 8 | b << 0;
+
+            // Outline the screen in white.  Put a black dot at the origin.
+            // (The origin is in the lower right!)
             if (row == 0 || col == 0 || row == 319 || col == 239)
                 pix = 0xFFFFFFFF;
             else if (row < 20 && col < 20)
                 pix = 0xFF000000;
+
             lcd_layer1_frame_buffer[i] = pix;
         }
     }
 }
+
+// Layer 2 holds the sprite.  The sprite is a semitransparent
+// magenta/cyan diamond outlined in black.
 
 static void draw_layer_2(void)
 {
@@ -403,17 +429,20 @@ int main(void)
 {
     // init timers.
     clock_setup();
+
     // set up USART 1.
     console_setup(115200);
     console_stdio_setup();
+
     // set up SDRAM.
     sdram_init();
-    // console_puts("Hello\n");
 
-    printf("Hello stdio!\n");
+    printf("Preloading frame buffers\n");
 
     draw_layer_1();
     draw_layer_2();
+
+    printf("Initializing LCD\n");
 
     lcd_dma_init();
     lcd_spi_init();
@@ -422,12 +451,4 @@ int main(void)
 
     while (1)
         continue;
-}
-
-#include <math.h>
-
-float foo(float x);
-float foo(float x)
-{
-    return tanhf(x);
 }
