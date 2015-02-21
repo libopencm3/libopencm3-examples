@@ -28,7 +28,7 @@
 
 
 typedef uint32_t layer1_pixel;
-#define LCD_LAYER1_PIXFORMAT LTDC_LxPFCR_PF_ARGB8888
+#define LCD_LAYER1_PIXFORMAT LTDC_LxPFCR_ARGB8888
 layer1_pixel *const lcd_layer1_frame_buffer = (void *)SDRAM_BASE_ADDRESS;
 #define LCD_LAYER1_PIXEL_SIZE (sizeof (layer1_pixel))
 #define LCD_LAYER1_WIDTH  LCD_WIDTH
@@ -37,7 +37,7 @@ layer1_pixel *const lcd_layer1_frame_buffer = (void *)SDRAM_BASE_ADDRESS;
 #define LCD_LAYER1_BYTES  (LCD_LAYER1_PIXELS * LCD_LAYER1_PIXEL_SIZE)
 
 typedef uint16_t layer2_pixel;
-#define LCD_LAYER2_PIXFORMAT LTDC_LxPFCR_PF_ARGB4444
+#define LCD_LAYER2_PIXFORMAT LTDC_LxPFCR_ARGB4444
 layer2_pixel *const lcd_layer2_frame_buffer =
     (void *)SDRAM_BASE_ADDRESS + LCD_LAYER1_BYTES;
 #define LCD_LAYER2_PIXEL_SIZE (sizeof (layer2_pixel))
@@ -131,12 +131,12 @@ static void lcd_dma_init(void)
     // Configure the pixel clock.
     uint32_t sain = 192;
     uint32_t saiq = RCC_PLLSAICFGR &
-                   (RCC_PLLSAICFGR_PLLSAIQ_MASK << RCC_PLLSAICFGR_PLLSAIQ_MASK);
+                  (RCC_PLLSAICFGR_PLLSAIQ_MASK << RCC_PLLSAICFGR_PLLSAIQ_SHIFT);
     uint32_t sair = 4;
     RCC_PLLSAICFGR = (sain << RCC_PLLSAICFGR_PLLSAIN_SHIFT |
                       saiq |
                       sair << RCC_PLLSAICFGR_PLLSAIR_SHIFT);
-    RCC_DCKCFGR |= RCC_DCKCFGR_PLLSAIDIVR_DIV8;
+    RCC_DCKCFGR |= RCC_DCKCFGR_PLLSAIDIVR_DIVR_8;
     RCC_CR |= RCC_CR_PLLSAION;
     while ((RCC_CR & RCC_CR_PLLSAIRDY) == 0)
         continue;
@@ -159,7 +159,7 @@ static void lcd_dma_init(void)
     // LTDC_GCR |= LTDC_GCR_HSPOL;
     // LTDC_GCR |= LTDC_GCR_VSPOL;
     // LTDC_GCR |= LTDC_GCR_DEPOL;
-    LTDC_GCR |= LTDC_GCR_PCPOL;
+    LTDC_GCR |= LTDC_GCR_PCPOL_ACTIVE_HIGH;
 
     // If needed, configure the background color.
     LTDC_BCCR = 0x00000000;
@@ -201,8 +201,8 @@ static void lcd_dma_init(void)
 
         // If needed, configure the default color and blending factors
         LTDC_L1CACR = 0x000000FF;
-        LTDC_L1BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONSTANT_ALPHA |
-                      LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONSTANT_ALPHA;
+        LTDC_L1BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONST_ALPHA |
+                      LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONST_ALPHA;
     }
 
     // Configure the Layer 2 parameters.
@@ -237,15 +237,15 @@ static void lcd_dma_init(void)
 
         // If needed, configure the default color and blending factors
         LTDC_L2CACR = 0x000000FF;
-        LTDC_L2BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONSTANT_ALPHA |
-                      LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONSTANT_ALPHA;
+        LTDC_L2BFCR = LTDC_LxBFCR_BF1_PIXEL_ALPHA_x_CONST_ALPHA |
+                      LTDC_LxBFCR_BF2_PIXEL_ALPHA_x_CONST_ALPHA;
     }
 
     // Enable Layer1 and if needed the CLUT
-    LTDC_L1CR |= LTDC_LxCR_LEN;
+    LTDC_L1CR |= LTDC_LxCR_LAYER_ENABLE;
 
     // Enable Layer2 and if needed the CLUT
-    LTDC_L2CR |= LTDC_LxCR_LEN;
+    LTDC_L2CR |= LTDC_LxCR_LAYER_ENABLE;
 
     // If needed, enable dithering and/or color keying.
 
@@ -253,7 +253,7 @@ static void lcd_dma_init(void)
     LTDC_SRCR |= LTDC_SRCR_VBR;
 
     // Enable the LCD-TFT controller.
-    LTDC_GCR |= LTDC_GCR_LTDCEN;
+    LTDC_GCR |= LTDC_GCR_LTDC_ENABLE;
 }
 
 static void mutate_background_color(void)
