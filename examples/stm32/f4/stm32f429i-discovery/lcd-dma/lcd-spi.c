@@ -21,6 +21,7 @@
 /*
  * Initialize the ST Micro TFT Display using the SPI port
  */
+#include <stddef.h>
 #include <stdint.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/rcc.h>
@@ -96,7 +97,7 @@ lcd_draw_pixel(int x, int y, uint16_t color) {
  * folks do something similar, it helps when debugging the
  * initialization sequence for the display.
  */
-struct tft_command {
+struct tft_command_XXX {
 	uint16_t delay;		// If you need a delay after
 	uint8_t cmd;		// command to send
 	uint8_t n_args;		// How many arguments it has
@@ -212,7 +213,7 @@ static const uint8_t cmd_args[] = {
  * The sequence was pieced together from the ST Micro demo
  * code, the data sheet, and other sources on the web.
  */
-const struct tft_command  initialization[] = {
+const struct tft_command_XXX initialization_XXX[] = {
 
 #ifdef EXPERIMENT
     // Begin experiment.
@@ -232,7 +233,8 @@ const struct tft_command  initialization[] = {
 	{   0, 0xc1, 1 },	// 0x10,
 	{   0, 0xc5, 2 },	// 0x45, 0x15,
 	{   0, 0xc7, 1 },	// 0x90,
-	{   0, 0x36, 1 },	// 0xc8,
+	// {   0, 0x36, 1 },	// 0xc8,  // original
+	{   0, 0x36, 1 },	// 0x08,
 #ifdef EXPERIMENT
 	{   0, 0xb0, 1 },	// 0xc0,
 #else
@@ -242,7 +244,11 @@ const struct tft_command  initialization[] = {
 	{   0, 0xb6, 4 },	// 0x0a, 0xa7, 0x27, 0x04,
 	{   0, 0x2A, 4 },	// 0x00, 0x00, 0x00, 0xef,
 	{   0, 0x2B, 4 },	// 0x00, 0x00, 0x01, 0x3f,
+#ifdef EXPERIMENT
 	{   0, 0xf6, 3 },	// 0x01, 0x00, 0x06,
+#else
+	{   0, 0xf6, 3 },	// 0x01, 0x00, 0x00,
+#endif
 	{ 200, 0x2c, 0 },
 	{   0, 0x26, 1},	// 0x01,
 	{   0, 0xe0, 15 },	// 0x0F, 0x29, 0x24, 0x0C, 0x0E,
@@ -254,6 +260,165 @@ const struct tft_command  initialization[] = {
 	{ 200, 0x11, 0 },
 	{   0, 0x29, 0 },
 	{   0,    0, 0 }	// cmd == 0 indicates last command
+};
+
+// ILI9341 commands
+
+// Regulative[sic] Command Set
+#define ILI_NOP                 0x00
+#define ILI_RESET               0x01
+#define ILI_RD_DID              0x04
+#define ILI_RD_STS              0x09
+#define ILI_RD_PWR_MODE         0x0a
+#define ILI_RD_MADCTL           0x0b
+#define ILI_RD_PXL_FMT          0x0c
+#define ILI_PD_IMG_FMT          0x0d
+#define ILI_RD_SIG_MODE         0x0e
+#define ILI_RD_DIAG_RSLT        0x0f
+#define ILI_ENTER_SLEEP         0x10
+#define ILI_SLEEP_OUT           0x11
+#define ILI_PARTIAL_ON          0x12
+#define ILI_NORMAL_MODE_ON      0x13
+#define ILI_INVERSE_ON          0x20
+#define ILI_INVERSE_OFF         0x21
+#define ILI_GAMMA_SET           0x26
+#define ILI_DISP_OFF            0x28
+#define ILI_DISP_ON             0x29
+#define ILI_CAS                 0x2a
+#define ILI_PAS                 0x2b
+#define ILI_MEM_WRITE           0x2c
+#define ILI_COLOR_SET           0x2d
+#define ILI_MEM_READ            0x2e
+#define ILI_PARTIAL_AREA        0x30
+#define ILI_VERT_SCROLL_DEF     0x33
+#define ILI_TEAR_EFF_OFF        0x34
+#define ILI_TEAR_EFF_ON         0x35
+#define ILI_MEM_ACC_CTL         0x36
+#define ILI_V_SCROLL_START      0x37
+#define ILI_IDLE_OFF            0x38
+#define ILI_IDLE_ON             0x39
+#define ILI_PIX_FMT_SET         0x3a
+#define ILI_WR_MEM_CONT         0x3c
+#define ILI_RD_MEM_CONT         0x3e
+#define ILI_SET_TEAR_LINE       0x44
+#define ILI_GET_SCANLINE        0x45
+#define ILI_WR_BRIGHTNESS       0x51
+#define ILI_RD_BRIGHTNESS       0x52
+#define ILI_WR_CTRL             0x53
+#define ILI_RD_CTRL             0x54
+#define ILI_WR_CABC             0x55
+#define ILI_RD_CABC             0x56
+#define ILI_WR_CABC_MIN         0x5e
+#define ILI_RD_CABC_MAX         0x5f
+#define ILI_RD_ID1              0xda
+#define ILI_RD_ID2              0xdb
+#define ILI_RD_ID3              0xdc
+
+// Extended Command Set
+#define ILI_RGB_IFC_CTL         0xb0
+#define ILI_FRM_CTL_NORM        0xb1
+#define ILI_FRM_CTL_IDLE        0xb2
+#define ILI_FRM_CTL_PART        0xb3
+#define ILI_INVERSE_CTL         0xb4
+#define ILI_PORCH_CTL           0xb5
+#define ILI_FUNC_CTL            0xb6
+#define ILI_ENTRY_MODE_SET      0xb7
+#define ILI_BL_CTL_1            0xb8
+#define ILI_BL_CTL_2            0xb9
+#define ILI_BL_CTL_3            0xba
+#define ILI_BL_CTL_4            0xbb
+#define ILI_BL_CTL_5            0xbc
+#define ILI_BL_CTL_7            0xbe
+#define ILI_BL_CTL_8            0xbf
+#define ILI_PWR_CTL_1           0xc0
+#define ILI_PWR_CTL_2           0xc1
+#define ILI_VCOM_CTL_1          0xc5
+#define ILI_VCOM_CTL_2          0xc7
+#define ILI_NV_MEM_WR           0xd0
+#define ILI_NV_MEM_PROT_KEY     0xd1
+#define ILI_NV_MEM_STATUS_RD    0xd2
+#define ILI_RD_ID4              0xd3
+#define ILI_POS_GAMMA           0xe0
+#define ILI_NEG_GAMMA           0xe1
+#define ILI_GAMMA_CTL_1         0xe2
+#define ILI_GAMMA_CTL_2         0xe3
+#define ILI_IFC_CTL             0xf6
+
+// Undocumented Commands
+#define ILI_UNDEF_02            0x02
+#define ILI_UNDEF_CA            0xca
+#define ILI_UNDEF_CF            0xcf
+#define ILI_UNDEF_ED            0xed
+#define ILI_UNDEF_E8            0xe8
+#define ILI_UNDEF_CB            0xcb
+#define ILI_UNDEF_F7            0xf7
+#define ILI_UNDEF_EA            0xea
+#define ILI_UNDEF_
+
+
+#define MAX_INLINE_ARGS (sizeof (uint8_t *))
+struct tft_command {
+    uint16_t delay;		// If you need a delay after
+    uint8_t cmd;		// command to send
+    uint8_t n_args;		// How many arguments it has
+    union {
+        uint8_t args[MAX_INLINE_ARGS]; // The first four arguments
+        const uint8_t *aptr;  // More than four arguemnts
+    };
+};
+
+static const uint8_t undef_cb_args[]  = { 0x39, 0x2c, 0x00, 0x34, 0x02 };
+static const uint8_t pos_gamma_args[] = { 0x0F, 0x29, 0x24, 0x0C, 0x0E,
+                                          0x09, 0x4E, 0x78, 0x3C, 0x09,
+                                          0x13, 0x05, 0x17, 0x11, 0x00 };
+static const uint8_t neg_gamma_args[] = { 0x00, 0x16, 0x1B, 0x04, 0x11,
+                                          0x07, 0x31, 0x33, 0x42, 0x05,
+                                          0x0C, 0x0A, 0x28, 0x2F, 0x0F };
+
+const struct tft_command initialization[] = {
+
+#ifdef EXPERIMENT
+ // // Begin experiment.
+ // {   0, ILI_UNDEF_CA,          3, .args = { 0xc3, 0x08, 0x50 } },
+ // {   0, ILI_UNDEF_CF,          3, .args = { 0x00, 0xc1, 0x30 } },
+ // {   0, ILI_UNDEF_ED,          4, .args = { 0x64, 0x03, 0x12, 0x81 } },
+ // {   0, ILI_UNDEF_E8,          3, .args = { 0x85, 0x00, 0x78 } },
+ // {   0, ILI_UNDEF_CB,          5, .aptr = undef_cb_args },
+ // {   0, ILI_RD_ID2,            0, .args = { 0x02 } },
+ // {   0, ILI_UNDEF_F7,          1, .args = { 0x20 } },
+ // {   0, ILI_UNDEF_EA,          2, .args = { 0x00, 0x00 } },
+ // // End experiment.
+#endif
+
+    // {   0, ILI_FRM_CTL_NORM,     2, .args = { 0x00, 0x1B } },
+    {   0, ILI_FUNC_CTL,         2, .args = { 0x0a, 0xa2 } },
+    {   0, ILI_PWR_CTL_1,        1, .args = { 0x10 } },
+    {   0, ILI_PWR_CTL_2,        1, .args = { 0x10 } },
+    {   0, ILI_VCOM_CTL_1,       2, .args = { 0x45, 0x15 } },
+    {   0, ILI_VCOM_CTL_2,       1, .args = { 0x90 } },
+ // {   0, ILI_MEM_ACC_CTL,      1, .args = { 0xc8 } },  // original _
+    {   0, ILI_MEM_ACC_CTL,      1, .args = { 0x08 } },
+#ifdef EXPERIMENT
+    {   0, ILI_RGB_IFC_CTL,      1, .args = { 0xc0 } },
+#else
+    {   0, ILI_RGB_IFC_CTL,      1, .args = { 0xc2 } },
+ // {   0, ILI_PIX_FMT_SET,      1, .args = { 0x55 } } // added, pix fmt 16 bpp
+#endif
+    {   0, ILI_FUNC_CTL,         4, .args = { 0x0a, 0x87, 0x27, 0x04 } },
+    {   0, ILI_CAS,              4, .args = { 0x00, 0x00, 0x00, 0xef } },
+    {   0, ILI_DISP_OFF,         4, .args = { 0x00, 0x00, 0x01, 0x3f } },
+#ifdef EXPERIMENT
+    {   0, ILI_IFC_CTL,          3, .args = { 0x01, 0x00, 0x06 } },
+#else
+    {   0, ILI_IFC_CTL,          3, .args = { 0x01, 0x00, 0x00 } },
+#endif
+    { 200, ILI_MEM_WRITE,        0, .args = {} },
+    {   0, ILI_GAMMA_SET,        1, .args = { 0x01 } },
+    {   0, ILI_POS_GAMMA,       15, .aptr = pos_gamma_args },
+    {   0, ILI_NEG_GAMMA,       15, .aptr = neg_gamma_args },
+    { 200, ILI_SLEEP_OUT,        0, .args = {} },
+    {   0, ILI_DISP_ON,          0, .args = {} },
+    // {   0,    0,  0, .args = {} } // cmd == 0 indicates last command
 };
 
 // ILI9341 datasheet, pp 46-49:
@@ -307,80 +472,19 @@ const struct tft_command  initialization[] = {
 //  RM           0 (sys ifc)       1 (RGB ifc)
 //  RIM          0 (1 xfr/pix)     0
 
-/* prototype for initialize_display */
-static void initialize_display(const struct tft_command cmds[]);
-
-/*
- * void initialize_display(struct cmds[])
- *
- * This is the function that sends the entire list. It also puts
- * the commands it is sending to the console.
- */
 static void
-initialize_display(const struct tft_command cmds[]) {
+initialize_display(const struct tft_command cmds[], size_t cmd_count) {
 
-	int i = 0;
-	int arg_offset = 0;
+    size_t i;
 
-	/* Initially arg offset is zero, so each time we 'consume'
-	 * a few bytes in the args array the offset is moved and
-	 * that changes the pointer we send to the command function.
-	 */
-	while (cmds[i].cmd) {
-		// console_puts("CMD: ");
-		// print_hex(cmds[i].cmd);
-		// console_puts(", ");
-		// if (cmds[i].n_args) {
-		// 	console_puts("ARGS: ");
-		// 	for (j = 0; j < cmds[i].n_args; j++) {
-		// 		print_hex(cmd_args[arg_offset+j]);
-		// 		console_puts(", ");
-		// 	}
-		// }
-		// console_puts("DELAY: ");
-		// print_decimal(cmds[i].delay);
-		// console_puts("ms\n");
-
-		lcd_command(cmds[i].cmd, cmds[i].delay, cmds[i].n_args,
-			&cmd_args[arg_offset]);
-		arg_offset += cmds[i].n_args;
-		i++;
-	}
-	// console_puts("Done.\n");
+    for (i = 0; i < cmd_count; i++) {
+        uint8_t arg_count = cmds[i].n_args;
+        const uint8_t *args = cmds[i].args;
+        if (arg_count > MAX_INLINE_ARGS)
+            args = cmds[i].aptr;
+        lcd_command(cmds[i].cmd, cmds[i].delay, arg_count, args);
+    }
 }
-
-// /* prototype for test_image */
-// static void test_image(void);
-
-// /*
-//  * Interesting questions:
-//  *   - How quickly can I write a full frame?
-//  *      * Take the bits sent (16 * width * height)
-//  *        and divide by the  baud rate (10.25Mhz)
-//  *      * Tests in main.c show that yes, it taks 74ms.
-//  *
-//  * Create non-random data in the frame buffer. In our case
-//  * a black background and a grid 16 pixels x 16 pixels of
-//  * white lines. No line on the right edge and bottom of screen.
-//  */
-// static void
-// test_image(void) {
-// 	int		x, y;
-// 	uint16_t	pixel;
-
-// 	for (x = 0; x < LCD_WIDTH; x++) {
-// 		for (y = 0; y < LCD_HEIGHT; y++) {
-// 			pixel = 0;              // all black
-// 			if ((x % 16) == 0) {
-// 				pixel = 0xffff;     // all white
-// 			}
-// 			if ((y % 16) == 0) {
-// 				pixel = 0xffff;     // all white
-// 			}
-// 			lcd_draw_pixel(x, y, pixel);
-// 		}
-// 	}
-// }
 
 /*
  * void lcd_show_frame(void)
@@ -472,7 +576,8 @@ lcd_spi_init(void) {
 
 	/* Set up the display */
 	// console_puts("Initialize the display.\n");
-	initialize_display(initialization);
+	initialize_display(initialization,
+                           sizeof initialization / sizeof initialization[0]);
 
 	/* create a test image */
 	// console_puts("Generating Test Image\n");
@@ -482,63 +587,3 @@ lcd_spi_init(void) {
 	// console_puts("And ... voila\n");
  	// lcd_show_frame();
 }
-
-// /*
-//  * int len = print_decimal(int value)
-//  *
-//  * Very simple routine to print an integer as a decimal
-//  * number on the console.
-//  */
-// int
-// print_decimal(int num) {
-// 	int	ndx = 0;
-// 	char	buf[10];
-// 	int	len = 0;
-// 	char	is_signed = 0;
-
-// 	if (num < 0) {
-// 		is_signed++;
-// 		num = 0 - num;
-// 	}
-// 	buf[ndx++] = '\000';
-// 	do {
-// 		buf[ndx++] = (num % 10) + '0';
-// 		num = num / 10;
-// 	} while (num != 0);
-// 	ndx--;
-// 	if (is_signed != 0) {
-// 		console_putc('-');
-// 		len++;
-// 	}
-// 	while (buf[ndx] != '\000') {
-// 		console_putc(buf[ndx--]);
-// 		len++;
-// 	}
-// 	return len; // number of characters printed
-// }
-
-// /*
-//  * int print_hex(int value)
-//  *
-//  * Very simple routine for printing out hex constants.
-//  */
-// static int print_hex(int v) {
-// 	int		ndx = 0;
-// 	char	buf[10];
-// 	int		len;
-
-// 	buf[ndx++] = '\000';
-// 	do {
-// 		char	c = v & 0xf;
-// 		buf[ndx++] = (c > 9) ? '7'+ c : '0' + c;
-// 		v = (v >> 4) & 0x0fffffff;
-// 	} while (v != 0);
-// 	ndx--;
-// 	console_puts("0x");
-// 	len = 2;
-// 	while (buf[ndx] != '\000') {
-// 		console_putc(buf[ndx--]);
-// 		len++;
-// 	}
-// 	return len; // number of characters printed
-// }
