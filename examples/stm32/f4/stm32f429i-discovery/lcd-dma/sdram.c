@@ -27,7 +27,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/fsmc.h>
 #include "clock.h"
-#include "sdram.h"
 
 /*
  * This is just syntactic sugar but it helps, all of these
