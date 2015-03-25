@@ -1,0 +1,7 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This is the smallest-possible example program using libopencm3.
+
+It's intended for the SiliconLabs EFM32LG. It should blink a LED "LED0" on the PE2.
