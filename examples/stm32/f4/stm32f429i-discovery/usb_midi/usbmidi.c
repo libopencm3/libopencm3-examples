@@ -369,9 +369,8 @@ int main(void)
 	rcc_periph_clock_enable(RCC_OTGHS);
 
 	/* USB pins */
-	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE,
-			GPIO13 | GPIO14 | GPIO15);
-	gpio_set_af(GPIOB, GPIO_AF12, GPIO13 | GPIO14 | GPIO15);
+	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO14 | GPIO15);
+	gpio_set_af(GPIOB, GPIO_AF12, GPIO14 | GPIO15);
 
 	/* Button pin */
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);
