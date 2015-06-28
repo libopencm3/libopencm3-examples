@@ -134,6 +134,11 @@ list: $(BINARY).list
 images: $(BINARY).images
 flash: $(BINARY).flash
 
+$(LDSCRIPT):
+    ifeq (,$(wildcard $(LDSCRIPT)))
+        $(error Unable to find specified linker script: $(LDSCRIPT))
+    endif
+
 %.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
 
