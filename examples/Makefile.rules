@@ -135,9 +135,14 @@ images: $(BINARY).images
 flash: $(BINARY).flash
 
 $(LDSCRIPT):
-    ifeq (,$(wildcard $(LDSCRIPT)))
-        $(error Unable to find specified linker script: $(LDSCRIPT))
-    endif
+	ifeq (,$(wildcard $@))
+		$(error Unable to find specified linker script: $(LDSCRIPT))
+	endif
+
+$(LIB_DIR)/lib$(LIBNAME).a:
+	ifeq (,$(wildcard $@))
+		$(error libopencm3 has not yet been compiled. Run `make` in $(OPENCM3_DIR))
+	endif
 
 %.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
