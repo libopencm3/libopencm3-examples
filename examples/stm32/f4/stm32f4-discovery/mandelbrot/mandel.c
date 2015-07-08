@@ -63,16 +63,16 @@ static void gpio_setup(void)
 }
 
 /* Maximum number of iterations for the escape-time calculation */
-#define maxIter 32
+#define max_iter 32
 /* This array converts the iteration count to a character representation. */
-static char color[maxIter+1] = " .:++xxXXX%%%%%%################";
+static char color[max_iter+1] = " .:++xxXXX%%%%%%################";
 
 /* Main mandelbrot calculation */
 static int iterate(float px, float py)
 {
 	int it = 0;
 	float x = 0, y = 0;
-	while (it < maxIter) {
+	while (it < max_iter) {
 		float nx = x*x;
 		float ny = y*y;
 		if ((nx + ny) > 4) {
@@ -86,12 +86,12 @@ static int iterate(float px, float py)
 	return 0;
 }
 
-static void mandel(float cX, float cY, float scale)
+static void mandel(float c_x, float c_y, float scale)
 {
 	int x, y;
 	for (x = -60; x < 60; x++) {
 		for (y = -50; y < 50; y++) {
-			int i = iterate(cX + x*scale, cY + y*scale);
+			int i = iterate(c_x + x*scale, c_y + y*scale);
 			usart_send_blocking(USART2, color[i]);
 		}
 		usart_send_blocking(USART2, '\r');
@@ -101,7 +101,7 @@ static void mandel(float cX, float cY, float scale)
 
 int main(void)
 {
-	float scale = 0.25f, centerX = -0.5f, centerY = 0.0f;
+	float scale = 0.25f, center_x = -0.5f, center_y = 0.0f;
 
 	clock_setup();
 	gpio_setup();
@@ -110,11 +110,11 @@ int main(void)
 	while (1) {
 		/* Blink the LED (PD12) on the board with each fractal drawn. */
 		gpio_toggle(GPIOD, GPIO12);		/* LED on/off */
-		mandel(centerX, centerY, scale);	/* draw mandelbrot */
+		mandel(center_x, center_y, scale);	/* draw mandelbrot */
 
 		/* Change scale and center */
-		centerX += 0.175f * scale;
-		centerY += 0.522f * scale;
+		center_x += 0.175f * scale;
+		center_y += 0.522f * scale;
 		scale	*= 0.875f;
 
 		usart_send_blocking(USART2, '\r');

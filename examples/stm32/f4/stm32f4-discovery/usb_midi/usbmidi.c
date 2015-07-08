@@ -267,7 +267,7 @@ static const struct usb_config_descriptor config = {
 	.interface = ifaces,
 };
 
-static const char * usb_strings[] = {
+static const char *usb_strings[] = {
 	"libopencm3.org",
 	"MIDI demo",
 };

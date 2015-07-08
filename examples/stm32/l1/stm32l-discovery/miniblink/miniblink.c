@@ -26,7 +26,7 @@ static void gpio_setup(void)
 {
 	/* Enable GPIOB clock. */
 	/* Manually: */
-	//RCC_AHBENR |= RCC_AHBENR_GPIOBEN;
+	/* RCC_AHBENR |= RCC_AHBENR_GPIOBEN; */
 	/* Using API functions: */
 	rcc_periph_clock_enable(RCC_GPIOB);
 
@@ -44,20 +44,20 @@ int main(void)
 	/* Blink the LED (PB6) on the board. */
 	while (1) {
 		/* Manually: */
-		// GPIOB_BSRR = GPIO6;		/* LED off */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		//	__asm__("nop");
-		// GPIOB_BRR = GPIO6;		/* LED on */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		//	__asm__("nop");
+		/* GPIOB_BSRR = GPIO6; */		/* LED off */
+		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
+		/*	__asm__("nop"); */
+		/* GPIOB_BRR = GPIO6; */		/* LED on */
+		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
+		/*	__asm__("nop"); */
 
 		/* Using API functions gpio_set()/gpio_clear(): */
-		// gpio_set(GPIOB, GPIO6);	/* LED off */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		//	__asm__("nop");
-		// gpio_clear(GPIOB, GPIO6);	/* LED on */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
-		//	__asm__("nop");
+		/* gpio_set(GPIOB, GPIO6); */		/* LED off */
+		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
+		/*	__asm__("nop"); */
+		/* gpio_clear(GPIOB, GPIO6); */		/* LED on */
+		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
+		/*	__asm__("nop"); */
 
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOB, GPIO6);	/* LED on/off */

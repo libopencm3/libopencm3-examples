@@ -78,8 +78,9 @@ static void adc_setup(void)
 	adc_power_on(ADC1);
 
 	/* Wait for ADC starting up. */
-	for (i = 0; i < 800000; i++)    /* Wait a bit. */
+	for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 		__asm__("nop");
+	}
 
 	adc_reset_calibration(ADC1);
 	adc_calibration(ADC1);
@@ -101,8 +102,9 @@ static void my_usart_print_int(uint32_t usart, int value)
 		value /= 10;
 	}
 
-	for (i = nr_digits; i >= 0; i--)
+	for (i = nr_digits; i >= 0; i--) {
 		usart_send(usart, buffer[i]);
+	}
 }
 
 int main(void)
@@ -147,7 +149,7 @@ int main(void)
 
 	gpio_clear(GPIOB, GPIO6); /* LED2 on */
 
-	while(1); /* Halt. */
+	while (1); /* Halt. */
 
 	return 0;
 }

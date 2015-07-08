@@ -38,13 +38,15 @@ int main(void)
 	while (1) {
 		gpio_set(GPIOF, GPIO0);
 
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 
 		gpio_clear(GPIOF, GPIO0);
 
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

@@ -90,7 +90,8 @@ const struct usb_interface_descriptor iface = {
 const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = &iface,
-}};
+	}
+};
 
 const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -131,7 +132,8 @@ static uint8_t usbdfu_getstatus(usbd_device *usbd_dev, uint32_t *bwPollTimeout)
 	}
 }
 
-static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_data *req)
+static void usbdfu_getstatus_complete(usbd_device *usbd_dev,
+	struct usb_setup_data *req)
 {
 	int i;
 	(void)req;
@@ -176,11 +178,13 @@ static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_da
 	}
 }
 
-static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
-		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int usbdfu_control_request(usbd_device *usbd_dev,
+	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
-	if ((req->bmRequestType & 0x7F) != 0x21)
+	if ((req->bmRequestType & 0x7F) != 0x21) {
 		return 0; /* Only accept class request. */
+	}
 
 	switch (req->bRequest) {
 	case DFU_DNLOAD:
@@ -197,8 +201,9 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		}
 	case DFU_CLRSTATUS:
 		/* Clear error and return to dfuIDLE. */
-		if (usbdfu_state == STATE_DFU_ERROR)
+		if (usbdfu_state == STATE_DFU_ERROR) {
 			usbdfu_state = STATE_DFU_IDLE;
+		}
 		return 1;
 	case DFU_ABORT:
 		/* Abort returns to dfuIDLE state. */
@@ -208,7 +213,8 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		/* Upload not supported for now. */
 		return 0;
 	case DFU_GETSTATUS: {
-		uint32_t bwPollTimeout = 0; /* 24-bit integer in DFU class spec */
+		/* 24-bit integer in DFU class spec */
+		uint32_t bwPollTimeout = 0;
 		(*buf)[0] = usbdfu_getstatus(usbd_dev, &bwPollTimeout);
 		(*buf)[1] = bwPollTimeout & 0xFF;
 		(*buf)[2] = (bwPollTimeout >> 8) & 0xFF;
@@ -241,7 +247,7 @@ int main(void)
 			/* Set vector table base address. */
 			SCB_VTOR = APP_ADDRESS & 0xFFFF;
 			/* Initialise master stack pointer. */
-			asm volatile("msr msp, %0"::"g"
+			asm volatile("msr msp, %0" : : "g"
 				     (*(volatile uint32_t *)APP_ADDRESS));
 			/* Jump to application. */
 			(*(void (**)())(APP_ADDRESS + 4))();
@@ -256,7 +262,8 @@ int main(void)
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 
-	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev, &config, usb_strings,
+		4, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
@@ -267,6 +274,7 @@ int main(void)
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO15);
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }

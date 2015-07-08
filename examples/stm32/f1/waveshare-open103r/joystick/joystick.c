@@ -47,102 +47,102 @@ bool led_blinking;
 /* Set STM32 to 24 MHz. */
 static void clock_setup(void)
 {
-  rcc_clock_setup_in_hse_8mhz_out_24mhz();
+	rcc_clock_setup_in_hse_8mhz_out_24mhz();
 }
 
 static void led_setup(void)
 {
-  /* Enable GPIOC clock. */
-  rcc_periph_clock_enable(RCC_GPIOC);
-  /* Set LEDs to output push-pull. */
-  gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_2_MHZ,
+	/* Enable GPIOC clock. */
+	rcc_periph_clock_enable(RCC_GPIOC);
+	/* Set LEDs to output push-pull. */
+	gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_2_MHZ,
 		GPIO_CNF_OUTPUT_PUSHPULL, LED_ALL);
-  /* Turn off all LEDs. */
-  gpio_clear(LED_PORT, LED_ALL);
+	/* Turn off all LEDs. */
+	gpio_clear(LED_PORT, LED_ALL);
 }
 
 static void joystick_setup(void)
 {
-  /* Enable GPIOA clock. */
-  rcc_periph_clock_enable(RCC_GPIOA);
-  /* Set joystick pins to input. */
-  gpio_set_mode(JOY_PORT, GPIO_MODE_INPUT,
+	/* Enable GPIOA clock. */
+	rcc_periph_clock_enable(RCC_GPIOA);
+	/* Set joystick pins to input. */
+	gpio_set_mode(JOY_PORT, GPIO_MODE_INPUT,
 		GPIO_CNF_INPUT_PULL_UPDOWN,
 		JOY_ALL);
-  /* Enable all joystick pin pull-up resistors. */
-  gpio_set(JOY_PORT, JOY_ALL);
+	/* Enable all joystick pin pull-up resistors. */
+	gpio_set(JOY_PORT, JOY_ALL);
 }
 
 int main(void)
 {
-  int i = 0;
-  int debounce = 0;
-  clock_setup();
-  led_setup();
-  joystick_setup();
+	int i = 0;
+	int debounce = 0;
+	clock_setup();
+	led_setup();
+	joystick_setup();
 
-  joy_state = 0;
-  led_state = LED1;
-  led_blinking = false;
+	joy_state = 0;
+	led_state = LED1;
+	led_blinking = false;
 
-  while (1) {
+	while (1) {
 
-    /* Set LED state according to joystick state. */
-    joy_state = (~JOY_STATE) & JOY_ALL;
-    if (joy_state != 0 && debounce == 0) {
-      debounce = 1;
-      gpio_clear(LED_PORT, LED_ALL);
-      if (joy_state & JOY_UP) {
-        if (led_state == LED_ALL || led_state == 0) {
-	  led_state = LED4;
-	} else {
-	  led_state >>= 1;
-	  if (led_state < LED1) {
-	    led_state = LED4;
-	  }
+		/* Set LED state according to joystick state. */
+		joy_state = (~JOY_STATE) & JOY_ALL;
+		if (joy_state != 0 && debounce == 0) {
+			debounce = 1;
+			gpio_clear(LED_PORT, LED_ALL);
+			if (joy_state & JOY_UP) {
+				if (led_state == LED_ALL || led_state == 0) {
+					led_state = LED4;
+				} else {
+					led_state >>= 1;
+					if (led_state < LED1) {
+						led_state = LED4;
+					}
+				}
+			} else if (joy_state & JOY_DOWN) {
+				if (led_state == LED_ALL || led_state == 0) {
+					led_state = LED1;
+				} else {
+					led_state <<= 1;
+					if (led_state > LED4 || led_state == 0) {
+						led_state = LED1;
+					}
+				}
+			} else if (joy_state & JOY_LEFT) {
+				led_state = LED_ALL;
+			} else if (joy_state & JOY_RIGHT) {
+				led_state = 0;
+			} else if (joy_state & JOY_CENTER) {
+				led_blinking = !led_blinking;
+			}
+		}
+
+		/* Debounce joystick press. */
+		else if (debounce > 0 && debounce < JOY_DEBOUNCE_TICKS) {
+			debounce++;
+		} else if (joy_state == 0 && debounce == JOY_DEBOUNCE_TICKS) {
+			debounce++;
+		}
+
+		/* Debounce joystick release. */
+		else if (debounce > JOY_DEBOUNCE_TICKS && debounce < 2*JOY_DEBOUNCE_TICKS) {
+			debounce++;
+		} else if (joy_state == 0 && debounce == 2*JOY_DEBOUNCE_TICKS) {
+			debounce = 0;
+		}
+
+		/* Update LEDs on the fly rather than wait for blink to complete. */
+		if (i++ < BLINK_TICK || !led_blinking) {
+			gpio_set(LED_PORT, led_state);
+		} else {
+			gpio_clear(LED_PORT, led_state);
+		}
+		if (i > 2*BLINK_TICK) {
+			i = 0;
+		}
+
 	}
-      } else if (joy_state & JOY_DOWN) {
-	if (led_state == LED_ALL || led_state == 0) {
-	  led_state = LED1;
-	} else {
-	  led_state <<= 1;
-	  if (led_state > LED4 || led_state == 0) {
-	    led_state = LED1;
-	  }
-	}
-      } else if (joy_state & JOY_LEFT) {
-	led_state = LED_ALL;
-      } else if (joy_state & JOY_RIGHT) {
-	led_state = 0;
-      } else if (joy_state & JOY_CENTER) {
-	led_blinking = !led_blinking;
-      }
-    }
-
-    /* Debounce joystick press. */
-    else if (debounce > 0 && debounce < JOY_DEBOUNCE_TICKS) {
-      debounce++;
-    } else if (joy_state == 0 && debounce == JOY_DEBOUNCE_TICKS) {
-      debounce++;
-    }
-
-    /* Debounce joystick release. */
-    else if (debounce > JOY_DEBOUNCE_TICKS && debounce < 2*JOY_DEBOUNCE_TICKS) {
-      debounce++;
-    } else if (joy_state == 0 && debounce == 2*JOY_DEBOUNCE_TICKS) {
-      debounce = 0;
-    }
-
-    /* Update LEDs on the fly rather than wait for blink to complete. */
-    if (i++ < BLINK_TICK || !led_blinking) {
-      gpio_set(LED_PORT, led_state);
-    } else {
-      gpio_clear(LED_PORT, led_state);
-    }
-    if (i > 2*BLINK_TICK) {
-      i = 0;
-    }
-
-  }
-  return 0;
+	return 0;
 }

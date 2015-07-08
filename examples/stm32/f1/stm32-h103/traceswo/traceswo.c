@@ -67,8 +67,7 @@ static void gpio_setup(void)
 
 static void trace_send_blocking(char c)
 {
-	while (!(ITM_STIM8(0) & ITM_STIM_FIFOREADY))
-		;
+	while (!(ITM_STIM8(0) & ITM_STIM_FIFOREADY));
 
 	ITM_STIM8(0) = c;
 }
@@ -90,8 +89,9 @@ int main(void)
 			trace_send_blocking('\r');
 			trace_send_blocking('\n');
 		}
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

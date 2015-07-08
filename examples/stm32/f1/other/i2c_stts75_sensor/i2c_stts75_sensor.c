@@ -32,7 +32,7 @@ static void usart_setup(void)
 
 	/* Setup GPIO pin GPIO_USART1_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
-	              GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
+		GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 
 	/* Setup UART parameters. */
 	usart_set_baudrate(USART1, 115200);
@@ -53,9 +53,9 @@ static void gpio_setup(void)
 
 	/* Set GPIO6/7 (in GPIO port B) to 'output push-pull' for the LEDs. */
 	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
-	              GPIO_CNF_OUTPUT_PUSHPULL, GPIO6);
+		GPIO_CNF_OUTPUT_PUSHPULL, GPIO6);
 	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
-	              GPIO_CNF_OUTPUT_PUSHPULL, GPIO7);
+		GPIO_CNF_OUTPUT_PUSHPULL, GPIO7);
 }
 
 static void i2c_setup(void)
@@ -66,8 +66,8 @@ static void i2c_setup(void)
 
 	/* Set alternate functions for the SCL and SDA pins of I2C2. */
 	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-		      GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-		      GPIO_I2C2_SCL | GPIO_I2C2_SDA);
+		GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
+		GPIO_I2C2_SCL | GPIO_I2C2_SDA);
 
 	/* Disable the I2C before changing any configuration. */
 	i2c_peripheral_disable(I2C2);
@@ -129,10 +129,11 @@ int main(void)
 
 	/* Send the temperature as binary over USART1. */
 	for (i = 15; i >= 0; i--) {
-		if (temperature & (1 << i))
+		if (temperature & (1 << i)) {
 			usart_send(USART1, '1');
-		else
+		} else {
 			usart_send(USART1, '0');
+		}
 	}
 
 	usart_send(USART1, '\r');

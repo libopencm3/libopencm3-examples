@@ -41,9 +41,9 @@ void uart_setup(void);
 /* This is how the RGB LED is connected on the stellaris launchpad */
 #define RGB_PORT	GPIOF
 enum {
-	LED_R	= GPIO1,
-	LED_G	= GPIO3,
-	LED_B	= GPIO2,
+	LED_R = GPIO1,
+	LED_G = GPIO3,
+	LED_B = GPIO2,
 };
 
 /* This is how the user switches are connected to GPIOF */
@@ -54,12 +54,12 @@ enum {
 
 /* The divisors we loop through when the user presses SW2 */
 enum {
-	PLL_DIV_80MHZ 	= 5,
-	PLL_DIV_57MHZ 	= 7,
-	PLL_DIV_40MHZ 	= 10,
-	PLL_DIV_30MHZ 	= 13,
-	PLL_DIV_20MHZ 	= 20,
-	PLL_DIV_16MHZ 	= 25,
+	PLL_DIV_80MHZ = 5,
+	PLL_DIV_57MHZ = 7,
+	PLL_DIV_40MHZ = 10,
+	PLL_DIV_30MHZ = 13,
+	PLL_DIV_20MHZ = 20,
+	PLL_DIV_16MHZ = 25,
 };
 
 static const uint8_t plldiv[] = {
@@ -105,42 +105,43 @@ static const struct usb_endpoint_descriptor bulk_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x82,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x03,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x84,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x05,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x86,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}};
+	}
+};
 
 static const struct usb_interface_descriptor bulk_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
@@ -157,12 +158,14 @@ static const struct usb_interface_descriptor bulk_iface[] = {{
 
 	.extra = NULL,
 	.extralen = 0,
-}};
+	}
+};
 
 static const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = bulk_iface,
-}};
+	}
+};
 
 static const struct usb_config_descriptor config_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -200,7 +203,8 @@ static void usb_setup(void)
 	/* USB pins are connected to port D */
 	periph_clock_enable(RCC_GPIOD);
 	/* Mux USB pins to their analog function */
-	gpio_mode_setup(GPIOD, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4 | GPIO5);
+	gpio_mode_setup(GPIOD, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4 |
+		GPIO5);
 }
 
 /*
@@ -224,7 +228,7 @@ static void usb_ints_setup(void)
  *
  * This gets called whenever a new OUT packet has arrived.
  */
-static void bulk_rx_cb(usbd_device * usbd_dev, uint8_t ep)
+static void bulk_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
 	char buf[64] __attribute__ ((aligned(4)));
 
@@ -239,7 +243,7 @@ static void bulk_rx_cb(usbd_device * usbd_dev, uint8_t ep)
  *
  * This gets called whenever an IN packet has been successfully transmitted.
  */
-static void bulk_tx_cb(usbd_device * usbd_dev, uint8_t ep)
+static void bulk_tx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
 	char buf[64] __attribute__ ((aligned(4)));
 
@@ -254,7 +258,7 @@ static void bulk_tx_cb(usbd_device * usbd_dev, uint8_t ep)
  *
  * Called after the host issues a SetConfiguration request.
  */
-static void set_config(usbd_device * usbd_dev, uint16_t wValue)
+static void set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
 	uint8_t data[64] __attribute__ ((aligned(4)));
 
@@ -342,7 +346,7 @@ int main(void)
 	usb_ints_setup();
 
 	/* HALT! Don't touch the EP's until we configure them */
-	while (!config_set) ;
+	while (!config_set);
 
 	/*
 	 * For our polled endpoints, we just read and write continuously. The
@@ -403,8 +407,9 @@ void gpiof_isr(void)
 	if (gpio_is_interrupt_source(GPIOF, USR_SW2)) {
 		/* SW2 was just depressed */
 		if (!bypass) {
-			if (plldiv[++ipll] == 0)
+			if (plldiv[++ipll] == 0) {
 				ipll = 0;
+			}
 			printf("Changing system clock to %iMHz\n\r",
 			       400 / plldiv[ipll]);
 			rcc_change_pll_divisor(plldiv[ipll]);
@@ -465,8 +470,9 @@ int _write(int file, char *ptr, int len)
 	int i;
 
 	if (file == 1) {
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++) {
 			uart_send_blocking(UART0, ptr[i]);
+		}
 		return i;
 	}
 

@@ -50,8 +50,9 @@ int main(void)
 	while (1) {
 		gpio_toggle(GPIOC, GPIO6);	/* STAT1 LED on/off */
 		gpio_toggle(GPIOC, GPIO7);	/* STAT2 LED on/off */
-		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

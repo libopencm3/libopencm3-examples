@@ -53,7 +53,8 @@ const struct usb_interface_descriptor iface = {
 const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = &iface,
-}};
+	}
+};
 
 const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -77,21 +78,24 @@ const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
-		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int simple_control_callback(usbd_device *usbd_dev,
+	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)buf;
 	(void)len;
 	(void)complete;
 	(void)usbd_dev;
 
-	if (req->bmRequestType != 0x40)
+	if (req->bmRequestType != 0x40) {
 		return 0; /* Only accept vendor request. */
+	}
 
-	if (req->wValue & 1)
+	if (req->wValue & 1) {
 		gpio_set(GPIOC, GPIO6);
-	else
+	} else {
 		gpio_clear(GPIOC, GPIO6);
+	}
 
 	return 1;
 }
@@ -110,14 +114,16 @@ int main(void)
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO6);
 
-	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings,
+		3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_VENDOR,
 				USB_REQ_TYPE_TYPE,
 				simple_control_callback);
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }
 

@@ -348,7 +348,7 @@ static void move_sprite(void)
 		age = 0;
 	}
 	if (dy == 0 && dx == 0) {
-		dy = y ? -1 : +1;
+		dy = y ? -1 : + 1;
 	}
 	uint32_t h_start = HSYNC + HBP + x;
 	uint32_t h_stop = h_start + LCD_LAYER2_WIDTH - 1;

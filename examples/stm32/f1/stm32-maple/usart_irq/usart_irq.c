@@ -94,7 +94,7 @@ void usart2_isr(void)
 	    ((USART_SR(USART2) & USART_SR_TXE) != 0)) {
 
 		/* Indicate that we are sending out data. */
-		// gpio_toggle(GPIOA, GPIO5);
+		/* gpio_toggle(GPIOA, GPIO5); */
 
 		/* Put data into the transmit register. */
 		usart_send(USART2, data);
@@ -113,8 +113,9 @@ int main(void)
 	usart_setup();
 
 	/* Wait forever and do nothing. */
-	while (1)
+	while (1) {
 		__asm__("nop");
+	}
 
 	return 0;
 }

@@ -64,7 +64,7 @@ static void usart_setup(void)
 	usart_enable(USART_CONSOLE);
 }
 
-/**
+/*
  * Use USART_CONSOLE as a console.
  * This is a syscall for newlib
  * @param file
@@ -108,8 +108,9 @@ static void adc_setup(void)
 
 	/* Wait for ADC starting up. */
 	int i;
-	for (i = 0; i < 800000; i++) /* Wait a bit. */
+	for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 		__asm__("nop");
+	}
 
 	adc_reset_calibration(ADC1);
 	adc_calibration(ADC1);
@@ -117,7 +118,8 @@ static void adc_setup(void)
 
 static void dac_setup(void)
 {
-	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+		GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
 	dac_disable(CHANNEL_2);
 	dac_disable_waveform_generation(CHANNEL_2);
 	dac_enable(CHANNEL_2);
@@ -146,7 +148,7 @@ int main(void)
 	dac_setup();
 	gpio_set_mode(LED_DISCOVERY_USER_PORT, GPIO_MODE_OUTPUT_2_MHZ,
 		GPIO_CNF_OUTPUT_PUSHPULL, LED_DISCOVERY_USER_PIN);
-	
+
 	while (1) {
 		uint16_t input_adc0 = read_adc_naiive(0);
 		uint16_t target = input_adc0 / 2;
@@ -155,9 +157,11 @@ int main(void)
 		uint16_t input_adc1 = read_adc_naiive(1);
 		printf("tick: %d: adc0= %u, target adc1=%d, adc1=%d\n",
 			j++, input_adc0, target, input_adc1);
-		gpio_toggle(LED_DISCOVERY_USER_PORT, LED_DISCOVERY_USER_PIN); /* LED on/off */
-		for (i = 0; i < 1000000; i++) /* Wait a bit. */
+		/* LED on/off */
+		gpio_toggle(LED_DISCOVERY_USER_PORT, LED_DISCOVERY_USER_PIN);
+		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
 			__asm__("NOP");
+		}
 	}
 
 	return 0;

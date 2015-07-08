@@ -132,8 +132,9 @@ static void can_setup(void)
 		gpio_clear(GPIOB, GPIO1);	/* LED3 on */
 
 		/* Die because we failed to initialize. */
-		while (1)
+		while (1) {
 			__asm__("nop");
+		}
 	}
 
 	/* CAN filter 0 init. */
@@ -154,8 +155,9 @@ void sys_tick_handler(void)
 	static uint8_t data[8] = {0, 1, 2, 0, 0, 0, 0, 0};
 
 	/* We call this handler every 1ms so 1000ms = 1s on/off. */
-	if (++temp32 != 1000)
+	if (++temp32 != 1000) {
 		return;
+	}
 
 	temp32 = 0;
 
@@ -183,25 +185,29 @@ void usb_lp_can_rx0_isr(void)
 
 	can_receive(CAN1, 0, false, &id, &ext, &rtr, &fmi, &length, data);
 
-	if (data[0] & 1)
+	if (data[0] & 1) {
 		gpio_clear(GPIOA, GPIO6);
-	else
+	} else {
 		gpio_set(GPIOA, GPIO6);
+	}
 
-	if (data[0] & 2)
+	if (data[0] & 2) {
 		gpio_clear(GPIOA, GPIO7);
-	else
+	} else {
 		gpio_set(GPIOA, GPIO7);
+	}
 
-	if (data[0] & 4)
+	if (data[0] & 4) {
 		gpio_clear(GPIOB, GPIO0);
-	else
+	} else {
 		gpio_set(GPIOB, GPIO0);
+	}
 
-	if (data[0] & 8)
+	if (data[0] & 8) {
 		gpio_clear(GPIOB, GPIO1);
-	else
+	} else {
 		gpio_set(GPIOB, GPIO1);
+	}
 
 	can_fifo_release(CAN1, 0);
 }

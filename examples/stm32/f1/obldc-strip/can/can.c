@@ -48,7 +48,7 @@ struct can_rx_msg can_rx_msg;
 
 static void gpio_setup(void)
 {
-        /* Enable Alternate Function clock. */
+	/* Enable Alternate Function clock. */
 	rcc_periph_clock_enable(RCC_AFIO);
 
 	/* Enable GPIOB clock. */
@@ -110,9 +110,9 @@ static void can_setup(void)
 	can_reset(CAN1);
 
 	/* CAN cell init.
-	 * Setting the bitrate to 1MBit. APB1 = 32MHz, 
+	 * Setting the bitrate to 1MBit. APB1 = 32MHz,
 	 * prescaler = 2 -> 16MHz time quanta frequency.
-	 * 1tq sync + 9tq bit segment1 (TS1) + 6tq bit segment2 (TS2) = 
+	 * 1tq sync + 9tq bit segment1 (TS1) + 6tq bit segment2 (TS2) =
 	 * 16time quanto per bit period, therefor 16MHz/16 = 1MHz
 	 */
 	if (can_init(CAN1,
@@ -133,8 +133,9 @@ static void can_setup(void)
 		gpio_set(GPIOB, GPIO5);   /* LED red off */
 
 		/* Die because we failed to initialize. */
-		while (1)
+		while (1) {
 			__asm__("nop");
+		}
 	}
 
 	/* CAN filter 0 init. */
@@ -179,15 +180,17 @@ void usb_lp_can_rx0_isr(void)
 
 	can_receive(CAN1, 0, false, &id, &ext, &rtr, &fmi, &length, data);
 
-	if (data[0] & 0x40)
+	if (data[0] & 0x40) {
 		gpio_clear(GPIOB, GPIO4);
-	else
+	} else {
 		gpio_set(GPIOB, GPIO4);
+	}
 
-	if (data[0] & 0x80)
+	if (data[0] & 0x80) {
 		gpio_clear(GPIOB, GPIO5);
-	else
+	} else {
 		gpio_set(GPIOB, GPIO5);
+	}
 
 	can_fifo_release(CAN1, 0);
 }

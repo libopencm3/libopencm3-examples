@@ -69,11 +69,11 @@ void exti0_isr(void)
 	exti_reset_request(EXTI0);
 
 	if (exti_direction == FALLING) {
-		// gpio_toggle(GPIOA, GPIO12);
+		/* gpio_toggle(GPIOA, GPIO12); */
 		exti_direction = RISING;
 		exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
 	} else {
-		// gpio_toggle(GPIOA, GPIO12);
+		/* gpio_toggle(GPIOA, GPIO12); */
 		timer_generate_event(TIM1, TIM_EGR_COMG);
 		exti_direction = FALLING;
 		exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
@@ -393,8 +393,9 @@ int main(void)
 	tim_setup();
 	exti_setup();
 
-	while (1)
+	while (1) {
 		__asm("nop");
+	}
 
 	return 0;
 }

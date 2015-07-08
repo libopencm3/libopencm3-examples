@@ -107,7 +107,7 @@ static void tim_setup(void)
 	 * In our case here the APB1 is devided by 4 system frequency and APB2
 	 * divided by 2. This means APB1 timer will be 2 x APB1 and APB2 will
 	 * be 2 x APB2. So when we try to calculate the prescaler value we have
-	 * to use rcc_apb1_freqency * 2!!! 
+	 * to use rcc_apb1_freqency * 2!!!
 	 *
 	 * For additional information see reference manual for the stm32f4
 	 * familiy of chips. Page 204 and 213
@@ -170,8 +170,9 @@ void tim2_isr(void)
 		new_time = compare_time + frequency;
 
 		timer_set_oc_value(TIM2, TIM_OC1, new_time);
-		if (frequency_sel == 18)
+		if (frequency_sel == 18) {
 			frequency_sel = 0;
+		}
 
 		/* Toggle LED to indicate compare event. */
 		gpio_toggle(GPIOD, GPIO12);
@@ -193,8 +194,9 @@ int main(void)
 	 * an interrupt masked by PRIMASK becomes pending
 	 * a Debug Entry request
 	 */
-	while (1)
+	while (1) {
 		__WFI(); /* Wait For Interrupt. */
+	}
 
 	return 0;
 }

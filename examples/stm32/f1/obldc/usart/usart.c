@@ -82,8 +82,9 @@ int main(void)
 			usart_send_blocking(USART1, '\r');
 			usart_send_blocking(USART1, '\n');
 		}
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

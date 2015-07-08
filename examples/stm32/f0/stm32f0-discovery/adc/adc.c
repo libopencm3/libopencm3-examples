@@ -68,7 +68,7 @@ static void usart_setup(void)
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
 	gpio_set_af(GPIOA, GPIO_AF1, GPIO9);
 
-	/* Setup UART parameters. */
+	/* Setup USART parameters. */
 	usart_set_baudrate(USART1, 38400);
 	usart_set_databits(USART1, 8);
 	usart_set_stopbits(USART1, USART_CR2_STOP_1_0BIT);

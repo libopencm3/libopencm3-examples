@@ -69,8 +69,9 @@ static int32_t ring_write(struct ring *ring, uint8_t *data, ring_size_t size)
 	int32_t i;
 
 	for (i = 0; i < size; i++) {
-		if (ring_write_ch(ring, data[i]) < 0)
+		if (ring_write_ch(ring, data[i]) < 0) {
 			return -i;
+		}
 	}
 
 	return i;
@@ -83,8 +84,9 @@ static int32_t ring_read_ch(struct ring *ring, uint8_t *ch)
 	if (ring->begin != ring->end) {
 		ret = ring->data[ring->begin++];
 		ring->begin %= ring->size;
-		if (ch)
+		if (ch) {
 			*ch = ret;
+		}
 	}
 
 	return ret;
@@ -209,8 +211,9 @@ int _write(int file, char *ptr, int len)
 	if (file == 1) {
 		ret = ring_write(&output_ring, (uint8_t *)ptr, len);
 
-		if (ret < 0)
+		if (ret < 0) {
 			ret = -ret;
+		}
 
 		USART_CR1(USART1) |= USART_CR1_TXEIE;
 
@@ -267,8 +270,9 @@ int main(void)
 	usart_setup();
 	systick_setup();
 
-	while (1)
+	while (1) {
 		__asm__("nop");
+	}
 
 	return 0;
 }

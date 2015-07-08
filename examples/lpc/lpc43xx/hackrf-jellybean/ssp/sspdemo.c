@@ -55,7 +55,8 @@ static void gpio_setup(void)
 	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
 	/* Configure GPIO as Output */
-	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3); /* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3);
 	GPIO3_DIR |= PIN_EN1V8; /* GPIO3[6] on P6_10  as output. */
 }
 
@@ -68,7 +69,10 @@ int main(void)
 
 	gpio_setup();
 
-	/* Freq About 1.12MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=288MHz */
+	/*
+	 * Freq About 1.12MHz => Freq = PCLK / (CPSDVSR * [SCR+1])
+	 * with PCLK=PLL1=288MHz
+	 */
 	clock_prescale_rate = 2;
 	serial_clock_rate = 128;
 
@@ -90,8 +94,9 @@ int main(void)
 
 		gpio_set(GPIO2, GPIOPIN1); /* LED on */
 
-		for (i = 0; i < 1000; i++) /* Wait a bit. */
+		for (i = 0; i < 1000; i++) { /* Wait a bit. */
 			__asm__("nop");
+		}
 
 		gpio_clear(GPIO2, GPIOPIN1); /* LED off */
 

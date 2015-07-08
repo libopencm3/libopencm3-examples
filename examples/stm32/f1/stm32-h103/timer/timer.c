@@ -146,8 +146,9 @@ void tim2_isr(void)
 		new_time = compare_time + frequency;
 
 		timer_set_oc_value(TIM2, TIM_OC1, new_time);
-		if (frequency_sel == 18)
+		if (frequency_sel == 18) {
 			frequency_sel = 0;
+		}
 
 		/* Toggle LED to indicate compare event. */
 		gpio_toggle(GPIOC, GPIO12);
@@ -160,8 +161,9 @@ int main(void)
 	gpio_setup();
 	tim_setup();
 
-	while (1)
+	while (1) {
 		__asm("nop");
+	}
 
 	return 0;
 }

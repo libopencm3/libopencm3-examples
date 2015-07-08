@@ -74,39 +74,39 @@ static void led_set(int id, int on)
 {
 	if (on) {
 		switch (id) {
-			case 0:
-				gpio_clear(GPIOA, GPIO8); /* LED1 On */
-				break;
-			case 1:
-				gpio_clear(GPIOB, GPIO4); /* JTAG_TRST On */
-				break;
-			case 2:
-				gpio_clear(GPIOC, GPIO2); /* ADC6 On */
-				break;
-			case 3:
-				gpio_clear(GPIOC, GPIO5); /* ADC4 On */
-				break;
-			case 4:
-				gpio_clear(GPIOC, GPIO15); /* LED2 On */
-				break;
+		case 0:
+			gpio_clear(GPIOA, GPIO8); /* LED1 On */
+			break;
+		case 1:
+			gpio_clear(GPIOB, GPIO4); /* JTAG_TRST On */
+			break;
+		case 2:
+			gpio_clear(GPIOC, GPIO2); /* ADC6 On */
+			break;
+		case 3:
+			gpio_clear(GPIOC, GPIO5); /* ADC4 On */
+			break;
+		case 4:
+			gpio_clear(GPIOC, GPIO15); /* LED2 On */
+			break;
 		}
 	} else {
 		switch (id) {
-			case 0:
-				gpio_set(GPIOA, GPIO8); /* LED1 On */
-				break;
-			case 1:
-				gpio_set(GPIOB, GPIO4); /* JTAG_TRST On */
-				break;
-			case 2:
-				gpio_set(GPIOC, GPIO2); /* ADC6 On */
-				break;
-			case 3:
-				gpio_set(GPIOC, GPIO5); /* ADC4 On */
-				break;
-			case 4:
-				gpio_set(GPIOC, GPIO15); /* LED2 On */
-				break;
+		case 0:
+			gpio_set(GPIOA, GPIO8); /* LED1 On */
+			break;
+		case 1:
+			gpio_set(GPIOB, GPIO4); /* JTAG_TRST On */
+			break;
+		case 2:
+			gpio_set(GPIOC, GPIO2); /* ADC6 On */
+			break;
+		case 3:
+			gpio_set(GPIOC, GPIO5); /* ADC4 On */
+			break;
+		case 4:
+			gpio_set(GPIOC, GPIO15); /* LED2 On */
+			break;
 		}
 	}
 }
@@ -126,7 +126,9 @@ static void led_advance(void)
 	}
 
 	state++;
-	if(state == 20) state = 0;
+	if (state == 20) {
+		state = 0;
+	}
 
 }
 
@@ -140,8 +142,9 @@ int main(void)
 	/* Blink the LEDs (PC13 and PB4) on the board. */
 	while (1) {
 		led_advance();
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

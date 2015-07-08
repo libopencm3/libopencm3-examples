@@ -44,7 +44,7 @@ static void gpio_setup(void)
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO6);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO7);
-	
+
 	/* Set GPIO0/1 (in GPIO port B) to 'output push-pull' for the LEDs. */
 	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO0);

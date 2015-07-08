@@ -73,22 +73,22 @@ static void timer_setup(void)
 	rcc_periph_clock_enable(RCC_TIM2);
 
 	/* Time Base configuration */
-    timer_reset(timer);
-    timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
-	    TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-    timer_set_period(timer, 0xFF);
-    timer_set_prescaler(timer, 0x8);
-    timer_set_clock_division(timer, 0x0);
-    /* Generate TRGO on every update. */
-    timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
-    timer_enable_counter(timer);
+	timer_reset(timer);
+	timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
+		TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+	timer_set_period(timer, 0xFF);
+	timer_set_prescaler(timer, 0x8);
+	timer_set_clock_division(timer, 0x0);
+	/* Generate TRGO on every update. */
+	timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
+	timer_enable_counter(timer);
 }
 
 static void irq_setup(void)
 {
 	/* Enable the adc1_2_isr() routine */
-    nvic_set_priority(NVIC_ADC1_2_IRQ, 0);
-    nvic_enable_irq(NVIC_ADC1_2_IRQ);
+	nvic_set_priority(NVIC_ADC1_2_IRQ, 0);
+	nvic_enable_irq(NVIC_ADC1_2_IRQ);
 }
 
 static void adc_setup(void)
@@ -100,14 +100,17 @@ static void adc_setup(void)
 	/* Make sure the ADC doesn't run during config. */
 	adc_off(ADC1);
 
-	/* We configure everything for one single timer triggered injected conversion with interrupt generation. */
-	/* While not needed for a single channel, try out scan mode which does all channels in one sweep and
-	 * generates the interrupt/EOC/JEOC flags set at the end of all channels, not each one.
+	/*
+	 * We configure everything for one single timer triggered injected
+	 * conversion with interrupt generation. While not needed for a single
+	 * channel, try out scan mode which does all channels in one sweep and
+	 * generates the interrupt/EOC/JEOC flags set at the end of all
+	 * channels, not each one.
 	 */
 	adc_enable_scan_mode(ADC1);
 	adc_set_single_conversion_mode(ADC1);
 	/* We want to start the injected conversion with the TIM2 TRGO */
-	adc_enable_external_trigger_injected(ADC1,ADC_CR2_JEXTSEL_TIM2_TRGO);
+	adc_enable_external_trigger_injected(ADC1, ADC_CR2_JEXTSEL_TIM2_TRGO);
 	/* Generate the ADC1_2_IRQ */
 	adc_enable_eoc_interrupt_injected(ADC1);
 	adc_set_right_aligned(ADC1);
@@ -118,8 +121,9 @@ static void adc_setup(void)
 	adc_power_on(ADC1);
 
 	/* Wait for ADC starting up. */
-	for (i = 0; i < 800000; i++)    /* Wait a bit. */
+	for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 		__asm__("nop");
+	}
 
 	adc_reset_calibration(ADC1);
 	while ((ADC_CR2(ADC1) & ADC_CR2_RSTCAL) != 0);
@@ -179,15 +183,15 @@ int main(void)
 	/* Continously convert and poll the temperature ADC. */
 	while (1) {
 		/*
-		 * Since sampling is triggered by the timer and copying the value
-		 * out of the data register is handled by the interrupt routine,
-		 * we just need to print the value and toggle the LED. It may be useful
-		 * to buffer the adc values in some cases.
+		 * Since sampling is triggered by the timer and copying the
+		 * value out of the data register is handled by the interrupt
+		 * routine, we just need to print the value and toggle the LED.
+		 * It may be useful to buffer the adc values in some cases.
 		 */
 
 		/*
-		 * That's actually not the real temperature - you have to compute it
-		 * as described in the datasheet.
+		 * That's actually not the real temperature - you have to
+		 * compute it as described in the datasheet.
 		 */
 		my_usart_print_int(USART2, temperature);
 
@@ -200,7 +204,7 @@ int main(void)
 
 void adc1_2_isr(void)
 {
-    /* Clear Injected End Of Conversion (JEOC) */
-    ADC_SR(ADC1) &= ~ADC_SR_JEOC;
-    temperature = adc_read_injected(ADC1,1);
+	/* Clear Injected End Of Conversion (JEOC) */
+	ADC_SR(ADC1) &= ~ADC_SR_JEOC;
+	temperature = adc_read_injected(ADC1, 1);
 }

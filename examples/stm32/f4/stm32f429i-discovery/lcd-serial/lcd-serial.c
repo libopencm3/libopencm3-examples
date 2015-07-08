@@ -45,44 +45,44 @@ int main(void)
 	msleep(2000);
 /*	(void) console_getc(1); */
 	gfx_init(lcd_draw_pixel, 240, 320);
-	gfx_fillScreen(LCD_GREY);
-	gfx_fillRoundRect(10, 10, 220, 220, 5, LCD_WHITE);
-	gfx_drawRoundRect(10, 10, 220, 220, 5, LCD_RED);
-	gfx_fillCircle(20, 250, 10, LCD_RED);
-	gfx_fillCircle(120, 250, 10, LCD_GREEN);
-	gfx_fillCircle(220, 250, 10, LCD_BLUE);
-	gfx_setTextSize(2);
-	gfx_setCursor(15, 25);
+	gfx_fill_screen(LCD_GREY);
+	gfx_fill_round_rect(10, 10, 220, 220, 5, LCD_WHITE);
+	gfx_draw_round_rect(10, 10, 220, 220, 5, LCD_RED);
+	gfx_fill_circle(20, 250, 10, LCD_RED);
+	gfx_fill_circle(120, 250, 10, LCD_GREEN);
+	gfx_fill_circle(220, 250, 10, LCD_BLUE);
+	gfx_set_text_size(2);
+	gfx_set_cursor(15, 25);
 	gfx_puts("STM32F4-DISCO");
-	gfx_setTextSize(1);
-	gfx_setCursor(15, 49);
+	gfx_set_text_size(1);
+	gfx_set_cursor(15, 49);
 	gfx_puts("Simple example to put some");
-	gfx_setCursor(15, 60);
+	gfx_set_cursor(15, 60);
 	gfx_puts("stuff on the LCD screen.");
 	lcd_show_frame();
 	console_puts("Now it has a bit of structured graphics.\n");
 	console_puts("Press a key for some simple animation.\n");
 	msleep(2000);
 /*	(void) console_getc(1); */
-	gfx_setTextColor(LCD_YELLOW, LCD_BLACK);
-	gfx_setTextSize(3);
+	gfx_set_text_color(LCD_YELLOW, LCD_BLACK);
+	gfx_set_text_size(3);
 	p1 = 0;
 	p2 = 45;
 	p3 = 90;
 	while (1) {
-		gfx_fillScreen(LCD_BLACK);
-		gfx_setCursor(15, 36);
+		gfx_fill_screen(LCD_BLACK);
+		gfx_set_cursor(15, 36);
 		gfx_puts("PLANETS!");
-		gfx_fillCircle(120, 160, 40, LCD_YELLOW);
-		gfx_drawCircle(120, 160, 55, LCD_GREY);
-		gfx_drawCircle(120, 160, 75, LCD_GREY);
-		gfx_drawCircle(120, 160, 100, LCD_GREY);
+		gfx_fill_circle(120, 160, 40, LCD_YELLOW);
+		gfx_draw_circle(120, 160, 55, LCD_GREY);
+		gfx_draw_circle(120, 160, 75, LCD_GREY);
+		gfx_draw_circle(120, 160, 100, LCD_GREY);
 
-		gfx_fillCircle(120 + (sin(d2r(p1)) * 55),
+		gfx_fill_circle(120 + (sin(d2r(p1)) * 55),
 			       160 + (cos(d2r(p1)) * 55), 5, LCD_RED);
-		gfx_fillCircle(120 + (sin(d2r(p2)) * 75),
+		gfx_fill_circle(120 + (sin(d2r(p2)) * 75),
 			       160 + (cos(d2r(p2)) * 75), 10, LCD_WHITE);
-		gfx_fillCircle(120 + (sin(d2r(p3)) * 100),
+		gfx_fill_circle(120 + (sin(d2r(p3)) * 100),
 			       160 + (cos(d2r(p3)) * 100), 8, LCD_BLUE);
 		p1 = (p1 + 3) % 360;
 		p2 = (p2 + 2) % 360;

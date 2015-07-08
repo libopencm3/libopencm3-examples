@@ -93,22 +93,24 @@ void dogm128_print_char(uint8_t data)
 
 	/* The display consists of 8 lines a 8 dots each. */
 	page = (63 - ycoord) / 8;
-	shift = (7 -((63 - ycoord) % 8)); /* vertical shift */
+	shift = (7 - ((63 - ycoord) % 8)); /* vertical shift */
 
 	/* Font is 8x5 so iterate each column of the character. */
 	for (i = 0; i <= 5; i++) {
 		/* Right border reached? */
-		if ((xcoord + i) > 127)
+		if ((xcoord + i) > 127) {
 			return;
+		}
 		dogm128_cursor_x++;
 
 		/* 0xAA = end of character - no dots in this line. */
 		if (dogm128_font[data - 0x20][i] == 0xAA) {
 			dogm128_ram[(page * 128) + xcoord + i] &=
 				~(0xFF >> shift); /* Clear area. */
-			if ((shift > 0) && (page > 0))
+			if ((shift > 0) && (page > 0)) {
 				dogm128_ram[((page - 1) * 128) + xcoord + i]
 				  &= ~(0xFF << (8 - shift)); /* Clear area. */
+			}
 			return;
 		}
 
@@ -166,8 +168,9 @@ void dogm128_update_display(void)
 		dogm128_send_command(0x10); /* Set column upper address to 0. */
 		dogm128_send_command(0x00); /* Set column lower address to 0. */
 
-		for (column = 0; column <= 127; column++)
+		for (column = 0; column <= 127; column++) {
 			dogm128_send_data(dogm128_ram[(page * 128) + column]);
+		}
 	}
 
 	spi_set_nss_high(DOGM128_SPI);
@@ -177,8 +180,9 @@ void dogm128_clear(void)
 {
 	int i;
 
-	for (i = 0; i <= 1023; i++)
+	for (i = 0; i <= 1023; i++) {
 		dogm128_ram[i] = 0;
+	}
 
 	dogm128_update_display();
 }

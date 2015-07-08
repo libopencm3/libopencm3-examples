@@ -44,8 +44,9 @@ int main(void)
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOC, GPIO3);
 		gpio_toggle(GPIOC, GPIO4);
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

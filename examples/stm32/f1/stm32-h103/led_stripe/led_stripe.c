@@ -52,8 +52,9 @@
 
 #define SMALL_DELAY() {				\
 		int j;				\
-		for (j = 0; j < SMALL_DELAY_VALUE; j++)	\
+		for (j = 0; j < SMALL_DELAY_VALUE; j++) {	\
 			__asm__("nop");		\
+		}				\
 	}
 
 struct color {
@@ -228,8 +229,9 @@ int main(void)
 
 		step_colors(colors, COLOR_COUNT);
 
-		for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

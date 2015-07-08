@@ -34,8 +34,10 @@ static void gpio_setup(void)
 	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* set pins to output mode, push pull */
-	gpio_mode_setup(LED_RED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_RED_PIN);
-	gpio_mode_setup(LED_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_GREEN_PIN);
+	gpio_mode_setup(LED_RED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+		LED_RED_PIN);
+	gpio_mode_setup(LED_GREEN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+		LED_GREEN_PIN);
 }
 
 int main(void)

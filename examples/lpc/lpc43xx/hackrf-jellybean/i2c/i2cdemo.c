@@ -48,7 +48,8 @@ static void gpio_setup(void)
 	GPIO7_DIR = 0;
 
 	/* Configure GPIO as Output */
-	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3); /* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3);
 	GPIO3_DIR |= PIN_EN1V8; /* GPIO3[6] on P6_10  as output. */
 }
 
@@ -95,13 +96,15 @@ int main(void)
 	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
 
 	while (1) {
-		if (si5351c_read_reg(0) == 0x10)
+		if (si5351c_read_reg(0) == 0x10) {
 			gpio_set(GPIO2, GPIOPIN1); /* LED on */
-		else
+		} else {
 			gpio_clear(GPIO2, GPIOPIN1); /* LED off */
+		}
 
-		for (i = 0; i < 1000; i++)    /* Wait a bit. */
+		for (i = 0; i < 1000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

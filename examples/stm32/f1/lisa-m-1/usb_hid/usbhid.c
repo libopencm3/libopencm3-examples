@@ -173,11 +173,12 @@ const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = &hid_iface,
 #ifdef INCLUDE_DFU_INTERFACE
-}, {
+	}, {
 	.num_altsetting = 1,
 	.altsetting = &dfu_iface,
 #endif
-}};
+	}
+};
 
 const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -211,10 +212,11 @@ static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uin
 	(void)complete;
 	(void)dev;
 
-	if((req->bmRequestType != 0x81) ||
+	if ((req->bmRequestType != 0x81) ||
 	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
-	   (req->wValue != 0x2200))
+	   (req->wValue != 0x2200)) {
 		return 0;
+	}
 
 	/* Handle the HID report descriptor. */
 	*buf = (uint8_t *)hid_report_descriptor;
@@ -243,8 +245,9 @@ static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uin
 	(void)len;
 	(void)dev;
 
-	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH))
+	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH)) {
 		return 0; /* Only accept class request. */
+	}
 
 	*complete = dfu_detach_complete;
 
@@ -280,11 +283,9 @@ static void hid_set_config(usbd_device *dev, uint16_t wValue)
 
 static uint8_t spi_readwrite(uint32_t spi, uint8_t data)
 {
-	while (SPI_SR(spi) & SPI_SR_BSY)
-		;
+	while (SPI_SR(spi) & SPI_SR_BSY);
 	SPI_DR(spi) = data;
-	while (!(SPI_SR(spi) & SPI_SR_RXNE))
-		;
+	while (!(SPI_SR(spi) & SPI_SR_RXNE));
 	return SPI_DR(spi);
 }
 
@@ -308,15 +309,18 @@ static void accel_write(uint8_t addr, uint8_t data)
 
 static void accel_get(int16_t *x, int16_t *y, int16_t *z)
 {
-	if (x)
+	if (x) {
 		*x = accel_read(ADXL345_DATAX0) |
 			(accel_read(ADXL345_DATAX1) << 8);
-	if (y)
+	}
+	if (y) {
 		*y = accel_read(ADXL345_DATAY0) |
 			(accel_read(ADXL345_DATAY1) << 8);
-	if (z)
+	}
+	if (z) {
 		*z = accel_read(ADXL345_DATAZ0) |
 			(accel_read(ADXL345_DATAZ1) << 8);
+	}
 }
 
 int main(void)
@@ -371,19 +375,22 @@ int main(void)
 	usbd_register_set_config_callback(usbd_dev, hid_set_config);
 
 	/* Delay some seconds to show that pull-up switch works. */
-	for (i = 0; i < 0x800000; i++)
+	for (i = 0; i < 0x800000; i++) {
 		__asm__("nop");
+	}
 
 	/* Wait for USB Vbus. */
-	while (gpio_get(GPIOA, GPIO8) == 0)
+	while (gpio_get(GPIOA, GPIO8) == 0) {
 		__asm__("nop");
+	}
 
 	/* Green LED on, connect USB. */
 	gpio_clear(GPIOC, GPIO2);
-	// OTG_FS_GCCFG &= ~OTG_FS_GCCFG_VBUSBSEN;
+	/* OTG_FS_GCCFG &= ~OTG_FS_GCCFG_VBUSBSEN; */
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }
 
 void sys_tick_handler(void)

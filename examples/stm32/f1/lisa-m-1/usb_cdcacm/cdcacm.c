@@ -52,7 +52,8 @@ static const struct usb_endpoint_descriptor comm_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
 	.wMaxPacketSize = 16,
 	.bInterval = 255,
-}};
+	}
+};
 
 static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
@@ -61,14 +62,15 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x82,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}};
+	}
+};
 
 static const struct {
 	struct usb_cdc_header_descriptor header;
@@ -120,7 +122,8 @@ static const struct usb_interface_descriptor comm_iface[] = {{
 
 	.extra = &cdcacm_functional_descriptors,
 	.extralen = sizeof(cdcacm_functional_descriptors)
-}};
+	}
+};
 
 static const struct usb_interface_descriptor data_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
@@ -134,15 +137,17 @@ static const struct usb_interface_descriptor data_iface[] = {{
 	.iInterface = 0,
 
 	.endpoint = data_endp,
-}};
+	}
+};
 
 static const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = comm_iface,
-}, {
+	}, {
 	.num_altsetting = 1,
 	.altsetting = data_iface,
-}};
+	}
+};
 
 static const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -181,7 +186,7 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		 * advertise it in the ACM functional descriptor.
 		 */
 		char local_buf[10];
-		struct usb_cdc_notification *notif = (void*)local_buf;
+		struct usb_cdc_notification *notif = (void *)local_buf;
 
 		/* We echo signals back to host as notification. */
 		notif->bmRequestType = 0xA1;
@@ -191,12 +196,13 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		notif->wLength = 2;
 		local_buf[8] = req->wValue & 3;
 		local_buf[9] = 0;
-		// usbd_ep_write_packet(0x83, buf, 10);
+		/* usbd_ep_write_packet(0x83, buf, 10); */
 		return 1;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:
-		if (*len < sizeof(struct usb_cdc_line_coding))
+		if (*len < sizeof(struct usb_cdc_line_coding)) {
 			return 0;
+		}
 
 		return 1;
 	}
@@ -211,8 +217,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
 	if (len) {
-		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0)
-			;
+		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
 		buf[len] = 0;
 	}
 
@@ -255,10 +260,12 @@ int main(void)
 	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
-	for (i = 0; i < 0x800000; i++)
+	for (i = 0; i < 0x800000; i++) {
 		__asm__("nop");
+	}
 	gpio_clear(GPIOC, GPIO2);
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }

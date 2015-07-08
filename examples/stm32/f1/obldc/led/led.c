@@ -54,17 +54,21 @@ int main(void)
 	/* Blink the LEDs on the board. */
 	while (1) {
 		gpio_toggle(GPIOA, GPIO6);	/* LED on/off */
-		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 		gpio_toggle(GPIOA, GPIO7);	/* LED on/off */
-		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 		gpio_toggle(GPIOB, GPIO0);	/* LED on/off */
-		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 		gpio_toggle(GPIOB, GPIO1);	/* LED on/off */
-		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

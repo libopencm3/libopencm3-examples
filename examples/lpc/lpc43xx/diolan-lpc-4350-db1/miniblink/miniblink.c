@@ -34,12 +34,14 @@ int main(void)
 	/* Blink D2 on the board. */
 	while (1) {
 
-		gpio_set(GPIO0, GPIOPIN5); /* LED on */
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		gpio_set(GPIO0, GPIOPIN5);	/* LED on */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
-		gpio_clear(GPIO0, GPIOPIN5); /* LED off */
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		}
+		gpio_clear(GPIO0, GPIOPIN5);	/* LED off */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;
