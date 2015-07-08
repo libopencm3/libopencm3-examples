@@ -51,9 +51,9 @@ int main(void)
 		/*	__asm__("nop"); */
 		/* GPIOC_BRR = GPIO12; */		/* LED on */
 		/* for (i = 0; i < 800000; i++) */	/* Wait a bit. */
-		/*	__asm__("nop");
+		/*	__asm__("nop"); */
 
-		/* Using API functions gpio_set()/gpio_clear(): */
+		/* Using API functions gpio_set()-gpio_clear(): */
 		/* gpio_set(GPIOC, GPIO12); */		/* LED off */
 		/* for (i = 0; i < 800000; i++) */	/* Wait a bit. */
 		/*	__asm__("nop"); */
