@@ -1,4 +1,4 @@
-OBJS = sdram.o clock.o console.o lcd-spi.o gfx.o stmpe811.o
+OBJS = sdram.o clock.o lcd-spi.o gfx.o stmpe811.o
 
 BINARY = ts-i2c
 
