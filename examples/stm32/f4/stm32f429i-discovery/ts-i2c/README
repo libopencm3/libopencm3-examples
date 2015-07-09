@@ -2,12 +2,8 @@ README ts-i2c
 -----------------
 
 This example sets up a very basic LCD display on the DISCO
-board and fills it with green.
-After a keypress on the console the screen will go red.
-From this moment on, pressing on the touchscreen will turn
-the screen green and it will output coordinates on the console.
+board and fills it with red.
+Pressing on the touchscreen will turn the screen green.
 
 The stmpe811 example driver uses i2c to communicate with the
 touchscreen.
-
-This example is largely based on the lcd-serial example.
