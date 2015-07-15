@@ -83,12 +83,13 @@ void rtc_isr(void)
 	/* Display the current counter value in binary via USART1. */
 	for (j = 0; j < 32; j++) {
 		if ((c & (0x80000000 >> j)) != 0) {
-			usart_send(USART1, '1');
+			usart_send_blocking(USART1, '1');
 		} else {
-			usart_send(USART1, '0');
+			usart_send_blocking(USART1, '0');
 		}
 	}
-	usart_send(USART1, '\n');
+	usart_send_blocking(USART1, '\n');
+	usart_send_blocking(USART1, '\r');
 }
 
 int main(void)
