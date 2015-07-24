@@ -41,7 +41,7 @@ extern "C" {
 #define BUTTON_DISCO_USER_PORT GPIOA
 #define BUTTON_DISCO_USER_PIN GPIO0
 #define BUTTON_DISCO_USER_EXTI EXTI0
-#define BUTTON_DISCO_USER_isr exti0_isr
+#define BUTTON_DISCO_USER_ISR exti0_isr
 #define BUTTON_DISCO_USER_NVIC NVIC_EXTI0_IRQ
 
 	struct state_t {

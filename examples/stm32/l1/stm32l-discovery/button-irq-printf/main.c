@@ -101,7 +101,7 @@ int _write(int file, char *ptr, int len)
 	return -1;
 }
 
-void BUTTON_DISCO_USER_isr(void)
+void BUTTON_DISCO_USER_ISR(void)
 {
 	exti_reset_request(BUTTON_DISCO_USER_EXTI);
 	if (state.falling) {

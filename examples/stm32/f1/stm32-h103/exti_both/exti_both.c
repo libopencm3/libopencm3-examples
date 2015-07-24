@@ -81,8 +81,9 @@ int main(void)
 	gpio_setup();
 	exti_setup();
 
-	while (1)
+	while (1) {
 		__asm("nop");
+	}
 
 	return 0;
 }

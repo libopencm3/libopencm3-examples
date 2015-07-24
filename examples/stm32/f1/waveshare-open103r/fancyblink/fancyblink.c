@@ -53,8 +53,9 @@ int main(void)
 	/* Blink the LEDs (PC9 - PC12) on the board. */
 	while (1) {
 		gpio_toggle(GPIOC, GPIO9 | GPIO10 | GPIO11 | GPIO12);
-		for (i = 0; i < 2000000; i++)      /* Wait a bit. */
+		for (i = 0; i < 2000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

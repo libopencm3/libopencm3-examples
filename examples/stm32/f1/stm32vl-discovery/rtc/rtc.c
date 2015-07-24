@@ -44,7 +44,7 @@ static void usart_setup(void)
 		      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 
 	/* Setup UART parameters. */
-	// usart_set_baudrate(USART1, 38400);
+	/* usart_set_baudrate(USART1, 38400); */
 	/* TODO usart_set_baudrate() doesn't support 24MHz clock (yet). */
 	/* This is the equivalent: */
 	USART_BRR(USART1) = (uint16_t)((24000000 << 4) / (38400 * 16));
@@ -88,10 +88,11 @@ void rtc_isr(void)
 
 	/* Display the current counter value in binary via USART1. */
 	for (j = 0; j < 32; j++) {
-		if ((c & (0x80000000 >> j)) != 0)
+		if ((c & (0x80000000 >> j)) != 0) {
 			usart_send_blocking(USART1, '1');
-		else
+		} else {
 			usart_send_blocking(USART1, '0');
+		}
 	}
 	usart_send_blocking(USART1, '\n');
 	usart_send_blocking(USART1, '\r');
@@ -114,8 +115,8 @@ int main(void)
 	 * It will also continue to count while the MCU is held in reset. If
 	 * you want it to reset, comment out the above and use the following:
 	 */
-	// rtc_awake_from_off(LSE);
-	// rtc_set_prescale_val(0x7fff);
+	/* rtc_awake_from_off(LSE); */
+	/* rtc_set_prescale_val(0x7fff); */
 
 	/* Setup the RTC interrupt. */
 	nvic_setup();
@@ -123,7 +124,7 @@ int main(void)
 	/* Enable the RTC interrupt to occur off the SEC flag. */
 	rtc_interrupt_enable(RTC_SEC);
 
-	while(1);
+	while (1);
 
 	return 0;
 }

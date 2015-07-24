@@ -52,17 +52,19 @@ static void i2c_setup(void)
 	i2c_reset(I2C1);
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
-	gpio_set_af(GPIOB, GPIO_AF4, GPIO6| GPIO7);
+	gpio_set_af(GPIOB, GPIO_AF4, GPIO6 | GPIO7);
 	i2c_peripheral_disable(I2C1);
-	//configure ANFOFF DNF[3:0] in CR1
+	/* configure ANFOFF DNF[3:0] in CR1 */
 	i2c_enable_analog_filter(I2C1);
 	i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
-	//Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0] SCLH[7:0] SCLL[7:0]
-	// in TIMINGR
+	/*
+	 * Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0] SCLH[7:0] SCLL[7:0]
+	 * in TIMINGR
+	 */
 	i2c_100khz_i2cclk8mhz(I2C1);
-	//configure No-Stretch CR1 (only relevant in slave mode)
+	/* configure No-Stretch CR1 (only relevant in slave mode) */
 	i2c_enable_stretching(I2C1);
-	//addressing mode
+	/* addressing mode */
 	i2c_set_7bit_addr_mode(I2C1);
 	i2c_peripheral_enable(I2C1);
 }
@@ -75,7 +77,7 @@ static void usart_setup(void)
 
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
-	gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO2 | GPIO3);
 
 	/* Setup UART parameters. */
 	usart_set_baudrate(USART2, 115200);
@@ -117,7 +119,7 @@ static void my_usart_print_int(uint32_t usart, int32_t value)
 		value /= 10;
 	}
 
-	for (i = nr_digits-1; i >= 0; i--) {
+	for (i = nr_digits - 1; i >= 0; i--) {
 		usart_send_blocking(usart, buffer[i]);
 	}
 
@@ -142,8 +144,8 @@ static void clock_setup(void)
 #define ACC_OUT_X_L_A 0x28
 #define ACC_OUT_X_H_A 0x29
 
-//      gpio_port_write(GPIOE, (I2C_ISR(i2c) & 0xFF) << 8);
-//      my_usart_print_int(USART2, (I2C_ISR(i2c) & 0xFF));
+/*      gpio_port_write(GPIOE, (I2C_ISR(i2c) & 0xFF) << 8); */
+/*      my_usart_print_int(USART2, (I2C_ISR(i2c) & 0xFF)); */
 
 int main(void)
 {
@@ -151,25 +153,27 @@ int main(void)
 	gpio_setup();
 	usart_setup();
 	i2c_setup();
-	/*uint8_t data[1]={(0x4 << ACC_CTRL_REG1_A_ODR_SHIFT) | ACC_CTRL_REG1_A_XEN};*/
-	uint8_t data[1]={0x97};
+	/* uint8_t data[1]={(0x4 << ACC_CTRL_REG1_A_ODR_SHIFT) \ */
+	/* | ACC_CTRL_REG1_A_XEN}; */
+	uint8_t data[1] = {0x97};
 	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG1_A, 1, data);
-	data[0]=0x08;
+	data[0] = 0x08;
 	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG4_A, 1, data);
 	uint16_t acc_x;
 
 	while (1) {
 
 		read_i2c(I2C1, I2C_ACC_ADDR, ACC_STATUS, 1, data);
-		/*my_usart_print_int(USART2, data[0]);*/
+		/* my_usart_print_int(USART2, data[0]); */
 		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_L_A, 1, data);
-		acc_x=data[0];
+		acc_x = data[0];
 		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_H_A, 1, data);
-		acc_x|=(data[0] << 8);
+		acc_x |= (data[0] << 8);
 		my_usart_print_int(USART2, (int16_t) acc_x);
-		//int i;
-		//for (i = 0; i < 800000; i++)    /* Wait a bit. */
-		//  __asm__("nop");
+		/* int i; */
+		/* for (i = 0; i < 800000; i++) { */	/* Wait a bit. */
+		/*	__asm__("nop"); */
+		/* } */
 	}
 
 	return 0;

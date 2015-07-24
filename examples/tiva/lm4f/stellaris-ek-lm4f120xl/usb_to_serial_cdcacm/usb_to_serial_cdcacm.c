@@ -41,9 +41,9 @@
 /* This is how the RGB LED is connected on the stellaris launchpad */
 #define RGB_PORT	GPIOF
 enum {
-	LED_R	= GPIO1,
-	LED_G	= GPIO3,
-	LED_B	= GPIO2,
+	LED_R = GPIO1,
+	LED_G = GPIO3,
+	LED_B = GPIO2,
 };
 
 /*
@@ -85,7 +85,7 @@ static void cm4f_enable_fpu(void)
 
 }
 
-void glue_data_received_cb(uint8_t * buf, uint16_t len)
+void glue_data_received_cb(uint8_t *buf, uint16_t len)
 {
 	/* Blue LED indicates data coming in */
 	gpio_set(RGB_PORT, LED_B);
@@ -96,10 +96,11 @@ void glue_data_received_cb(uint8_t * buf, uint16_t len)
 void glue_set_line_state_cb(uint8_t dtr, uint8_t rts)
 {
 	/* Green LED indicated one of the control lines are active */
-	if (dtr || rts)
+	if (dtr || rts) {
 		gpio_set(RGB_PORT, LED_G);
-	else
+	} else {
 		gpio_clear(RGB_PORT, LED_G);
+	}
 
 	uart_set_ctl_line_state(dtr, rts);
 }
@@ -111,8 +112,9 @@ int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 	enum uart_parity parity;
 	uint8_t uart_stopbits;
 
-	if (databits < 5 || databits > 8)
+	if (databits < 5 || databits > 8) {
 		return 0;
+	}
 
 	switch (cdc_parity) {
 	case USB_CDC_NO_PARITY:
@@ -152,7 +154,7 @@ int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 	return 1;
 }
 
-void glue_send_data_cb(uint8_t * buf, uint16_t len)
+void glue_send_data_cb(uint8_t *buf, uint16_t len)
 {
 	int i;
 
@@ -176,12 +178,15 @@ static void mainloop(void)
 	if (oldlinestate != linestate) {
 		/* Inform host of state change */
 		cdcacmstate = 0;
-		if (linestate & PIN_RI)
+		if (linestate & PIN_RI) {
 			cdcacmstate |= CDCACM_RI;
-		if (linestate & PIN_DSR)
+		}
+		if (linestate & PIN_DSR) {
 			cdcacmstate |= CDCACM_DSR;
-		if (linestate & PIN_DCD)
+		}
+		if (linestate & PIN_DCD) {
 			cdcacmstate |= CDCACM_DCD;
+		}
 
 		cdcacm_line_state_changed_cb(cdcacmstate);
 	}
@@ -199,8 +204,9 @@ int main(void)
 
 	cm4f_enable_fpu();
 
-	while (1)
+	while (1) {
 		mainloop();
+	}
 
 	return 0;
 }

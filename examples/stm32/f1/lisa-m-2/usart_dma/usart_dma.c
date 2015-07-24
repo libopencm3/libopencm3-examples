@@ -88,14 +88,14 @@ static void dma_write(char *data, int size)
 
 	dma_enable_channel(DMA1, DMA_CHANNEL7);
 
-        usart_enable_tx_dma(USART2);
+	usart_enable_tx_dma(USART2);
 }
 
 volatile int transfered = 0;
 
 void dma1_channel7_isr(void)
 {
-	if ((DMA1_ISR &DMA_ISR_TCIF7) != 0) {
+	if ((DMA1_ISR & DMA_ISR_TCIF7) != 0) {
 		DMA1_IFCR |= DMA_IFCR_CTCIF7;
 
 		transfered = 1;
@@ -130,14 +130,14 @@ static void dma_read(char *data, int size)
 
 	dma_enable_channel(DMA1, DMA_CHANNEL6);
 
-        usart_enable_rx_dma(USART2);
+	usart_enable_rx_dma(USART2);
 }
 
 volatile int received = 0;
 
 void dma1_channel6_isr(void)
 {
-	if ((DMA1_ISR &DMA_ISR_TCIF6) != 0) {
+	if ((DMA1_ISR & DMA_ISR_TCIF6) != 0) {
 		DMA1_IFCR |= DMA_IFCR_CTCIF6;
 
 		received = 1;
@@ -176,7 +176,7 @@ int main(void)
 	/* Blink the LED (PA8) on the board with every transmitted byte. */
 	while (1) {
 		gpio_toggle(GPIOA, GPIO8);	/* LED on/off */
-		while ( transfered != 1) {
+		while (transfered != 1) {
 			if (received == 1) {
 				tx[1] = rx[0];
 				tx[2] = rx[1];
@@ -189,7 +189,9 @@ int main(void)
 			}
 		}
 		tx[0]++;
-		if (tx[0] > 'z') tx[0] = 'a';
+		if (tx[0] > 'z') {
+			tx[0] = 'a';
+		}
 		transfered = 0;
 		dma_write(tx, tx_len);
 	}

@@ -58,7 +58,7 @@ static const struct usb_endpoint_descriptor msc_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 0,
-}};
+} };
 
 static const struct usb_interface_descriptor msc_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
@@ -73,12 +73,12 @@ static const struct usb_interface_descriptor msc_iface[] = {{
 	.endpoint = msc_endp,
 	.extra = NULL,
 	.extralen = 0
-}};
+} };
 
 static const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = msc_iface,
-}};
+} };
 
 static const struct usb_config_descriptor config_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,

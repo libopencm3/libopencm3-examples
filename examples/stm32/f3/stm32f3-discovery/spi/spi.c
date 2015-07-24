@@ -61,7 +61,7 @@ static void spi_setup(void)
 			GPIO5 | GPIO6 | GPIO7);
 	gpio_set_af(GPIOA, GPIO_AF5, GPIO5 | GPIO6 | GPIO7);
 
-	//spi initialization;
+	/* spi initialization; */
 	spi_set_master_mode(SPI1);
 	spi_set_baudrate_prescaler(SPI1, SPI_CR1_BR_FPCLK_DIV_64);
 	spi_set_clock_polarity_0(SPI1);
@@ -72,7 +72,7 @@ static void spi_setup(void)
 	spi_enable_software_slave_management(SPI1);
 	spi_send_msb_first(SPI1);
 	spi_set_nss_high(SPI1);
-	//spi_enable_ss_output(SPI1);
+	/* spi_enable_ss_output(SPI1); */
 	spi_fifo_reception_threshold_8bit(SPI1);
 	SPI_I2SCFGR(SPI1) &= ~SPI_I2SCFGR_I2SMOD;
 	spi_enable(SPI1);
@@ -86,7 +86,7 @@ static void usart_setup(void)
 
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
-	gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO2 | GPIO3);
 
 	/* Setup UART parameters. */
 	usart_set_baudrate(USART2, 115200);
@@ -128,7 +128,7 @@ static void my_usart_print_int(uint32_t usart, int32_t value)
 		value /= 10;
 	}
 
-	for (i = nr_digits-1; i >= 0; i--) {
+	for (i = nr_digits - 1; i >= 0; i--) {
 		usart_send_blocking(usart, buffer[i]);
 	}
 
@@ -189,7 +189,7 @@ int main(void)
 		spi_send8(SPI1, GYR_WHO_AM_I | GYR_RNW);
 		spi_read8(SPI1);
 		spi_send8(SPI1, 0);
-		temp=spi_read8(SPI1);
+		temp = spi_read8(SPI1);
 		my_usart_print_int(USART2, (temp));
 		gpio_set(GPIOE, GPIO3);
 
@@ -197,7 +197,7 @@ int main(void)
 		spi_send8(SPI1, GYR_STATUS_REG | GYR_RNW);
 		spi_read8(SPI1);
 		spi_send8(SPI1, 0);
-		temp=spi_read8(SPI1);
+		temp = spi_read8(SPI1);
 		my_usart_print_int(USART2, (temp));
 		gpio_set(GPIOE, GPIO3);
 
@@ -205,7 +205,7 @@ int main(void)
 		spi_send8(SPI1, GYR_OUT_TEMP | GYR_RNW);
 		spi_read8(SPI1);
 		spi_send8(SPI1, 0);
-		temp=spi_read8(SPI1);
+		temp = spi_read8(SPI1);
 		my_usart_print_int(USART2, (temp));
 		gpio_set(GPIOE, GPIO3);
 
@@ -213,20 +213,21 @@ int main(void)
 		spi_send8(SPI1, GYR_OUT_X_L | GYR_RNW);
 		spi_read8(SPI1);
 		spi_send8(SPI1, 0);
-		gyr_x=spi_read8(SPI1);
+		gyr_x = spi_read8(SPI1);
 		gpio_set(GPIOE, GPIO3);
 
 		gpio_clear(GPIOE, GPIO3);
 		spi_send8(SPI1, GYR_OUT_X_H | GYR_RNW);
 		spi_read8(SPI1);
 		spi_send8(SPI1, 0);
-		gyr_x|=spi_read8(SPI1) << 8;
+		gyr_x |= spi_read8(SPI1) << 8;
 		my_usart_print_int(USART2, (gyr_x));
 		gpio_set(GPIOE, GPIO3);
 
 		int i;
-		for (i = 0; i < 80000; i++)    /* Wait a bit. */
+		for (i = 0; i < 80000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

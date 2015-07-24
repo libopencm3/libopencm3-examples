@@ -80,18 +80,18 @@ static void clock_setup(void)
 	rcc_periph_clock_enable(RCC_DMA1);
 }
 
-static void spi_setup(void) {
+static void spi_setup(void)
+{
 
 	/* Configure GPIOs: SS=PA4, SCK=PA5, MISO=PA6 and MOSI=PA7
 	 * For now ignore the SS pin so we can use it to time the ISRs
 	 */
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
-            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, /* GPIO4 | */
-            								GPIO5 |
-                                            GPIO7 );
+		GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, /* GPIO4 | */
+		GPIO5 | GPIO7);
 
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-			GPIO6);
+		GPIO6);
 
 	/* Reset SPI, SPI_CR1 register cleared, SPI is disabled */
 	spi_reset(SPI1);
@@ -99,7 +99,8 @@ static void spi_setup(void) {
 	/* Explicitly disable I2S in favour of SPI operation */
 	SPI1_I2SCFGR = 0;
 
-	/* Set up SPI in Master mode with:
+	/*
+	 * Set up SPI in Master mode with:
 	 * Clock baud rate: 1/64 of peripheral clock frequency
 	 * Clock polarity: Idle High
 	 * Clock phase: Data valid on 2nd clock pulse
@@ -107,20 +108,22 @@ static void spi_setup(void) {
 	 * Frame format: MSB First
 	 */
 #if USE_16BIT_TRANSFERS
-	spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_16BIT, SPI_CR1_MSBFIRST);
+	spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64,
+		SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE, SPI_CR1_CPHA_CLK_TRANSITION_2,
+		SPI_CR1_DFF_16BIT, SPI_CR1_MSBFIRST);
 #else
-	spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+	spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64,
+		SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE, SPI_CR1_CPHA_CLK_TRANSITION_2,
+		SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 #endif
 
 	/*
 	 * Set NSS management to software.
 	 *
 	 * Note:
-	 * Setting nss high is very important, even if we are controlling the GPIO
-	 * ourselves this bit needs to be at least set to 1, otherwise the spi
-	 * peripheral will not send any data out.
+	 * Setting nss high is very important, even if we are controlling the
+	 * GPIO ourselves this bit needs to be at least set to 1, otherwise the
+	 * spi peripheral will not send any data out.
 	 */
 	spi_enable_software_slave_management(SPI1);
 	spi_set_nss_high(SPI1);
@@ -129,9 +132,10 @@ static void spi_setup(void) {
 	spi_enable(SPI1);
 }
 
-static void dma_int_enable(void) {
+static void dma_int_enable(void)
+{
 	/* SPI1 RX on DMA1 Channel 2 */
- 	nvic_set_priority(NVIC_DMA1_CHANNEL2_IRQ, 0);
+	nvic_set_priority(NVIC_DMA1_CHANNEL2_IRQ, 0);
 	nvic_enable_irq(NVIC_DMA1_CHANNEL2_IRQ);
 	/* SPI1 TX on DMA1 Channel 3 */
 	nvic_set_priority(NVIC_DMA1_CHANNEL3_IRQ, 0);
@@ -139,15 +143,16 @@ static void dma_int_enable(void) {
 }
 
 /* Not used in this example
-static void dma_int_disable(void) {
- 	nvic_disable_irq(NVIC_DMA1_CHANNEL2_IRQ);
- 	nvic_disable_irq(NVIC_DMA1_CHANNEL3_IRQ);
+static void dma_int_disable(void)
+{
+	nvic_disable_irq(NVIC_DMA1_CHANNEL2_IRQ);
+	nvic_disable_irq(NVIC_DMA1_CHANNEL3_IRQ);
 }
 */
 
 static void dma_setup(void)
 {
-	dma_int_enable();	
+	dma_int_enable();
 }
 
 #if USE_16BIT_TRANSFERS
@@ -155,7 +160,7 @@ static int spi_dma_transceive(uint16_t *tx_buf, int tx_len, uint16_t *rx_buf, in
 #else
 static int spi_dma_transceive(uint8_t *tx_buf, int tx_len, uint8_t *rx_buf, int rx_len)
 #endif
-{	
+{
 
 	/* Check for 0 length in both tx and rx */
 	if ((rx_len < 1) && (tx_len < 1)) {
@@ -183,14 +188,17 @@ static int spi_dma_transceive(uint8_t *tx_buf, int tx_len, uint8_t *rx_buf, int 
 		transceive_status = ONE;
 	}
 
-	/* Determine tx length case to change behaviour
-	 * If tx_len >= rx_len, then normal case, run both DMAs with normal settings
+	/*
+	 * Determine tx length case to change behaviour
+	 * If tx_len >= rx_len, then normal case, run both DMAs with normal
+	 *    settings
 	 * If rx_len == 0, just don't run the rx DMA at all
-	 * If tx_len == 0, use a dummy buf and set the tx dma to transfer the same
-	 *    amount as the rx_len, to ensure everything is clocked in
-	 * If 0 < tx_len < rx_len, first do a normal case, then on the tx finished
-	 *    interrupt, set up a new dummyy buf tx dma transfer for the remaining
-	 *    required clock cycles (handled in tx dma complete interrupt)
+	 * If tx_len == 0, use a dummy buf and set the tx dma to transfer the
+	 *    same amount as the rx_len, to ensure everything is clocked in
+	 * If 0 < tx_len < rx_len, first do a normal case, then on the tx
+	 *    finished interrupt, set up a new dummyy buf tx dma transfer for
+	 *    the remaining required clock cycles (handled in tx dma complete
+	 *    interrupt)
 	 */
 	if ((tx_len > 0) && (tx_len < rx_len)) {
 		rx_buf_remainder = rx_len - tx_len;
@@ -230,15 +238,19 @@ static int spi_dma_transceive(uint8_t *tx_buf, int tx_len, uint8_t *rx_buf, int 
 #endif
 		dma_set_priority(DMA1, DMA_CHANNEL3, DMA_CCR_PL_HIGH);
 	} else {
-		/* Here we aren't transmitting any real data, use the dummy buffer
-		 * and set the length to the rx_len to get all rx data in, while
-		 * not incrementing the memory pointer
+		/*
+		 * Here we aren't transmitting any real data, use the dummy
+		 * buffer and set the length to the rx_len to get all rx data
+		 * in, while not incrementing the memory pointer
 		 */
 		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (uint32_t)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)(&dummy_tx_buf)); // Change here
-		dma_set_number_of_data(DMA1, DMA_CHANNEL3, rx_len); // Change here
+		/* Change here */
+		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)(&dummy_tx_buf));
+		/* Change here */
+		dma_set_number_of_data(DMA1, DMA_CHANNEL3, rx_len);
 		dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
-		dma_disable_memory_increment_mode(DMA1, DMA_CHANNEL3); // Change here
+		/* Change here */
+		dma_disable_memory_increment_mode(DMA1, DMA_CHANNEL3);
 #if USE_16BIT_TRANSFERS
 		dma_set_peripheral_size(DMA1, DMA_CHANNEL3, DMA_CCR_PSIZE_16BIT);
 		dma_set_memory_size(DMA1, DMA_CHANNEL3, DMA_CCR_MSIZE_16BIT);
@@ -261,24 +273,25 @@ static int spi_dma_transceive(uint8_t *tx_buf, int tx_len, uint8_t *rx_buf, int 
 	}
 	dma_enable_channel(DMA1, DMA_CHANNEL3);
 
-	/* Enable the spi transfer via dma
+	/*
+	 * Enable the spi transfer via dma
 	 * This will immediately start the transmission,
 	 * after which when the receive is complete, the
 	 * receive dma will activate
 	 */
 	if (rx_len > 0) {
-    	spi_enable_rx_dma(SPI1);
-    }
-    spi_enable_tx_dma(SPI1);
+		spi_enable_rx_dma(SPI1);
+	}
+	spi_enable_tx_dma(SPI1);
 
-    return 0;
+	return 0;
 }
 
 /* SPI receive completed with DMA */
 void dma1_channel2_isr(void)
 {
-	gpio_set(GPIOA,GPIO4);
-	if ((DMA1_ISR &DMA_ISR_TCIF2) != 0) {
+	gpio_set(GPIOA, GPIO4);
+	if ((DMA1_ISR & DMA_ISR_TCIF2) != 0) {
 		DMA1_IFCR |= DMA_IFCR_CTCIF2;
 	}
 
@@ -290,14 +303,14 @@ void dma1_channel2_isr(void)
 
 	/* Increment the status to indicate one of the transfers is complete */
 	transceive_status++;
-	gpio_clear(GPIOA,GPIO4);
+	gpio_clear(GPIOA, GPIO4);
 }
 
 /* SPI transmit completed with DMA */
 void dma1_channel3_isr(void)
 {
-	gpio_set(GPIOB,GPIO1);
-	if ((DMA1_ISR &DMA_ISR_TCIF3) != 0) {
+	gpio_set(GPIOB, GPIO1);
+	if ((DMA1_ISR & DMA_ISR_TCIF3) != 0) {
 		DMA1_IFCR |= DMA_IFCR_CTCIF3;
 	}
 
@@ -313,10 +326,13 @@ void dma1_channel3_isr(void)
 	if (rx_buf_remainder > 0) {
 		dma_channel_reset(DMA1, DMA_CHANNEL3);
 		dma_set_peripheral_address(DMA1, DMA_CHANNEL3, (uint32_t)&SPI1_DR);
-		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)(&dummy_tx_buf)); // Change here
-		dma_set_number_of_data(DMA1, DMA_CHANNEL3, rx_buf_remainder); // Change here
+		/* Change here */
+		dma_set_memory_address(DMA1, DMA_CHANNEL3, (uint32_t)(&dummy_tx_buf));
+		/* Change here */
+		dma_set_number_of_data(DMA1, DMA_CHANNEL3, rx_buf_remainder);
 		dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
-		dma_disable_memory_increment_mode(DMA1, DMA_CHANNEL3); // Change here
+		/* Change here */
+		dma_disable_memory_increment_mode(DMA1, DMA_CHANNEL3);
 #if USE_16BIT_TRANSFERS
 		dma_set_peripheral_size(DMA1, DMA_CHANNEL3, DMA_CCR_PSIZE_16BIT);
 		dma_set_memory_size(DMA1, DMA_CHANNEL3, DMA_CCR_MSIZE_16BIT);
@@ -326,17 +342,21 @@ void dma1_channel3_isr(void)
 #endif
 		dma_set_priority(DMA1, DMA_CHANNEL3, DMA_CCR_PL_HIGH);
 
-		rx_buf_remainder = 0; // Clear the buffer remainder to disable this section later
+		/* Clear the buffer remainder to disable this section later */
+		rx_buf_remainder = 0;
 
 		dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL3);
 		dma_enable_channel(DMA1, DMA_CHANNEL3);
 		spi_enable_tx_dma(SPI1);
 	} else {
-		/* Increment the status to indicate one of the transfers is complete */
+		/*
+		 * Increment the status to indicate one of the transfers is
+		 * complete
+		 */
 		transceive_status++;
 	}
 
-	gpio_clear(GPIOB,GPIO1);
+	gpio_clear(GPIOB, GPIO1);
 }
 
 static void usart_setup(void)
@@ -364,8 +384,9 @@ int _write(int file, char *ptr, int len)
 	int i;
 
 	if (file == 1) {
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++) {
 			usart_send_blocking(USART2, ptr[i]);
+		}
 		return i;
 	}
 
@@ -398,13 +419,20 @@ int main(void)
 
 	int i = 0;
 
-	/* Transmit and Receive packets, set transmit to index and receive to known unused value to aid in debugging */
+	/*
+	 * Transmit and Receive packets, set transmit to index and receive to
+	 * known unused value to aid in debugging.
+	 */
 #if USE_16BIT_TRANSFERS
-	uint16_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	uint16_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
+	uint16_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+		14, 15};
+	uint16_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42,
+		0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
 #else
-	uint8_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	uint8_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
+	uint8_t tx_packet[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+		14, 15};
+	uint8_t rx_packet[16] = {0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42,
+		0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42};
 #endif
 
 	transceive_status = DONE;
@@ -424,8 +452,7 @@ int main(void)
 
 		/* Print what is going to be sent on the SPI bus */
 		printf("Sending  packet (tx len %02i):", counter_tx);
-		for (i = 0; i < counter_tx; i++)
-		{
+		for (i = 0; i < counter_tx; i++) {
 			printf(" 0x%02x,", tx_packet[i]);
 		}
 		printf("\r\n");
@@ -435,17 +462,17 @@ int main(void)
 			printf("Attempted 0 length tx and rx packets\r\n");
 		}
 
-		/* Wait until transceive complete.
+		/*
+		 * Wait until transceive complete.
 		 * This checks the state flag as well as follows the
 		 * procedure on the Reference Manual (RM0008 rev 14
 		 * Section 25.3.9 page 692, the note.)
 		 */
-		while (transceive_status != DONE)
-			;
-		while (!(SPI_SR(SPI1) & SPI_SR_TXE))
-			;
-		while (SPI_SR(SPI1) & SPI_SR_BSY)
-			;
+		while (transceive_status != DONE);
+
+		while (!(SPI_SR(SPI1) & SPI_SR_TXE));
+
+		while (SPI_SR(SPI1) & SPI_SR_BSY);
 
 		/* Print what was received on the SPI bus */
 		printf("Received Packet (rx len %02i):", counter_rx);
@@ -454,7 +481,8 @@ int main(void)
 		}
 		printf("\r\n\r\n");
 
-		/* Update counters
+		/*
+		 * Update counters
 		 * If we use the loopback method, we can not
 		 * have a rx length longer than the tx length.
 		 * Testing rx lengths longer than tx lengths
@@ -462,32 +490,32 @@ int main(void)
 		 * return data.
 		 */
 		switch (counter_state) {
-			case TX_UP_RX_HOLD:
-				counter_tx++;
-				if (counter_tx > 15) {
-					counter_state = TX_HOLD_RX_UP;
-				}
-				break;
-			case TX_HOLD_RX_UP:
-				counter_rx++;
-				if (counter_rx > 15) {
-					counter_state = TX_DOWN_RX_HOLD;
-				}
-				break;
-			case TX_DOWN_RX_HOLD:
-				counter_tx--;
-				if (counter_tx < 1) {
-					counter_state = TX_HOLD_RX_DOWN;
-				}
-				break;
-			case TX_HOLD_RX_DOWN:
-				counter_rx--;
-				if (counter_rx < 1) {
-					counter_state = TX_UP_RX_HOLD;
-				}
-				break;
-			default:
-				;
+		case TX_UP_RX_HOLD:
+			counter_tx++;
+			if (counter_tx > 15) {
+				counter_state = TX_HOLD_RX_UP;
+			}
+			break;
+		case TX_HOLD_RX_UP:
+			counter_rx++;
+			if (counter_rx > 15) {
+				counter_state = TX_DOWN_RX_HOLD;
+			}
+			break;
+		case TX_DOWN_RX_HOLD:
+			counter_tx--;
+			if (counter_tx < 1) {
+				counter_state = TX_HOLD_RX_DOWN;
+			}
+			break;
+		case TX_HOLD_RX_DOWN:
+			counter_rx--;
+			if (counter_rx < 1) {
+				counter_state = TX_UP_RX_HOLD;
+			}
+			break;
+		default:
+			break;
 		}
 
 		/* Reset receive buffer for consistency */
@@ -498,7 +526,7 @@ int main(void)
 			tx_packet[i] = (uint8_t)i;
 #endif
 			rx_packet[i] = 0x42;
-		}		
+		}
 	}
 
 	return 0;

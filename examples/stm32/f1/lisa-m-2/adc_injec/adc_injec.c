@@ -72,11 +72,15 @@ static void adc_setup(void)
 	/* We configure everything for one single injected conversion. */
 	adc_disable_scan_mode(ADC1);
 	adc_set_single_conversion_mode(ADC1);
-	/* We can only use discontinuous mode on either the regular OR injected channels, not both */
+
+	/*
+	 * We can only use discontinuous mode on either the regular OR injected
+	 * channels, not both
+	 */
 	adc_disable_discontinuous_mode_regular(ADC1);
 	adc_enable_discontinuous_mode_injected(ADC1);
 	/* We want to start the injected conversion in software */
-	adc_enable_external_trigger_injected(ADC1,ADC_CR2_JEXTSEL_JSWSTART);
+	adc_enable_external_trigger_injected(ADC1, ADC_CR2_JEXTSEL_JSWSTART);
 	adc_set_right_aligned(ADC1);
 	/* We want to read the temperature sensor, so we have to enable it. */
 	adc_enable_temperature_sensor(ADC1);
@@ -85,13 +89,14 @@ static void adc_setup(void)
 	adc_power_on(ADC1);
 
 	/* Wait for ADC starting up. */
-	for (i = 0; i < 800000; i++)    /* Wait a bit. */
+	for (i = 0; i < 800000; i++) {   /* Wait a bit. */
 		__asm__("nop");
+	}
 
 	adc_reset_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_RSTCAL) != 0); //added this check
+	while ((ADC_CR2(ADC1) & ADC_CR2_RSTCAL) != 0); /* added this check */
 	adc_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_CAL) != 0); //added this check
+	while ((ADC_CR2(ADC1) & ADC_CR2_CAL) != 0); /* added this check */
 }
 
 static void my_usart_print_int(uint32_t usart, int value)
@@ -145,24 +150,28 @@ int main(void)
 	/* Continously convert and poll the temperature ADC. */
 	while (1) {
 		/*
-		 * If the ADC_CR2_ON bit is already set -> setting it another time
-		 * starts a regular conversion. Injected conversion is started
-		 * explicitly with the JSWSTART bit as an external trigger. It may
-		 * also work by setting no regular channels and setting JAUTO to
-		 * automatically convert the injected channels after the regular
-		 * channels (of which there would be none). (Not tested.)
+		 * If the ADC_CR2_ON bit is already set -> setting it another
+		 * time starts a regular conversion. Injected conversion is
+		 * started explicitly with the JSWSTART bit as an external
+		 * trigger. It may also work by setting no regular channels and
+		 * setting JAUTO to automatically convert the injected channels
+		 * after the regular channels (of which there would be none).
+		 * (Not tested.)
 		 */
 		adc_start_conversion_injected(ADC1);
 
 		/* Wait for end of conversion. */
 		while (!(adc_eoc_injected(ADC1)));
-		ADC_SR(ADC2) &= ~ADC_SR_JEOC; //clear injected end of conversion
 
-		temperature = adc_read_injected(ADC1,1); //get the result from ADC_JDR1 on ADC1 (only bottom 16bits)
+		/* clear injected end of conversion */
+		ADC_SR(ADC2) &= ~ADC_SR_JEOC;
+
+		/* get the result from ADC_JDR1 on ADC1 (only bottom 16bits) */
+		temperature = adc_read_injected(ADC1, 1);
 
 		/*
-		 * That's actually not the real temperature - you have to compute it
-		 * as described in the datasheet.
+		 * That's actually not the real temperature - you have to
+		 * compute it as described in the datasheet.
 		 */
 		my_usart_print_int(USART2, temperature);
 

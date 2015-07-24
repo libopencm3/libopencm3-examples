@@ -61,7 +61,8 @@ static void gpio_setup(void)
 	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
 	/* Configure GPIO as Output */
-	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3); /* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3);
 	GPIO3_DIR |= PIN_EN1V8; /* GPIO3[6] on P6_10  as output. */
 }
 
@@ -78,13 +79,18 @@ static void systick_setup(void)
 
 	/* Get SysTick calibration value to obtain by default 1 tick = 10ms */
 	systick_reload_val = systick_get_calib();
+
 	/*
-     * Calibration seems wrong on LPC43xx(TBC) for default Freq it assume System Clock is 12MHz but it is 12*8=96MHz
-	 * Fix the Calibration value bu multiplication by 8
-     */
+	 * Calibration seems wrong on LPC43xx(TBC) for default Freq it assumes
+	 * System Clock is 12MHz but it is 12*8=96MHz
+	 * Fix the Calibration value by multiplication by 8
+	 */
 	systick_reload_val = (systick_reload_val*8);
 
-	/* To obtain 1ms per tick just divide by 10 the 10ms base tick and set the reload */
+	/*
+	 * To obtain 1ms per tick just divide by the 10ms base tick and set
+	 * the reload
+	 */
 	systick_reload_val = systick_reload_val/10;
 	systick_set_reload(systick_reload_val);
 
@@ -108,51 +114,47 @@ static void scs_dwt_cycle_counter_enabled(void)
 
 static uint32_t sys_tick_get_time_ms(void)
 {
-    return g_ulSysTickCount;
+	return g_ulSysTickCount;
 }
 
 static uint32_t sys_tick_delta_time_ms(uint32_t start, uint32_t end)
 {
 	#define MAX_T_U32 ((2^32)-1)
-    uint32_t diff;
+	uint32_t diff;
 
-    if(end > start)
-    {
-        diff=end-start;
-    }else
-    {
-        diff=MAX_T_U32-(start-end)+1;
-    }
+	if (end > start) {
+		diff = end-start;
+	} else {
+		diff = MAX_T_U32-(start-end)+1;
+	}
 
-    return diff;
+	return diff;
 }
 
 static void sys_tick_wait_time_ms(uint32_t wait_ms)
 {
-    uint32_t start, end;
-    uint32_t tickms;
+	uint32_t start, end;
+	uint32_t tickms;
 
-    start = sys_tick_get_time_ms();
+	start = sys_tick_get_time_ms();
 
-    do
-    {
-        end = sys_tick_get_time_ms();
-        tickms = sys_tick_delta_time_ms(start, end);
-    }while(tickms < wait_ms);
+	do {
+		end = sys_tick_get_time_ms();
+		tickms = sys_tick_delta_time_ms(start, end);
+	} while (tickms < wait_ms);
 }
 
-/* Called each 1ms/1000Hz by interrupt
- 1) Count the number of cycle per second.
- 2) Increment g_ulSysTickCount counter.
-*/
+/*
+ * Called each 1ms/1000Hz by interrupt
+ * 1) Count the number of cycle per second.
+ * 2) Increment g_ulSysTickCount counter.
+ */
 void sys_tick_handler(void)
 {
-	if(g_ulSysTickCount==0)
-	{
+	if (g_ulSysTickCount == 0) {
 		/* Clear Cycle Counter*/
 		SCS_DWT_CYCCNT = 0;
-	}else if(g_ulSysTickCount==1000)
-	{
+	} else if (g_ulSysTickCount == 1000) {
 		/* Capture number of cycle elapsed during 1 second */
 		g_NbCyclePerSecond = SCS_DWT_CYCCNT;
 	}
@@ -166,16 +168,20 @@ int main(void)
 
 	gpio_setup();
 
-	/* SCS & Cycle Counter enabled (used to count number of cycles executed per second see g_NbCyclePerSecond */
+	/*
+	 * SCS & Cycle Counter enabled (used to count number of cycles executed
+	 * per second see g_NbCyclePerSecond
+	 */
 	scs_dwt_cycle_counter_enabled();
 
-	while (1)
-	{
-		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
+	while (1) {
+		/* LEDs on */
+		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3));
 
 		sys_tick_wait_time_ms(500);
 
-		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LED off */
+		/* LED off */
+		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3));
 
 		sys_tick_wait_time_ms(500);
 	}

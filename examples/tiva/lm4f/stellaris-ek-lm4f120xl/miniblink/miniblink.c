@@ -52,11 +52,11 @@ enum {
 
 /* The divisors we loop through when the user presses SW2 */
 enum {
-	PLL_DIV_80MHZ 	= 5,
-	PLL_DIV_57MHZ 	= 7,
-	PLL_DIV_40MHZ 	= 10,
-	PLL_DIV_20MHZ 	= 20,
-	PLL_DIV_16MHZ 	= 25,
+	PLL_DIV_80MHZ = 5,
+	PLL_DIV_57MHZ = 7,
+	PLL_DIV_40MHZ = 10,
+	PLL_DIV_20MHZ = 20,
+	PLL_DIV_16MHZ = 25,
 };
 
 static const uint8_t plldiv[] = {
@@ -96,7 +96,8 @@ static void gpio_setup(void)
 	const uint32_t outpins = (LED_R | LED_G | LED_B);
 
 	gpio_mode_setup(RGB_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, outpins);
-	gpio_set_output_config(RGB_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_2MA, outpins);
+	gpio_set_output_config(RGB_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_2MA,
+		outpins);
 
 	/*
 	 * Now take care of our buttons
@@ -131,8 +132,9 @@ static void irq_setup(void)
 static void delay(void)
 {
 	int i;
-	for (i = 0; i < FLASH_DELAY; i++)       /* Wait a bit. */
+	for (i = 0; i < FLASH_DELAY; i++) {	/* Wait a bit. */
 		__asm__("nop");
+	}
 }
 
 int main(void)
@@ -184,9 +186,7 @@ void gpiof_isr(void)
 			 * Disable the divisor, or we'll divide the raw clock.
 			 */
 			SYSCTL_RCC &= ~SYSCTL_RCC_USESYSDIV;
-		}
-		else
-		{
+		} else {
 			rcc_change_pll_divisor(plldiv[ipll]);
 		}
 		/* Clear interrupt source */
@@ -196,8 +196,9 @@ void gpiof_isr(void)
 	if (gpio_is_interrupt_source(GPIOF, USR_SW2)) {
 		/* SW2 was just depressed */
 		if (!bypass) {
-			if (plldiv[++ipll] == 0)
+			if (plldiv[++ipll] == 0) {
 				ipll = 0;
+			}
 			rcc_change_pll_divisor(plldiv[ipll]);
 		}
 		/* Clear interrupt source */

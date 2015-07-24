@@ -47,43 +47,44 @@ static void clock_setup(void)
 	rcc_periph_clock_enable(RCC_SPI1);
 }
 
-static void spi_setup(void) {
+static void spi_setup(void)
+{
+	/* Configure GPIOs: SS=PA4, SCK=PA5, MISO=PA6 and MOSI=PA7 */
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+		GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+		GPIO4 |	GPIO5 | GPIO7);
 
-  /* Configure GPIOs: SS=PA4, SCK=PA5, MISO=PA6 and MOSI=PA7 */
-  gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
-            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4 |
-            								GPIO5 |
-                                            GPIO7 );
+	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+		GPIO6);
 
-  gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-          GPIO6);
+	/* Reset SPI, SPI_CR1 register cleared, SPI is disabled */
+	spi_reset(SPI1);
 
-  /* Reset SPI, SPI_CR1 register cleared, SPI is disabled */
-  spi_reset(SPI1);
+	/*
+	 * Set up SPI in Master mode with:
+	 * Clock baud rate: 1/64 of peripheral clock frequency
+	 * Clock polarity: Idle High
+	 * Clock phase: Data valid on 2nd clock pulse
+	 * Data frame format: 8-bit
+	 * Frame format: MSB First
+	 */
+	spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64,
+		SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE, SPI_CR1_CPHA_CLK_TRANSITION_2,
+		SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 
-  /* Set up SPI in Master mode with:
-   * Clock baud rate: 1/64 of peripheral clock frequency
-   * Clock polarity: Idle High
-   * Clock phase: Data valid on 2nd clock pulse
-   * Data frame format: 8-bit
-   * Frame format: MSB First
-   */
-  spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+	/*
+	 * Set NSS management to software.
+	 *
+	 * Note:
+	 * Setting nss high is very important, even if we are controlling the
+	 * GPIO ourselves this bit needs to be at least set to 1, otherwise the
+	 * spi peripheral will not send any data out.
+	 */
+	 spi_enable_software_slave_management(SPI1);
+	 spi_set_nss_high(SPI1);
 
-  /*
-   * Set NSS management to software.
-   *
-   * Note:
-   * Setting nss high is very important, even if we are controlling the GPIO
-   * ourselves this bit needs to be at least set to 1, otherwise the spi
-   * peripheral will not send any data out.
-   */
-  spi_enable_software_slave_management(SPI1);
-  spi_set_nss_high(SPI1);
-
-  /* Enable SPI1 periph. */
-  spi_enable(SPI1);
+	/* Enable SPI1 periph. */
+	spi_enable(SPI1);
 }
 
 static void usart_setup(void)
@@ -111,8 +112,9 @@ int _write(int file, char *ptr, int len)
 	int i;
 
 	if (file == 1) {
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++) {
 			usart_send_blocking(USART2, ptr[i]);
+		}
 		return i;
 	}
 
@@ -147,15 +149,16 @@ int main(void)
 		printf("Counter: %i  SPI Sent Byte: %i", counter, (uint8_t) counter);
 		/* blocking send of the byte out SPI1 */
 		spi_send(SPI1, (uint8_t) counter);
-		/* Read the byte that just came in (use a loopback between MISO and MOSI
-		 * to get the same byte back)
+		/*
+		 * Read the byte that just came in (use a loopback between MISO
+		 * and MOSI to get the same byte back)
 		 */
 		rx_value = spi_read(SPI1);
 		/* printf the byte just received */
 		printf("    SPI Received Byte: %i\r\n", rx_value);
 
 		counter++;
-		
+
 	}
 
 	return 0;

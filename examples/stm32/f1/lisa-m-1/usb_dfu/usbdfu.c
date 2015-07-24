@@ -90,7 +90,8 @@ const struct usb_interface_descriptor iface = {
 const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = &iface,
-}};
+	}
+};
 
 const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -179,8 +180,9 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 {
 	(void)usbd_dev;
 
-	if ((req->bmRequestType & 0x7F) != 0x21)
+	if ((req->bmRequestType & 0x7F) != 0x21) {
 		return 0; /* Only accept class request. */
+	}
 
 	switch (req->bRequest) {
 	case DFU_DNLOAD:
@@ -197,8 +199,9 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		}
 	case DFU_CLRSTATUS:
 		/* Clear error and return to dfuIDLE. */
-		if (usbdfu_state == STATE_DFU_ERROR)
+		if (usbdfu_state == STATE_DFU_ERROR) {
 			usbdfu_state = STATE_DFU_IDLE;
+		}
 		return 1;
 	case DFU_ABORT:
 		/* Abort returns to dfuIDLE state. */
@@ -241,7 +244,7 @@ int main(void)
 			/* Set vector table base address. */
 			SCB_VTOR = APP_ADDRESS & 0xFFFF;
 			/* Initialise master stack pointer. */
-			asm volatile("msr msp, %0"::"g"
+			asm volatile("msr msp, %0" : : "g"
 				     (*(volatile uint32_t *)APP_ADDRESS));
 			/* Jump to application. */
 			(*(void (**)())(APP_ADDRESS + 4))();
@@ -266,6 +269,7 @@ int main(void)
 
 	gpio_clear(GPIOC, GPIO2);
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }

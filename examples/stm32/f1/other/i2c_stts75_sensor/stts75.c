@@ -156,7 +156,7 @@ uint16_t stts75_read_temperature(uint32_t i2c, uint8_t sensor)
 		& (I2C_SR2(i2c) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
 
 	/* Say to what address we want to talk to. */
-	i2c_send_7bit_address(i2c, sensor, I2C_READ); 
+	i2c_send_7bit_address(i2c, sensor, I2C_READ);
 
 	/* 2-byte receive is a special case. See datasheet POS bit. */
 	I2C_CR1(i2c) |= (I2C_CR1_POS | I2C_CR1_ACK);

@@ -71,7 +71,7 @@ static void gpio_setup(void)
 	/* Setup GPIO8 (in GPIO port A) for LED use. */
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO8);
-	
+
 	gpio_set(GPIOC, GPIO15);
 
 	/* Setup GPIO15 (in GPIO port C) for LED use. */
@@ -119,8 +119,9 @@ int main(void)
 	usart_setup();
 
 	/* Wait forever and do nothing. */
-	while (1)
+	while (1) {
 		__asm__("nop");
+	}
 
 	return 0;
 }

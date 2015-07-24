@@ -123,8 +123,7 @@ int main(void)
 	dma_enable_channel(DMA1, DMA_CHANNEL1);
 
 	/* TODO: Write a function to get the interrupt flags. */
-	while (!(DMA_ISR(DMA1) & 0x0000001))
-		;
+	while (!(DMA_ISR(DMA1) & 0x0000001));
 
 	dma_disable_channel(DMA1, DMA_CHANNEL1);
 

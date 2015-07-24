@@ -48,7 +48,7 @@
 struct gfx_state __gfx_state;
 
 void
-gfx_drawPixel(int x, int y, uint16_t color)
+gfx_draw_pixel(int x, int y, uint16_t color)
 {
 	if ((x < 0) || (x >= __gfx_state._width) ||
 	    (y < 0) || (y >= __gfx_state._height)) {
@@ -73,118 +73,118 @@ gfx_init(void (*pixel_func)(int, int, uint16_t), int width, int height)
 }
 
 /* Draw a circle outline */
-void gfx_drawCircle(int16_t x0, int16_t y0, int16_t r,
+void gfx_draw_circle(int16_t x0, int16_t y0, int16_t r,
 		    uint16_t color)
 {
 	int16_t f = 1 - r;
 	int16_t ddF_x = 1;
-	int16_t ddF_y = -2 * r;
+	int16_t dd_f_y = -2 * r;
 	int16_t x = 0;
 	int16_t y = r;
 
-	gfx_drawPixel(x0  , y0+r, color);
-	gfx_drawPixel(x0  , y0-r, color);
-	gfx_drawPixel(x0+r, y0  , color);
-	gfx_drawPixel(x0-r, y0  , color);
+	gfx_draw_pixel(x0  , y0+r, color);
+	gfx_draw_pixel(x0  , y0-r, color);
+	gfx_draw_pixel(x0+r, y0  , color);
+	gfx_draw_pixel(x0-r, y0  , color);
 
 	while (x < y) {
 		if (f >= 0) {
 			y--;
-			ddF_y += 2;
-			f += ddF_y;
+			dd_f_y += 2;
+			f += dd_f_y;
 		}
 		x++;
 		ddF_x += 2;
 		f += ddF_x;
 
-		gfx_drawPixel(x0 + x, y0 + y, color);
-		gfx_drawPixel(x0 - x, y0 + y, color);
-		gfx_drawPixel(x0 + x, y0 - y, color);
-		gfx_drawPixel(x0 - x, y0 - y, color);
-		gfx_drawPixel(x0 + y, y0 + x, color);
-		gfx_drawPixel(x0 - y, y0 + x, color);
-		gfx_drawPixel(x0 + y, y0 - x, color);
-		gfx_drawPixel(x0 - y, y0 - x, color);
+		gfx_draw_pixel(x0 + x, y0 + y, color);
+		gfx_draw_pixel(x0 - x, y0 + y, color);
+		gfx_draw_pixel(x0 + x, y0 - y, color);
+		gfx_draw_pixel(x0 - x, y0 - y, color);
+		gfx_draw_pixel(x0 + y, y0 + x, color);
+		gfx_draw_pixel(x0 - y, y0 + x, color);
+		gfx_draw_pixel(x0 + y, y0 - x, color);
+		gfx_draw_pixel(x0 - y, y0 - x, color);
 	}
 }
 
-void gfx_drawCircleHelper(int16_t x0, int16_t y0,
+void gfx_draw_circle_helper(int16_t x0, int16_t y0,
 			  int16_t r, uint8_t cornername, uint16_t color)
 {
 	int16_t f     = 1 - r;
 	int16_t ddF_x = 1;
-	int16_t ddF_y = -2 * r;
+	int16_t dd_f_y = -2 * r;
 	int16_t x     = 0;
 	int16_t y     = r;
 
 	while (x < y) {
 		if (f >= 0) {
 			y--;
-			ddF_y += 2;
-			f     += ddF_y;
+			dd_f_y += 2;
+			f     += dd_f_y;
 		}
 		x++;
 		ddF_x += 2;
 		f     += ddF_x;
 		if (cornername & 0x4) {
-			gfx_drawPixel(x0 + x, y0 + y, color);
-			gfx_drawPixel(x0 + y, y0 + x, color);
+			gfx_draw_pixel(x0 + x, y0 + y, color);
+			gfx_draw_pixel(x0 + y, y0 + x, color);
 		}
 		if (cornername & 0x2) {
-			gfx_drawPixel(x0 + x, y0 - y, color);
-			gfx_drawPixel(x0 + y, y0 - x, color);
+			gfx_draw_pixel(x0 + x, y0 - y, color);
+			gfx_draw_pixel(x0 + y, y0 - x, color);
 		}
 		if (cornername & 0x8) {
-			gfx_drawPixel(x0 - y, y0 + x, color);
-			gfx_drawPixel(x0 - x, y0 + y, color);
+			gfx_draw_pixel(x0 - y, y0 + x, color);
+			gfx_draw_pixel(x0 - x, y0 + y, color);
 		}
 		if (cornername & 0x1) {
-			gfx_drawPixel(x0 - y, y0 - x, color);
-			gfx_drawPixel(x0 - x, y0 - y, color);
+			gfx_draw_pixel(x0 - y, y0 - x, color);
+			gfx_draw_pixel(x0 - x, y0 - y, color);
 		}
 	}
 }
 
-void gfx_fillCircle(int16_t x0, int16_t y0, int16_t r,
+void gfx_fill_circle(int16_t x0, int16_t y0, int16_t r,
 		    uint16_t color)
 {
-	gfx_drawFastVLine(x0, y0 - r, 2*r+1, color);
-	gfx_fillCircleHelper(x0, y0, r, 3, 0, color);
+	gfx_draw_fast_vline(x0, y0 - r, 2*r+1, color);
+	gfx_fill_circle_helper(x0, y0, r, 3, 0, color);
 }
 
 /* Used to do circles and roundrects */
-void gfx_fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
+void gfx_fill_circle_helper(int16_t x0, int16_t y0, int16_t r,
 			  uint8_t cornername, int16_t delta, uint16_t color)
 {
 	int16_t f     = 1 - r;
 	int16_t ddF_x = 1;
-	int16_t ddF_y = -2 * r;
+	int16_t dd_f_y = -2 * r;
 	int16_t x     = 0;
 	int16_t y     = r;
 
 	while (x < y) {
 		if (f >= 0) {
 			y--;
-			ddF_y += 2;
-			f     += ddF_y;
+			dd_f_y += 2;
+			f     += dd_f_y;
 		}
 		x++;
 		ddF_x += 2;
 		f     += ddF_x;
 
 		if (cornername & 0x1) {
-			gfx_drawFastVLine(x0+x, y0-y, 2*y+1+delta, color);
-			gfx_drawFastVLine(x0+y, y0-x, 2*x+1+delta, color);
+			gfx_draw_fast_vline(x0+x, y0-y, 2*y+1+delta, color);
+			gfx_draw_fast_vline(x0+y, y0-x, 2*x+1+delta, color);
 		}
 		if (cornername & 0x2) {
-			gfx_drawFastVLine(x0-x, y0-y, 2*y+1+delta, color);
-			gfx_drawFastVLine(x0-y, y0-x, 2*x+1+delta, color);
+			gfx_draw_fast_vline(x0-x, y0-y, 2*y+1+delta, color);
+			gfx_draw_fast_vline(x0-y, y0-x, 2*x+1+delta, color);
 		}
 	}
 }
 
 /* Bresenham's algorithm - thx wikpedia */
-void gfx_drawLine(int16_t x0, int16_t y0,
+void gfx_draw_line(int16_t x0, int16_t y0,
 			    int16_t x1, int16_t y1,
 			    uint16_t color)
 {
@@ -214,9 +214,9 @@ void gfx_drawLine(int16_t x0, int16_t y0,
 
 	for (; x0 <= x1; x0++) {
 		if (steep) {
-			gfx_drawPixel(y0, x0, color);
+			gfx_draw_pixel(y0, x0, color);
 		} else {
-			gfx_drawPixel(x0, y0, color);
+			gfx_draw_pixel(x0, y0, color);
 		}
 		err -= dy;
 		if (err < 0) {
@@ -227,84 +227,84 @@ void gfx_drawLine(int16_t x0, int16_t y0,
 }
 
 /* Draw a rectangle */
-void gfx_drawRect(int16_t x, int16_t y,
+void gfx_draw_rect(int16_t x, int16_t y,
 		  int16_t w, int16_t h,
 		  uint16_t color)
 {
-	gfx_drawFastHLine(x, y, w, color);
-	gfx_drawFastHLine(x, y + h - 1, w, color);
-	gfx_drawFastVLine(x, y, h, color);
-	gfx_drawFastVLine(x + w - 1, y, h, color);
+	gfx_draw_fast_hline(x, y, w, color);
+	gfx_draw_fast_hline(x, y + h - 1, w, color);
+	gfx_draw_fast_vline(x, y, h, color);
+	gfx_draw_fast_vline(x + w - 1, y, h, color);
 }
 
-void gfx_drawFastVLine(int16_t x, int16_t y,
+void gfx_draw_fast_vline(int16_t x, int16_t y,
 		       int16_t h, uint16_t color)
 {
 	/* Update in subclasses if desired! */
-	gfx_drawLine(x, y, x, y + h - 1, color);
+	gfx_draw_line(x, y, x, y + h - 1, color);
 }
 
-void gfx_drawFastHLine(int16_t x, int16_t y,
+void gfx_draw_fast_hline(int16_t x, int16_t y,
 		       int16_t w, uint16_t color)
 {
 	/* Update in subclasses if desired! */
-	gfx_drawLine(x, y, x + w - 1, y, color);
+	gfx_draw_line(x, y, x + w - 1, y, color);
 }
 
-void gfx_fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void gfx_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h,
 		  uint16_t color)
 {
 	/* Update in subclasses if desired! */
 	int16_t i;
 	for (i = x; i < x + w; i++) {
-		gfx_drawFastVLine(i, y, h, color);
+		gfx_draw_fast_vline(i, y, h, color);
 	}
 }
 
-void gfx_fillScreen(uint16_t color)
+void gfx_fill_screen(uint16_t color)
 {
-	gfx_fillRect(0, 0, __gfx_state._width, __gfx_state._height, color);
+	gfx_fill_rect(0, 0, __gfx_state._width, __gfx_state._height, color);
 }
 
 /* Draw a rounded rectangle */
-void gfx_drawRoundRect(int16_t x, int16_t y, int16_t w,
+void gfx_draw_round_rect(int16_t x, int16_t y, int16_t w,
 		       int16_t h, int16_t r, uint16_t color)
 {
 	/* smarter version */
-	gfx_drawFastHLine(x + r    , y        , w - 2 * r, color); /* Top */
-	gfx_drawFastHLine(x + r    , y + h - 1, w - 2 * r, color); /* Bottom */
-	gfx_drawFastVLine(x        , y + r    , h - 2 * r, color); /* Left */
-	gfx_drawFastVLine(x + w - 1, y + r    , h - 2 * r, color); /* Right */
+	gfx_draw_fast_hline(x + r    , y        , w - 2 * r, color); /* Top */
+	gfx_draw_fast_hline(x + r    , y + h - 1, w - 2 * r, color); /* Bottom */
+	gfx_draw_fast_vline(x        , y + r    , h - 2 * r, color); /* Left */
+	gfx_draw_fast_vline(x + w - 1, y + r    , h - 2 * r, color); /* Right */
 	/* draw four corners */
-	gfx_drawCircleHelper(x + r        , y + r        , r, 1, color);
-	gfx_drawCircleHelper(x + w - r - 1, y + r        , r, 2, color);
-	gfx_drawCircleHelper(x + w - r - 1, y + h - r - 1, r, 4, color);
-	gfx_drawCircleHelper(x + r        , y + h - r - 1, r, 8, color);
+	gfx_draw_circle_helper(x + r        , y + r        , r, 1, color);
+	gfx_draw_circle_helper(x + w - r - 1, y + r        , r, 2, color);
+	gfx_draw_circle_helper(x + w - r - 1, y + h - r - 1, r, 4, color);
+	gfx_draw_circle_helper(x + r        , y + h - r - 1, r, 8, color);
 }
 
 /* Fill a rounded rectangle */
-void gfx_fillRoundRect(int16_t x, int16_t y, int16_t w,
+void gfx_fill_round_rect(int16_t x, int16_t y, int16_t w,
 		       int16_t h, int16_t r, uint16_t color) {
 	/* smarter version */
-	gfx_fillRect(x + r, y, w - 2 * r, h, color);
+	gfx_fill_rect(x + r, y, w - 2 * r, h, color);
 
 	/* draw four corners */
-	gfx_fillCircleHelper(x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color);
-	gfx_fillCircleHelper(x + r        , y + r, r, 2, h - 2 * r - 1, color);
+	gfx_fill_circle_helper(x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color);
+	gfx_fill_circle_helper(x + r        , y + r, r, 2, h - 2 * r - 1, color);
 }
 
 /* Draw a triangle */
-void gfx_drawTriangle(int16_t x0, int16_t y0,
+void gfx_draw_triangle(int16_t x0, int16_t y0,
 		      int16_t x1, int16_t y1,
 		      int16_t x2, int16_t y2, uint16_t color)
 {
-	gfx_drawLine(x0, y0, x1, y1, color);
-	gfx_drawLine(x1, y1, x2, y2, color);
-	gfx_drawLine(x2, y2, x0, y0, color);
+	gfx_draw_line(x0, y0, x1, y1, color);
+	gfx_draw_line(x1, y1, x2, y2, color);
+	gfx_draw_line(x2, y2, x0, y0, color);
 }
 
 /* Fill a triangle */
-void gfx_fillTriangle(int16_t x0, int16_t y0,
+void gfx_fill_triangle(int16_t x0, int16_t y0,
 		      int16_t x1, int16_t y1,
 		      int16_t x2, int16_t y2, uint16_t color)
 {
@@ -334,7 +334,7 @@ void gfx_fillTriangle(int16_t x0, int16_t y0,
 		} else if (x2 > b) {
 			b = x2;
 		}
-		gfx_drawFastHLine(a, y0, b - a + 1, color);
+		gfx_draw_fast_hline(a, y0, b - a + 1, color);
 		return;
 	}
 
@@ -373,7 +373,7 @@ void gfx_fillTriangle(int16_t x0, int16_t y0,
 		if (a > b) {
 			swap(a, b);
 		}
-		gfx_drawFastHLine(a, y, b - a + 1, color);
+		gfx_draw_fast_hline(a, y, b - a + 1, color);
 	}
 
 	/* For lower part of triangle, find scanline crossings for segments
@@ -393,21 +393,21 @@ void gfx_fillTriangle(int16_t x0, int16_t y0,
 		if (a > b) {
 			swap(a, b);
 		}
-		gfx_drawFastHLine(a, y, b - a + 1, color);
+		gfx_draw_fast_hline(a, y, b - a + 1, color);
 	}
 }
 
-void gfx_drawBitmap(int16_t x, int16_t y,
+void gfx_draw_bitmap(int16_t x, int16_t y,
 		    const uint8_t *bitmap, int16_t w, int16_t h,
 		    uint16_t color)
 {
-	int16_t i, j, byteWidth = (w + 7) / 8;
+	int16_t i, j, byte_width = (w + 7) / 8;
 
 	for (j = 0; j < h; j++) {
 		for (i = 0; i < w; i++) {
-			if (pgm_read_byte(bitmap + j * byteWidth + i / 8) &
+			if (pgm_read_byte(bitmap + j * byte_width + i / 8) &
 					 (128 >> (i & 7))) {
-				gfx_drawPixel(x + i, y + j, color);
+				gfx_draw_pixel(x + i, y + j, color);
 			}
 		}
 	}
@@ -421,7 +421,7 @@ void gfx_write(uint8_t c)
 	} else if (c == '\r') {
 		/* skip em */
 	} else {
-		gfx_drawChar(__gfx_state.cursor_x, __gfx_state.cursor_y,
+		gfx_draw_char(__gfx_state.cursor_x, __gfx_state.cursor_y,
 			     c, __gfx_state.textcolor, __gfx_state.textbgcolor,
 			     __gfx_state.textsize);
 		__gfx_state.cursor_x += __gfx_state.textsize * 8;
@@ -443,7 +443,7 @@ void gfx_puts(char *s)
 }
 
 /* Draw a character */
-void gfx_drawChar(int16_t x, int16_t y, unsigned char c,
+void gfx_draw_char(int16_t x, int16_t y, unsigned char c,
 		  uint16_t color, uint16_t bg, uint8_t size)
 {
 	int8_t i, j, line;
@@ -469,16 +469,16 @@ void gfx_drawChar(int16_t x, int16_t y, unsigned char c,
 		for (j = 0; j < 8; j++) {
 			if (line & 0x80) {
 				if (size == 1) /* default size */
-					gfx_drawPixel(x+j, y+i, color);
+					gfx_draw_pixel(x+j, y+i, color);
 				else {  /* big size */
-					gfx_fillRect(x+(j*size), y+(i*size),
+					gfx_fill_rect(x+(j*size), y+(i*size),
 						     size, size, color);
 				}
 			} else if (bg != color) {
 				if (size == 1) /* default size */
-					gfx_drawPixel(x+j, y+i, bg);
+					gfx_draw_pixel(x+j, y+i, bg);
 				else {  /* big size */
-					gfx_fillRect(x+j*size, y+i*size,
+					gfx_fill_rect(x+j*size, y+i*size,
 						     size, size, bg);
 				}
 			}
@@ -487,34 +487,34 @@ void gfx_drawChar(int16_t x, int16_t y, unsigned char c,
 	}
 }
 
-void gfx_setCursor(int16_t x, int16_t y)
+void gfx_set_cursor(int16_t x, int16_t y)
 {
 	__gfx_state.cursor_x = x;
 	__gfx_state.cursor_y = y;
 }
 
-void gfx_setTextSize(uint8_t s)
+void gfx_set_text_size(uint8_t s)
 {
 	__gfx_state.textsize = (s > 0) ? s : 1;
 }
 
-void gfx_setTextColor(uint16_t c, uint16_t b)
+void gfx_set_text_color(uint16_t c, uint16_t b)
 {
 	__gfx_state.textcolor   = c;
 	__gfx_state.textbgcolor = b;
 }
 
-void gfx_setTextWrap(uint8_t w)
+void gfx_set_text_wrap(uint8_t w)
 {
 	__gfx_state.wrap = w;
 }
 
-uint8_t gfx_getRotation(void)
+uint8_t gfx_get_rotation(void)
 {
 	return __gfx_state.rotation;
 }
 
-void gfx_setRotation(uint8_t x)
+void gfx_set_rotation(uint8_t x)
 {
 	__gfx_state.rotation = (x & 3);
 	switch (__gfx_state.rotation) {

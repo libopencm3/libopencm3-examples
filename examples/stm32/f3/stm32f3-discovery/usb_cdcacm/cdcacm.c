@@ -52,7 +52,8 @@ static const struct usb_endpoint_descriptor comm_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
 	.wMaxPacketSize = 16,
 	.bInterval = 255,
-}};
+	}
+};
 
 static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
@@ -61,14 +62,15 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}, {
+	}, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x82,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
-}};
+	}
+};
 
 static const struct {
 	struct usb_cdc_header_descriptor header;
@@ -120,7 +122,8 @@ static const struct usb_interface_descriptor comm_iface[] = {{
 
 	.extra = &cdcacm_functional_descriptors,
 	.extralen = sizeof(cdcacm_functional_descriptors),
-}};
+	}
+};
 
 static const struct usb_interface_descriptor data_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
@@ -134,15 +137,17 @@ static const struct usb_interface_descriptor data_iface[] = {{
 	.iInterface = 0,
 
 	.endpoint = data_endp,
-}};
+	}
+};
 
 static const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = comm_iface,
-}, {
+	}, {
 	.num_altsetting = 1,
 	.altsetting = data_iface,
-}};
+	}
+};
 
 static const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -166,8 +171,9 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
-		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int cdcacm_control_request(usbd_device *usbd_dev,
+	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)complete;
 	(void)buf;
@@ -191,12 +197,13 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		notif->wLength = 2;
 		local_buf[8] = req->wValue & 3;
 		local_buf[9] = 0;
-		// usbd_ep_write_packet(0x83, buf, 10);
+		/* usbd_ep_write_packet(0x83, buf, 10); */
 		return 1;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:
-		if (*len < sizeof(struct usb_cdc_line_coding))
+		if (*len < sizeof(struct usb_cdc_line_coding)) {
 			return 0;
+		}
 		return 1;
 	}
 	return 0;
@@ -242,7 +249,7 @@ static void usb_setup(void)
 
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
-	gpio_set_af(GPIOA, GPIO_AF14, GPIO11| GPIO12);
+	gpio_set_af(GPIOA, GPIO_AF14, GPIO11 | GPIO12);
 }
 
 int main(void)
@@ -258,9 +265,11 @@ int main(void)
 			3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
-	for (i = 0; i < 0x800000; i++)
+	for (i = 0; i < 0x800000; i++) {
 		__asm__("nop");
+	}
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }

@@ -21,8 +21,8 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
 
-// #define COMPARE
-// #define MOVING_FADE
+/* #define COMPARE      */
+/* #define MOVING_FADE  */
 #define KITT
 
 #ifdef COMPARE
@@ -266,7 +266,7 @@ static void gpio_setup(void)
 	 * CH3 -> PC8
 	 * CH4 -> PC9
 	 */
-	// AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
+	/* AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP; */
 }
 
 static void tim_setup(void)
@@ -296,7 +296,7 @@ static void tim_setup(void)
 	TIM1_CCMR1 |= TIM_CCMR1_OC1M_PWM1 | TIM_CCMR1_OC1PE;
 
 	/* Polarity and state */
-	// TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E;
+	/* TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E; */
 	TIM1_CCER |= TIM_CCER_CC1E;
 
 	/* Capture compare value */
@@ -307,7 +307,7 @@ static void tim_setup(void)
 	TIM1_CCMR1 |= TIM_CCMR1_OC2M_PWM1 | TIM_CCMR1_OC2PE;
 
 	/* Polarity and state */
-	// TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E;
+	/* TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E; */
 	TIM1_CCER |= TIM_CCER_CC2E;
 
 	/* Capture compare value */
@@ -318,7 +318,7 @@ static void tim_setup(void)
 	TIM1_CCMR2 |= TIM_CCMR2_OC3M_PWM1 | TIM_CCMR2_OC3PE;
 
 	/* Polarity and state */
-	// TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E;
+	/* TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E; */
 	TIM1_CCER |= TIM_CCER_CC3E;
 
 	/* Capture compare value */
@@ -329,7 +329,7 @@ static void tim_setup(void)
 	TIM1_CCMR2 |= TIM_CCMR2_OC4M_PWM1 | TIM_CCMR2_OC4PE;
 
 	/* Polarity and state */
-	// TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E;
+	/* TIM1_CCER = TIM_CCER_CC1P | TIM_CCER_CC1E; */
 	TIM1_CCER |= TIM_CCER_CC4E;
 
 	/* Capture compare value */
@@ -366,28 +366,36 @@ int main(void)
 	while (1) {
 		TIM1_CCR1 = gamma_table_linear[j0];
 		j0 += d0;
-		if (j0 == 255)
+		if (j0 == 255) {
 			d0 = -1;
-		if (j0 == 0)
+		}
+		if (j0 == 0) {
 			d0 = 1;
+		}
 		TIM1_CCR2 = gamma_table_1_3[j1];
 		j1 += d1;
-		if (j1 == 255)
+		if (j1 == 255) {
 			d1 = -1;
-		if (j1 == 0)
+		}
+		if (j1 == 0) {
 			d1 = 1;
+		}
 		TIM1_CCR3 = gamma_table_2_5[j2];
 		j2 += d2;
-		if (j2 == 255)
+		if (j2 == 255) {
 			d2 = -1;
-		if (j2 == 0)
+		}
+		if (j2 == 0) {
 			d2 = 1;
+		}
 		TIM1_CCR4 = gamma_table_3_0[j3];
 		j3 += d3;
-		if (j3 == 255)
+		if (j3 == 255) {
 			d3 = -1;
-		if (j3 == 0)
+		}
+		if (j3 == 0) {
 			d3 = 1;
+		}
 		for (i = 0; i < 50000; i++);
 	}
 #endif
@@ -404,28 +412,36 @@ int main(void)
 	while (1) {
 		TIM1_CCR1 = GAMMA_TABLE[j0];
 		j0 += d0;
-		if (j0 == 255)
+		if (j0 == 255) {
 			d0 = -1;
-		if (j0 == 0)
+		}
+		if (j0 == 0) {
 			d0 = 1;
+		}
 		TIM1_CCR2 = GAMMA_TABLE[j1];
 		j1 += d1;
-		if (j1 == 255)
-			d1 = - 1;
-		if (j1 == 0)
+		if (j1 == 255) {
+			d1 = -1;
+		}
+		if (j1 == 0) {
 			d1 = 1;
+		}
 		TIM1_CCR3 = GAMMA_TABLE[j2];
 		j2 += d2;
-		if (j2 == 255)
+		if (j2 == 255) {
 			d2 = -1;
-		if (j2 == 0)
+		}
+		if (j2 == 0) {
 			d2 = 1;
+		}
 		TIM1_CCR4 = GAMMA_TABLE[j3];
 		j3 += d3;
-		if (j3 == 255)
+		if (j3 == 255) {
 			d3 = -1;
-		if (j3 == 0)
+		}
+		if (j3 == 0) {
 			d3 = 1;
+		}
 		for (i = 0; i < 10000; i++);
 	}
 #endif
@@ -445,28 +461,36 @@ int main(void)
 	while (1) {
 		TIM1_CCR1 = GAMMA_TABLE[j0];
 		j0 += d0;
-		if (j0 == 255)
+		if (j0 == 255) {
 			d0 = -1;
-		if (j0 == 19)
+		}
+		if (j0 == 19) {
 			j0 = 20;
+		}
 		TIM1_CCR2 = GAMMA_TABLE[j1];
 		j1 += d1;
-		if (j1 == 255)
+		if (j1 == 255) {
 			d1 = -1;
-		if (j1 == 19)
+		}
+		if (j1 == 19) {
 			j1 = 20;
+		}
 		TIM1_CCR3 = GAMMA_TABLE[j2];
 		j2 += d2;
-		if (j2 == 255)
+		if (j2 == 255) {
 			d2 = -1;
-		if (j2 == 19)
+		}
+		if (j2 == 19) {
 			j2 = 20;
+		}
 		TIM1_CCR4 = GAMMA_TABLE[j3];
 		j3 += d3;
-		if (j3 == 255)
+		if (j3 == 255) {
 			d3 = -1;
-		if (j3 == 19)
+		}
+		if (j3 == 19) {
 			j3 = 20;
+		}
 		for (i = 0; i < 5000; i++);
 		j++;
 		if (j == 100) {
@@ -485,10 +509,12 @@ int main(void)
 				j3 = 255;
 				break;
 			}
-			if (k == 3)
+			if (k == 3) {
 				kd = -1;
-			if (k == 0)
+			}
+			if (k == 0) {
 				kd = 1;
+			}
 		}
 	}
 #endif

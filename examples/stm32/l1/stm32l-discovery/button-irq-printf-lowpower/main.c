@@ -59,7 +59,7 @@ static void gpio_setup(void)
 	gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
 }
 
-void BUTTON_DISCO_USER_isr(void)
+void BUTTON_DISCO_USER_ISR(void)
 {
 	exti_reset_request(BUTTON_DISCO_USER_EXTI);
 	state.pressed = true;

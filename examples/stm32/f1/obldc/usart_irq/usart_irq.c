@@ -113,8 +113,9 @@ int main(void)
 	usart_setup();
 
 	/* Wait forever and do nothing. */
-	while (1)
+	while (1) {
 		__asm__("nop");
+	}
 
 	return 0;
 }

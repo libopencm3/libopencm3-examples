@@ -25,7 +25,10 @@ static void clock_setup(void)
 {
 	rcc_clock_setup_in_hsi_out_64mhz();
 
-	/* Enable clocks for GPIO port B (for GPIO_USART1_TX and LED) and USART1. */
+	/*
+	 * Enable clocks for GPIO port B (for GPIO_USART1_TX and LED) and
+	 * USART1.
+	 */
 	rcc_periph_clock_enable(RCC_GPIOB);
 	rcc_periph_clock_enable(RCC_AFIO);
 	rcc_periph_clock_enable(RCC_USART1);
@@ -79,8 +82,9 @@ int main(void)
 			usart_send_blocking(USART1, '\r');
 			usart_send_blocking(USART1, '\n');
 		}
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
+		for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 			__asm__("nop");
+		}
 	}
 
 	return 0;

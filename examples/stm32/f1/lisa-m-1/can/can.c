@@ -49,7 +49,7 @@ struct can_rx_msg can_rx_msg;
 
 static void gpio_setup(void)
 {
-        /* Enable Alternate Function clock. */
+	/* Enable Alternate Function clock. */
 	rcc_periph_clock_enable(RCC_AFIO);
 
 	/* Enable GPIOA clock. */
@@ -142,13 +142,14 @@ static void can_setup(void)
 	{
 		gpio_set(GPIOA, GPIO8);		/* LED0 off */
 		gpio_set(GPIOB, GPIO4);		/* LED1 off */
-		gpio_set(GPIOC, GPIO15);       	/* LED2 off */
-		gpio_clear(GPIOC, GPIO2);       /* LED3 on */
-		gpio_set(GPIOC, GPIO5);	        /* LED4 off */
+		gpio_set(GPIOC, GPIO15);	/* LED2 off */
+		gpio_clear(GPIOC, GPIO2);	/* LED3 on */
+		gpio_set(GPIOC, GPIO5);		/* LED4 off */
 
 		/* Die because we failed to initialize. */
-		while (1)
+		while (1) {
 			__asm__("nop");
+		}
 	}
 
 	/* CAN filter 0 init. */
@@ -171,8 +172,9 @@ void sys_tick_handler(void)
 	/* We call this handler every 1ms so 100ms = 1s
 	 * Resulting in 100Hz message frequency.
 	 */
-	if (++temp32 != 100)
+	if (++temp32 != 100) {
 		return;
+	}
 
 	temp32 = 0;
 
@@ -187,8 +189,8 @@ void sys_tick_handler(void)
 	{
 		gpio_set(GPIOA, GPIO8);		/* LED0 off */
 		gpio_set(GPIOB, GPIO4);		/* LED1 off */
-		gpio_set(GPIOC, GPIO15);       	/* LED2 off */
-		gpio_set(GPIOC, GPIO2);         /* LED3 off */
+		gpio_set(GPIOC, GPIO15);	/* LED2 off */
+		gpio_set(GPIOC, GPIO2);		/* LED3 off */
 		gpio_clear(GPIOC, GPIO5);	/* LED4 on */
 	}
 }
@@ -201,25 +203,28 @@ void usb_lp_can_rx0_isr(void)
 
 	can_receive(CAN1, 0, false, &id, &ext, &rtr, &fmi, &length, data);
 
-	if (data[0] & 1)
+	if (data[0] & 1) {
 		gpio_clear(GPIOA, GPIO8);
-	else
+	} else {
 		gpio_set(GPIOA, GPIO8);
-
-	if (data[0] & 2)
+	}
+	if (data[0] & 2) {
 		gpio_clear(GPIOB, GPIO4);
-	else
+	} else {
 		gpio_set(GPIOB, GPIO4);
+	}
 
-	if (data[0] & 4)
+	if (data[0] & 4) {
 		gpio_clear(GPIOC, GPIO15);
-	else
+	} else {
 		gpio_set(GPIOC, GPIO15);
+	}
 
-	if (data[0] & 8)
+	if (data[0] & 8) {
 		gpio_clear(GPIOC, GPIO2);
-	else
+	} else {
 		gpio_set(GPIOC, GPIO2);
+	}
 
 	can_fifo_release(CAN1, 0);
 }

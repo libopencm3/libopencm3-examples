@@ -81,8 +81,9 @@ static void adc_setup(void)
 	adc_power_on(ADC1);
 
 	/* Wait for ADC starting up. */
-	for (i = 0; i < 800000; i++)    /* Wait a bit. */
+	for (i = 0; i < 800000; i++) {	/* Wait a bit. */
 		__asm__("nop");
+	}
 
 	adc_reset_calibration(ADC1);
 	adc_calibration(ADC1);
@@ -148,8 +149,8 @@ int main(void)
 		temperature = adc_read_regular(ADC1);
 
 		/*
-		 * That's actually not the real temperature - you have to compute it
-		 * as described in the datasheet.
+		 * That's actually not the real temperature - you have to
+		 * compute it as described in the datasheet.
 		 */
 		my_usart_print_int(USART2, temperature);
 

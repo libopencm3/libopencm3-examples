@@ -169,11 +169,12 @@ const struct usb_interface ifaces[] = {{
 	.num_altsetting = 1,
 	.altsetting = &hid_iface,
 #ifdef INCLUDE_DFU_INTERFACE
-}, {
+	}, {
 	.num_altsetting = 1,
 	.altsetting = &dfu_iface,
 #endif
-}};
+	}
+};
 
 const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -201,16 +202,18 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
-			void (**complete)(usbd_device *, struct usb_setup_data *))
+static int hid_control_request(usbd_device *dev, struct usb_setup_data *req,
+	uint8_t **buf, uint16_t *len, void (**complete)(usbd_device *,
+	struct usb_setup_data *))
 {
 	(void)complete;
 	(void)dev;
 
-	if((req->bmRequestType != 0x81) ||
+	if ((req->bmRequestType != 0x81) ||
 	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
-	   (req->wValue != 0x2200))
+	   (req->wValue != 0x2200)) {
 		return 0;
+	}
 
 	/* Handle the HID report descriptor. */
 	*buf = (uint8_t *)hid_report_descriptor;
@@ -232,15 +235,17 @@ static void dfu_detach_complete(usbd_device *dev, struct usb_setup_data *req)
 	scb_reset_core();
 }
 
-static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
-			void (**complete)(usbd_device *, struct usb_setup_data *))
+static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req,
+	uint8_t **buf, uint16_t *len, void (**complete)(usbd_device *,
+	struct usb_setup_data *))
 {
 	(void)buf;
 	(void)len;
 	(void)dev;
 
-	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH))
+	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH)) {
 		return 0; /* Only accept class request. */
+	}
 
 	*complete = dfu_detach_complete;
 
@@ -285,15 +290,18 @@ int main(void)
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 
-	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev_descr, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev_descr, &config,
+		usb_strings, 3, usbd_control_buffer,
+		sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, hid_set_config);
 
 	gpio_set(GPIOA, GPIO15);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO15);
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }
 
 void sys_tick_handler(void)
@@ -304,10 +312,12 @@ void sys_tick_handler(void)
 
 	buf[1] = dir;
 	x += dir;
-	if (x > 30)
+	if (x > 30) {
 		dir = -dir;
-	if (x < -30)
+	}
+	if (x < -30) {
 		dir = -dir;
+	}
 
 	usbd_ep_write_packet(usbd_dev, 0x81, buf, 4);
 }
