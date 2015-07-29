@@ -104,7 +104,8 @@ void glue_set_line_state_cb(uint8_t dtr, uint8_t rts)
 	uart_set_ctl_line_state(dtr, rts);
 }
 
-int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
+enum usbd_request_return_codes
+glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 			    enum usb_cdc_line_coding_bParityType cdc_parity,
 			    enum usb_cdc_line_coding_bCharFormat cdc_stopbits)
 {
@@ -112,7 +113,7 @@ int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 	uint8_t uart_stopbits;
 
 	if (databits < 5 || databits > 8)
-		return 0;
+		return USBD_REQ_NOTSUPP;
 
 	switch (cdc_parity) {
 	case USB_CDC_NO_PARITY:
@@ -125,7 +126,7 @@ int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 		parity = UART_PARITY_EVEN;
 		break;
 	default:
-		return 0;
+		return USBD_REQ_NOTSUPP;
 	}
 
 	switch (cdc_stopbits) {
@@ -136,7 +137,7 @@ int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 		uart_stopbits = 2;
 		break;
 	default:
-		return 0;
+		return USBD_REQ_NOTSUPP;
 	}
 
 	/* Disable the UART while we mess with its settings */
@@ -149,7 +150,7 @@ int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 	/* Back to work. */
 	uart_enable(UART1);
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 void glue_send_data_cb(uint8_t * buf, uint16_t len)

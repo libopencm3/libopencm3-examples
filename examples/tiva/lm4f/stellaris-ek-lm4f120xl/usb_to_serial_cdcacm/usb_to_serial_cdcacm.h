@@ -24,6 +24,7 @@
 
 #include <libopencm3/cm3/common.h>
 #include <libopencm3/lm4f/gpio.h>
+#include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 
 /* =============================================================================
@@ -58,7 +59,8 @@ void cdcacm_send_data(uint8_t *buf, uint16_t len);
  * ---------------------------------------------------------------------------*/
 void glue_data_received_cb(uint8_t *buf, uint16_t len);
 void glue_set_line_state_cb(uint8_t dtr, uint8_t rts);
-int glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
+enum usbd_request_return_codes
+glue_set_line_coding_cb(uint32_t baud, uint8_t databits,
 			    enum usb_cdc_line_coding_bParityType cdc_parity,
 			    enum usb_cdc_line_coding_bCharFormat cdc_stopbits);
 void glue_send_data_cb(uint8_t *buf, uint16_t len);

@@ -205,8 +205,10 @@ static const char *usb_strings[] = {
 /* Buffer used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
-			void (**complete)(usbd_device *dev, struct usb_setup_data *req))
+static enum usbd_request_return_codes
+hid_control_request(usbd_device *dev,
+		struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+		usbd_control_complete_callback *complete)
 {
 	(void)complete;
 	(void)dev;
@@ -214,13 +216,13 @@ static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uin
 	if((req->bmRequestType != 0x81) ||
 	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
 	   (req->wValue != 0x2200))
-		return 0;
+		return USBD_REQ_NOTSUPP;
 
 	/* Handle the HID report descriptor. */
 	*buf = (uint8_t *)hid_report_descriptor;
 	*len = sizeof(hid_report_descriptor);
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 #ifdef INCLUDE_DFU_INTERFACE
@@ -236,19 +238,22 @@ static void dfu_detach_complete(usbd_device *dev, struct usb_setup_data *req)
 	scb_reset_core();
 }
 
-static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
-			void (**complete)(usbd_device *dev, struct usb_setup_data *req))
+static enum usbd_request_return_codes
+dfu_control_request(usbd_device *dev,
+			struct usb_setup_data *req,
+			uint8_t **buf, uint16_t *len,
+			usbd_control_complete_callback *complete)
 {
 	(void)buf;
 	(void)len;
 	(void)dev;
 
 	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH))
-		return 0; /* Only accept class request. */
+		return USBD_REQ_NOTSUPP; /* Only accept class request. */
 
 	*complete = dfu_detach_complete;
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 #endif
 
