@@ -96,6 +96,16 @@ static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data 
 	return 1;
 }
 
+static void usb_set_config_cb(usbd_device *usbd_dev, uint16_t wValue)
+{
+	(void)wValue;
+	usbd_register_control_callback(
+				usbd_dev,
+				USB_REQ_TYPE_VENDOR,
+				USB_REQ_TYPE_TYPE,
+				simple_control_callback);
+}
+
 int main(void)
 {
 	usbd_device *usbd_dev;
@@ -111,11 +121,7 @@ int main(void)
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO6);
 
 	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
-	usbd_register_control_callback(
-				usbd_dev,
-				USB_REQ_TYPE_VENDOR,
-				USB_REQ_TYPE_TYPE,
-				simple_control_callback);
+	usbd_register_set_config_callback(usbd_dev, usb_set_config_cb);
 
 	while (1)
 		usbd_poll(usbd_dev);
