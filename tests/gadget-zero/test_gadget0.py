@@ -53,6 +53,7 @@ class TestGadget0(unittest.TestCase):
         self.assertEqual(3, x[0], "Should get the actual bConfigurationValue back")
 
     def test_invalid_config(self):
+        """ Note, testing config(0) needs a valid config to test along side, see other tests"""
         try:
             # FIXME - find a way to get the defines for these from pyusb
             self.dev.ctrl_transfer(0x00, 0x09, 99)
@@ -60,7 +61,6 @@ class TestGadget0(unittest.TestCase):
         except usb.core.USBError as e:
             # Note, this might not be as portable as we'd like.
             self.assertIn("Pipe", e.strerror)
-
 
 class TestConfigSourceSink(unittest.TestCase):
     """
@@ -158,6 +158,25 @@ class TestConfigSourceSink(unittest.TestCase):
         except usb.core.USBError as e:
             # Note, this might not be as portable as we'd like.
             self.assertIn("Pipe", e.strerror)
+
+    @unittest.skip("known failure in locm3 at present!")
+    def test_unconfigure(self):
+        """
+        Actually testing set_config(0) but need to have a config to test it with as well
+        """
+        # we're already set in config valid.... write and check it worked.
+        self.test_write_simple()
+        # now unconfigure
+        # FIXME - find a way to get the defines for these from pyusb
+        self.dev.ctrl_transfer(0x00, 0x09, 0)
+        # now try and write again...
+        try:
+            self.test_write_simple()
+            self.fail("Should have failed to write again")
+        except usb.core.USBError as e:
+            # should be a timeout!
+            print(e)
+            self.assertIn("Timeout", e.strerror)
 
 
 @unittest.skip("Perf tests only on demand (comment this line!)")
