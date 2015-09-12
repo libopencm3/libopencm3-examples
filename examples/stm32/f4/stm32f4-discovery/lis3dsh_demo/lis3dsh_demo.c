@@ -41,14 +41,15 @@
 /* WHO AM I register default value */
 #define UC_WHO_AM_I_DEFAULT_VALUE		0x3F
 
-/* ADD_REG_CTRL_4 register configuration value: X,Y,Z axis enabled and 400Hz of output data rate */
+/* ADD_REG_CTRL_4 register configuration value:
+ * X,Y,Z axis enabled and 400Hz of output data rate */
 #define UC_ADD_REG_CTRL_4_CFG_VALUE		0x77
 
 /* Sensitivity for 2G range [mg/digit] */
 #define SENS_2G_RANGE_MG_PER_DIGIT		((float)0.06)
 
 /* LED threshold value in mg */
-#define LED_TH_MG						(1000)	/* 1000mg (1G) */
+#define LED_TH_MG				(1000)	/* 1000mg (1G) */
 
 
 
@@ -63,31 +64,31 @@
 #define SET_WRITE_SINGLE_CMD(x)			(x & (~(0xC0)))
 /* set write multiple command. Attention: command must be 0x3F at most */
 #define SET_WRITE_MULTI_CMD(x)			(x & (~(0x80))	\
-										 x |= 0x40)
+						 x |= 0x40)
 
 /* Macros for turning LEDs ON */
-#define LED_GREEN_ON()					(gpio_set(GPIOD, GPIO12))
-#define LED_ORANGE_ON()					(gpio_set(GPIOD, GPIO13))
-#define LED_RED_ON()					(gpio_set(GPIOD, GPIO14))
-#define LED_BLUE_ON()					(gpio_set(GPIOD, GPIO15))
+#define LED_GREEN_ON()				(gpio_set(GPIOD, GPIO12))
+#define LED_ORANGE_ON()				(gpio_set(GPIOD, GPIO13))
+#define LED_RED_ON()				(gpio_set(GPIOD, GPIO14))
+#define LED_BLUE_ON()				(gpio_set(GPIOD, GPIO15))
 
 /* Macros for turning LEDs OFF */
-#define LED_GREEN_OFF()					(gpio_clear(GPIOD, GPIO12))
-#define LED_ORANGE_OFF()				(gpio_clear(GPIOD, GPIO13))
-#define LED_RED_OFF()					(gpio_clear(GPIOD, GPIO14))
-#define LED_BLUE_OFF()					(gpio_clear(GPIOD, GPIO15))
+#define LED_GREEN_OFF()				(gpio_clear(GPIOD, GPIO12))
+#define LED_ORANGE_OFF()			(gpio_clear(GPIOD, GPIO13))
+#define LED_RED_OFF()				(gpio_clear(GPIOD, GPIO14))
+#define LED_BLUE_OFF()				(gpio_clear(GPIOD, GPIO15))
 
 
 
 
 /* ------------- Local functions prototypes --------------- */
 
-static void			gpio_setup			(void);
-static void 		spi_setup			(void);
-static void 		LIS3DSH_init		(void);
-static void 		LIS3DSH_write_reg	(int, int);
-static int 			LIS3DSH_read_reg	(int);
-static inline int 	twoComplToInt16		(int);
+static void gpio_setup(void);
+static void spi_setup(void);
+static void LIS3DSH_init(void);
+static void LIS3DSH_write_reg(int, int);
+static int LIS3DSH_read_reg(int);
+static inline int twoComplToInt16(int);
 
 
 
@@ -100,8 +101,9 @@ static void gpio_setup(void)
 	/* Enable GPIOD clock. */
 	rcc_periph_clock_enable(RCC_GPIOD);
 
-	/* Set GPIO12, GPIO13, GPIO14, GPIO15 (in GPIO port D) to 'output push-pull'. */
-	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
+	/* Set GPIO12/13/14/15 (in GPIO port D) to 'output push-pull'. */
+	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+			GPIO12 | GPIO13 | GPIO14 | GPIO15);
 
 	/* LIS3DSH pins map:
 	PA5 - SPI1_SCK
@@ -113,9 +115,11 @@ static void gpio_setup(void)
 	/* Enable GPIOA clock. */
 	rcc_periph_clock_enable(RCC_GPIOA);
 	/* set SPI pins as CLK, MOSI, MISO */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 | GPIO6 | GPIO7);
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
+			GPIO5 | GPIO6 | GPIO7);
 	/* Push Pull, Speed 100 MHz */
-	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO5 | GPIO6 | GPIO7);
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ,
+				GPIO5 | GPIO6 | GPIO7);
 	/* Alternate Function: SPI1 */
 	gpio_set_af(GPIOA, GPIO_AF5, GPIO5 | GPIO6 | GPIO7);
 
@@ -124,7 +128,8 @@ static void gpio_setup(void)
 	/* set CS as OUTPUT */
 	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3);
 	/* Push Pull, Speed 100 MHz */
-	gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO3);
+	gpio_set_output_options(GPIOE, GPIO_OTYPE_PP,
+				GPIO_OSPEED_100MHZ, GPIO3);
 	/* set CS high */
 	gpio_set(GPIOE, GPIO3);
 }
@@ -153,32 +158,29 @@ static void spi_setup(void)
 /* Function to initialise the LIS3DSH */
 static void LIS3DSH_init(void)
 {
-	int intRegValue;
+	int int_reg_value;
 
 	/* init SPI1 */
 	spi_setup();
 
 	/* get WHO AM I value */
-	intRegValue = LIS3DSH_read_reg(ADD_REG_WHO_AM_I);
+	int_reg_value = LIS3DSH_read_reg(ADD_REG_WHO_AM_I);
 
 	/* if WHO AM I value is the expected one */
-	if( intRegValue == UC_WHO_AM_I_DEFAULT_VALUE )
-	{
+	if (int_reg_value == UC_WHO_AM_I_DEFAULT_VALUE) {
 		/* set output data rate to 400 Hz and enable X,Y,Z axis */
 		LIS3DSH_write_reg(ADD_REG_CTRL_4, UC_ADD_REG_CTRL_4_CFG_VALUE);
 		/* verify written value */
-		intRegValue = LIS3DSH_read_reg(ADD_REG_CTRL_4);
+		int_reg_value = LIS3DSH_read_reg(ADD_REG_CTRL_4);
 		/* if written value is different */
-		if( intRegValue != UC_ADD_REG_CTRL_4_CFG_VALUE )
-		{
+		if (int_reg_value != UC_ADD_REG_CTRL_4_CFG_VALUE) {
 			/* ERROR: stay here... */
-			while(1);
+			while (1);
 		}
 	}
-	else
-	{
+	else {
 		/* ERROR: stay here... */
-		while(1);
+		while (1);
 	}
 }
 
@@ -199,34 +201,32 @@ static void LIS3DSH_write_reg(int reg, int data)
 /* Function to read a register from LIS3DSH through SPI */
 static int LIS3DSH_read_reg(int reg)
 {
-	int regValue;
+	int reg_value;
 	/* set CS low */
 	gpio_clear(GPIOE, GPIO3);
-	regValue = spi_xfer(SPI1, SET_READ_SINGLE_CMD(reg));
-	regValue = spi_xfer(SPI1, 0xFF);
+	reg_value = spi_xfer(SPI1, SET_READ_SINGLE_CMD(reg));
+	reg_value = spi_xfer(SPI1, 0xFF);
 	/* set CS high */
 	gpio_set(GPIOE, GPIO3);
 
-	return regValue;
+	return reg_value;
 }
 
 
 /* Transform a two's complement value to 16-bit int value */
-static inline int twoComplToInt16(int twoComplValue)
+static inline int twoComplToInt16(int two_compl_value)
 {
-	int int16Value = 0;
+	int int16_value = 0;
 
 	/* conversion */
-	if(twoComplValue > 32768)
-	{
-		int16Value = -(((~twoComplValue) & 0xFFFF) + 1);
+	if (two_compl_value > 32768) {
+		int16_value = -(((~two_compl_value) & 0xFFFF) + 1);
 	}
-	else
-	{
-		int16Value = twoComplValue;
+	else {
+		int16_value = two_compl_value;
 	}
 
-	return int16Value;
+	return int16_value;
 }
 
 
@@ -234,7 +234,7 @@ static inline int twoComplToInt16(int twoComplValue)
 int main(void)
 {
 	int i;
-	int intValueMgX, intValueMgY, intValueMgZ;
+	int value_mg_x, value_mg_y, value_mg_z;
 
 	/* setup all GPIOs */
 	gpio_setup();
@@ -243,38 +243,38 @@ int main(void)
 	LIS3DSH_init();
 
 	/* infinite loop */
-	while(1)
-	{
+	while (1) {
 		/* get X, Y, Z values */
-		intValueMgX = ((LIS3DSH_read_reg(ADD_REG_OUT_X_H) << 8) | LIS3DSH_read_reg(ADD_REG_OUT_X_L));
-		intValueMgY = ((LIS3DSH_read_reg(ADD_REG_OUT_Y_H) << 8) | LIS3DSH_read_reg(ADD_REG_OUT_Y_L));
-		intValueMgZ = ((LIS3DSH_read_reg(ADD_REG_OUT_Z_H) << 8) | LIS3DSH_read_reg(ADD_REG_OUT_Z_L));
+		value_mg_x = ((LIS3DSH_read_reg(ADD_REG_OUT_X_H) << 8) |
+				LIS3DSH_read_reg(ADD_REG_OUT_X_L));
+		value_mg_y = ((LIS3DSH_read_reg(ADD_REG_OUT_Y_H) << 8) |
+				LIS3DSH_read_reg(ADD_REG_OUT_Y_L));
+		value_mg_z = ((LIS3DSH_read_reg(ADD_REG_OUT_Z_H) << 8) |
+				LIS3DSH_read_reg(ADD_REG_OUT_Z_L));
 
 		/* transform X value from two's complement to 16-bit int */
-		intValueMgX = twoComplToInt16(intValueMgX);
+		value_mg_x = twoComplToInt16(value_mg_x);
 		/* convert X absolute value to mg value */
-		intValueMgX = intValueMgX * SENS_2G_RANGE_MG_PER_DIGIT;
+		value_mg_x = value_mg_x * SENS_2G_RANGE_MG_PER_DIGIT;
 
 		/* transform Y value from two's complement to 16-bit int */
-		intValueMgY = twoComplToInt16(intValueMgY);
+		value_mg_y = twoComplToInt16(value_mg_y);
 		/* convert Y absolute value to mg value */
-		intValueMgY = intValueMgY * SENS_2G_RANGE_MG_PER_DIGIT;
+		value_mg_y = value_mg_y * SENS_2G_RANGE_MG_PER_DIGIT;
 
 		/* transform Z value from two's complement to 16-bit int */
-		intValueMgZ = twoComplToInt16(intValueMgZ);
+		value_mg_z = twoComplToInt16(value_mg_z);
 		/* convert Z absolute value to mg value */
-		intValueMgZ = intValueMgZ * SENS_2G_RANGE_MG_PER_DIGIT;
+		value_mg_z = value_mg_z * SENS_2G_RANGE_MG_PER_DIGIT;
 
 		/* set X related LEDs according to specified threshold */
-		if(intValueMgX >= LED_TH_MG)
-		{
+		if (value_mg_x >= LED_TH_MG) {
 			LED_BLUE_OFF();
 			LED_ORANGE_OFF();
 			LED_GREEN_OFF();
 			LED_RED_ON();
 		}
-		else if(intValueMgX <= -LED_TH_MG)
-		{
+		else if (value_mg_x <= -LED_TH_MG) {
 			LED_BLUE_OFF();
 			LED_ORANGE_OFF();
 			LED_RED_OFF();
@@ -282,15 +282,13 @@ int main(void)
 		}
 
 		/* set Y related LEDs according to specified threshold */
-		if(intValueMgY >= LED_TH_MG)
-		{
+		if (value_mg_y >= LED_TH_MG) {
 			LED_BLUE_OFF();
 			LED_RED_OFF();
 			LED_GREEN_OFF();
 			LED_ORANGE_ON();
 		}
-		else if(intValueMgY <= -LED_TH_MG)
-		{
+		else if (value_mg_y <= -LED_TH_MG) {
 			LED_RED_OFF();
 			LED_GREEN_OFF();
 			LED_ORANGE_OFF();
@@ -298,15 +296,13 @@ int main(void)
 		}
 
 		/* set Z related LEDs according to specified threshold */
-		if(intValueMgZ >= LED_TH_MG)
-		{
+		if (value_mg_z >= LED_TH_MG) {
 			LED_BLUE_ON();
 			LED_ORANGE_ON();
 			LED_RED_ON();
 			LED_GREEN_ON();
 		}
-		else if(intValueMgZ <= -LED_TH_MG)
-		{
+		else if (value_mg_z <= -LED_TH_MG) {
 			LED_BLUE_OFF();
 			LED_ORANGE_OFF();
 			LED_RED_OFF();
