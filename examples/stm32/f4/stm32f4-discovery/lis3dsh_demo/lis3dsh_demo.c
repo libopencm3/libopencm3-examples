@@ -85,10 +85,10 @@
 
 static void gpio_setup(void);
 static void spi_setup(void);
-static void LIS3DSH_init(void);
-static void LIS3DSH_write_reg(int, int);
-static int LIS3DSH_read_reg(int);
-static inline int twoComplToInt16(int);
+static void lis3dsh_init(void);
+static void lis3dsh_write_reg(int, int);
+static int lis3dsh_read_reg(int);
+static inline int two_compl_to_int16(int);
 
 
 
@@ -156,7 +156,7 @@ static void spi_setup(void)
 
 
 /* Function to initialise the LIS3DSH */
-static void LIS3DSH_init(void)
+static void lis3dsh_init(void)
 {
 	int int_reg_value;
 
@@ -164,21 +164,20 @@ static void LIS3DSH_init(void)
 	spi_setup();
 
 	/* get WHO AM I value */
-	int_reg_value = LIS3DSH_read_reg(ADD_REG_WHO_AM_I);
+	int_reg_value = lis3dsh_read_reg(ADD_REG_WHO_AM_I);
 
 	/* if WHO AM I value is the expected one */
 	if (int_reg_value == UC_WHO_AM_I_DEFAULT_VALUE) {
 		/* set output data rate to 400 Hz and enable X,Y,Z axis */
-		LIS3DSH_write_reg(ADD_REG_CTRL_4, UC_ADD_REG_CTRL_4_CFG_VALUE);
+		lis3dsh_write_reg(ADD_REG_CTRL_4, UC_ADD_REG_CTRL_4_CFG_VALUE);
 		/* verify written value */
-		int_reg_value = LIS3DSH_read_reg(ADD_REG_CTRL_4);
+		int_reg_value = lis3dsh_read_reg(ADD_REG_CTRL_4);
 		/* if written value is different */
 		if (int_reg_value != UC_ADD_REG_CTRL_4_CFG_VALUE) {
 			/* ERROR: stay here... */
 			while (1);
 		}
-	}
-	else {
+	} else {
 		/* ERROR: stay here... */
 		while (1);
 	}
@@ -186,7 +185,7 @@ static void LIS3DSH_init(void)
 
 
 /* Function to write a register to LIS3DSH through SPI  */
-static void LIS3DSH_write_reg(int reg, int data)
+static void lis3dsh_write_reg(int reg, int data)
 {
 	/* set CS low */
 	gpio_clear(GPIOE, GPIO3);
@@ -199,7 +198,7 @@ static void LIS3DSH_write_reg(int reg, int data)
 
 
 /* Function to read a register from LIS3DSH through SPI */
-static int LIS3DSH_read_reg(int reg)
+static int lis3dsh_read_reg(int reg)
 {
 	int reg_value;
 	/* set CS low */
@@ -214,15 +213,14 @@ static int LIS3DSH_read_reg(int reg)
 
 
 /* Transform a two's complement value to 16-bit int value */
-static inline int twoComplToInt16(int two_compl_value)
+static inline int two_compl_to_int16(int two_compl_value)
 {
 	int int16_value = 0;
 
 	/* conversion */
 	if (two_compl_value > 32768) {
 		int16_value = -(((~two_compl_value) & 0xFFFF) + 1);
-	}
-	else {
+	} else {
 		int16_value = two_compl_value;
 	}
 
@@ -233,37 +231,36 @@ static inline int twoComplToInt16(int two_compl_value)
 /* Main function */
 int main(void)
 {
-	int i;
 	int value_mg_x, value_mg_y, value_mg_z;
 
 	/* setup all GPIOs */
 	gpio_setup();
 
 	/* initialise LIS3DSH */
-	LIS3DSH_init();
+	lis3dsh_init();
 
 	/* infinite loop */
 	while (1) {
 		/* get X, Y, Z values */
-		value_mg_x = ((LIS3DSH_read_reg(ADD_REG_OUT_X_H) << 8) |
-				LIS3DSH_read_reg(ADD_REG_OUT_X_L));
-		value_mg_y = ((LIS3DSH_read_reg(ADD_REG_OUT_Y_H) << 8) |
-				LIS3DSH_read_reg(ADD_REG_OUT_Y_L));
-		value_mg_z = ((LIS3DSH_read_reg(ADD_REG_OUT_Z_H) << 8) |
-				LIS3DSH_read_reg(ADD_REG_OUT_Z_L));
+		value_mg_x = ((lis3dsh_read_reg(ADD_REG_OUT_X_H) << 8) |
+				lis3dsh_read_reg(ADD_REG_OUT_X_L));
+		value_mg_y = ((lis3dsh_read_reg(ADD_REG_OUT_Y_H) << 8) |
+				lis3dsh_read_reg(ADD_REG_OUT_Y_L));
+		value_mg_z = ((lis3dsh_read_reg(ADD_REG_OUT_Z_H) << 8) |
+				lis3dsh_read_reg(ADD_REG_OUT_Z_L));
 
 		/* transform X value from two's complement to 16-bit int */
-		value_mg_x = twoComplToInt16(value_mg_x);
+		value_mg_x = two_compl_to_int16(value_mg_x);
 		/* convert X absolute value to mg value */
 		value_mg_x = value_mg_x * SENS_2G_RANGE_MG_PER_DIGIT;
 
 		/* transform Y value from two's complement to 16-bit int */
-		value_mg_y = twoComplToInt16(value_mg_y);
+		value_mg_y = two_compl_to_int16(value_mg_y);
 		/* convert Y absolute value to mg value */
 		value_mg_y = value_mg_y * SENS_2G_RANGE_MG_PER_DIGIT;
 
 		/* transform Z value from two's complement to 16-bit int */
-		value_mg_z = twoComplToInt16(value_mg_z);
+		value_mg_z = two_compl_to_int16(value_mg_z);
 		/* convert Z absolute value to mg value */
 		value_mg_z = value_mg_z * SENS_2G_RANGE_MG_PER_DIGIT;
 
@@ -273,8 +270,7 @@ int main(void)
 			LED_ORANGE_OFF();
 			LED_GREEN_OFF();
 			LED_RED_ON();
-		}
-		else if (value_mg_x <= -LED_TH_MG) {
+		} else if (value_mg_x <= -LED_TH_MG) {
 			LED_BLUE_OFF();
 			LED_ORANGE_OFF();
 			LED_RED_OFF();
@@ -287,8 +283,7 @@ int main(void)
 			LED_RED_OFF();
 			LED_GREEN_OFF();
 			LED_ORANGE_ON();
-		}
-		else if (value_mg_y <= -LED_TH_MG) {
+		} else if (value_mg_y <= -LED_TH_MG) {
 			LED_RED_OFF();
 			LED_GREEN_OFF();
 			LED_ORANGE_OFF();
@@ -301,18 +296,11 @@ int main(void)
 			LED_ORANGE_ON();
 			LED_RED_ON();
 			LED_GREEN_ON();
-		}
-		else if (value_mg_z <= -LED_TH_MG) {
+		} else if (value_mg_z <= -LED_TH_MG) {
 			LED_BLUE_OFF();
 			LED_ORANGE_OFF();
 			LED_RED_OFF();
 			LED_GREEN_OFF();
-		}
-
-		/* Wait a bit... */
-		for (i = 0; i < 100; i++)
-		{
-			__asm__("nop");
 		}
 	}
 
