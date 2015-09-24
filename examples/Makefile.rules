@@ -201,6 +201,7 @@ styleclean: $(STYLECHECKFILES:=.styleclean)
 ifeq ($(STLINK_PORT),)
 ifeq ($(BMP_PORT),)
 ifeq ($(OOCD_SERIAL),)
+ifeq ($(STM32_PORT),)
 %.flash: %.hex
 	@printf "  FLASH   $<\n"
 	@# IMPORTANT: Don't use "resume", only "reset" will work correctly!
@@ -210,6 +211,11 @@ ifeq ($(OOCD_SERIAL),)
 		    -c "flash write_image erase $(*).hex" \
 		    -c "reset" \
 		    -c "shutdown" $(NULL)
+else
+%.flash: %.bin
+	@printf "  FLASH   $<\n"
+	stm32flash -g 0x8000000 -b 230400 -w $(*).bin $(STM32_PORT)
+endif
 else
 %.flash: %.hex
 	@printf "  FLASH   $<\n"
