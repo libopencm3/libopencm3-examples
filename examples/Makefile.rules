@@ -214,7 +214,7 @@ ifeq ($(STM32_PORT),)
 else
 %.flash: %.hex
 	@printf "  FLASH   $<\n"
-	stm32flash -g 0x8000000 -b 230400 -w $(*).hex $(STM32_PORT)
+	stm32flash -g 0 -b 230400 -w $(*).hex $(STM32_PORT)
 endif
 else
 %.flash: %.hex
