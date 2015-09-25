@@ -212,9 +212,9 @@ ifeq ($(STM32_PORT),)
 		    -c "reset" \
 		    -c "shutdown" $(NULL)
 else
-%.flash: %.bin
+%.flash: %.hex
 	@printf "  FLASH   $<\n"
-	stm32flash -g 0x8000000 -b 230400 -w $(*).bin $(STM32_PORT)
+	stm32flash -g 0 -b 230400 -w $(*).hex $(STM32_PORT)
 endif
 else
 %.flash: %.hex
