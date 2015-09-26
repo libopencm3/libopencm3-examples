@@ -13,5 +13,5 @@ the 128K the STM32F103CBT6 used in the the maple mini has, but all
 these boards seem to have 128K of flash.
 
 Documentation is hard to find, but the LED on my blue pill board on
-PA13. I have no idea if the red pill board is different, but it all
+PC13. I have no idea if the red pill board is different, but it all
 the other wiring appears to be identical.
