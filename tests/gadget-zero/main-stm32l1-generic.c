@@ -59,7 +59,7 @@ int main(void)
 
 	rcc_periph_clock_enable(RCC_USB);
 
-	usbd_device *usbd_dev = gadget0_init(&stm32f103_usb_driver, "stm32l1-generic");
+	usbd_device *usbd_dev = gadget0_init(&st_usbfs_v1_usb_driver, "stm32l1-generic");
 
 	ER_DPRINTF("bootup complete\n");
 	gpio_clear(GPIOB, GPIO1);
