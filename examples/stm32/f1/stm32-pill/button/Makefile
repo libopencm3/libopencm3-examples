@@ -19,7 +19,7 @@
 
 BINARY = button
 
-LDSCRIPT = ../stm32-h103.ld
+LDSCRIPT = ../stm32-pill.ld
 
 include ../../Makefile.include
 

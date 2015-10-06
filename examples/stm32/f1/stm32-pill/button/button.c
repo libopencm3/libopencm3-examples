@@ -36,18 +36,18 @@ static void gpio_setup(void)
 	/* Enable GPIOC clock. */
 	rcc_periph_clock_enable(RCC_GPIOC);
 
-	/* Set GPIO12 (in GPIO port C) to 'output push-pull'. */
+	/* Set GPIO13 (in GPIO port C) to 'output push-pull'. */
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
-		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
+		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
 }
 
 static void button_setup(void)
 {
-	/* Enable GPIOA clock. */
-	rcc_periph_clock_enable(RCC_GPIOA);
+	/* Enable GPIOB clock. */
+	rcc_periph_clock_enable(RCC_GPIOB);
 
-	/* Set GPIO0 (in GPIO port A) to 'input open-drain'. */
-	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO0);
+	/* Set GPIO2 (in GPIO port B) to 'input open-drain'. */
+	gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO2);
 }
 
 int main(void)
@@ -58,12 +58,12 @@ int main(void)
 	gpio_setup();
 	button_setup();
 
-	/* Blink the LED (PC12) on the board. */
+	/* Blink the LED (PC13) on the board. */
 	while (1) {
-		gpio_toggle(GPIOC, GPIO12);
+		gpio_toggle(GPIOC, GPIO13);
 
-		exti_line_state = GPIOA_IDR;
-		if ((exti_line_state & (1 << 0)) != 0) {
+		exti_line_state = GPIOB_IDR;
+		if ((exti_line_state & (1 << 2)) != 0) {
 			for (i = 0; i < 800000; i++)	/* Wait a bit. */
 				__asm__("nop");
 		}
