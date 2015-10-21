@@ -33,7 +33,7 @@ Q := @
 MAKEFLAGS += --no-print-directory
 endif
 
-OPENCM3_DIR := $(realpath libopencm3)
+OPENCM3_DIR ?= $(realpath libopencm3)
 EXAMPLE_RULES = elf
 
 all: build
