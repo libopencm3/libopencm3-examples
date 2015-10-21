@@ -53,7 +53,7 @@ images: build
 build: lib examples
 
 lib:
-	$(Q)if [ ! "`ls -A libopencm3`" ] ; then \
+	$(Q)if [ ! "`ls -A $(OPENCM3_DIR)`" ] ; then \
 		printf "######## ERROR ########\n"; \
 		printf "\tlibopencm3 is not initialized.\n"; \
 		printf "\tPlease run:\n"; \
@@ -63,7 +63,7 @@ lib:
 		printf "######## ERROR ########\n"; \
 		exit 1; \
 		fi
-	$(Q)$(MAKE) -C libopencm3
+	$(Q)$(MAKE) -C $(OPENCM3_DIR)
 
 EXAMPLE_DIRS:=$(sort $(dir $(wildcard $(addsuffix /*/*/Makefile,$(addprefix examples/,$(TARGETS))))))
 $(EXAMPLE_DIRS): lib
