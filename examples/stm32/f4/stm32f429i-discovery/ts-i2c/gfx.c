@@ -42,8 +42,6 @@
 #include <stdlib.h>
 #include "gfx.h"
 
-#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-
 struct gfx_state __gfx_state;
 
 void
