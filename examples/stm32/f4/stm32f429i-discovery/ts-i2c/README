@@ -5,5 +5,7 @@ This example sets up a very basic LCD display on the DISCO
 board and fills it with red.
 Pressing on the touchscreen will turn the screen green.
 
+It uses some graphics code that was inspired by AdaFruit graphics library.
+
 The stmpe811 example driver uses i2c to communicate with the
 touchscreen.
