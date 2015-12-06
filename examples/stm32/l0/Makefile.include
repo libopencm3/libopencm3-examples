@@ -19,7 +19,7 @@
 ##
 
 LIBNAME		= opencm3_stm32l0
-DEFS		= -DSTM32L0
+DEFS		+= -DSTM32L0
 
 FP_FLAGS	?= -msoft-float
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m0plus $(FP_FLAGS)
