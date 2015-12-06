@@ -36,6 +36,14 @@ will receive a message like this:
 
 You should now see the semihosting output in the window running OpenOCD.
 
+## Problems
+
+If semihosting does not work and the program does not break on `initialise_monitor_handles` like shown above, you are probably linking in the non-thumb version of `librdimon`.
+
+To fix this, put the following code in the Makefile (assuming your newlib libraries are in `/usr/arm-none-eabi/lib`, change it if it is not the case):
+
+    LDFLAGS := -L/usr/arm-none-eabi/lib/armv7-m $(LDFLAGS)
+
 ## Size Notes
 
 Semihosting is basically free
