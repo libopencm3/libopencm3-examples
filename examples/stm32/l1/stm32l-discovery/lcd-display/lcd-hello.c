@@ -49,15 +49,15 @@ static void lcd_init(void)
 	rcc_periph_clock_enable(RCC_PWR);
 	rcc_periph_clock_enable(RCC_LCD);
 	pwr_disable_backup_domain_write_protect ();
-	rcc_osc_on (LSE);
-	rcc_wait_for_osc_ready (LSE);
-	rcc_rtc_select_clock (RCC_CSR_RTCSEL_LSE);
+	rcc_osc_on(RCC_LSE);
+	rcc_wait_for_osc_ready(RCC_LSE);
+	rcc_rtc_select_clock(RCC_CSR_RTCSEL_LSE);
 	RCC_CSR |= RCC_CSR_RTCEN;	/* Enable RTC clock */
 	pwr_enable_backup_domain_write_protect ();
 
 	/* Map SEG[43:40] to SEG[31:28], use 4 LCD commons, use 3 voltage levels
 		 when driving LCD display */
-	lcd_enable_segment_multiplexing ();
+	lcd_enable_segment_multiplexing();
 	lcd_set_duty (LCD_CR_DUTY_1_4);
 	lcd_set_bias (LCD_CR_BIAS_1_3);
 
@@ -66,9 +66,9 @@ static void lcd_init(void)
 	/* And increase contrast */
 	lcd_set_contrast (LCD_FCR_CC_5);
 
-	lcd_enable ();
-	do {} while (!lcd_is_enabled ());
-	do {} while (!lcd_is_step_up_ready ());
+	lcd_enable();
+	do {} while (!lcd_is_enabled());
+	do {} while (!lcd_is_step_up_ready());
 }
 
 static void clear_lcd_ram(void)

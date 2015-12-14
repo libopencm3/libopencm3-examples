@@ -34,7 +34,7 @@ uint8_t waveform[256];
 /*--------------------------------------------------------------------*/
 static void clock_setup(void)
 {
-	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
+	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 }
 
 /*--------------------------------------------------------------------*/

@@ -108,7 +108,7 @@ int main(void)
 	 * Otherwise enable it with the LSE as clock source and 0x7fff as
 	 * prescale value.
 	 */
-	rtc_auto_awake(LSE, 0x7fff);
+	rtc_auto_awake(RCC_LSE, 0x7fff);
 
 	/* The above mode will not reset the RTC when you press the RST button.
 	 * It will also continue to count while the MCU is held in reset. If

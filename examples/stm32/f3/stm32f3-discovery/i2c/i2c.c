@@ -127,7 +127,7 @@ static void my_usart_print_int(uint32_t usart, int32_t value)
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
+	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_64MHZ]);
 }
 
 #define I2C_ACC_ADDR 0x19
