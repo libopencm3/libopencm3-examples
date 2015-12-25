@@ -25,6 +25,7 @@
  */
 
 #include <stdint.h>
+#include <ctype.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/usart.h>
@@ -47,9 +48,9 @@
 /* This is a ring buffer to holding characters as they are typed
  * it maintains both the place to put the next character received
  * from the UART, and the place where the last character was
- * read by the program. See the README file for a discussion of
- * the failure semantics.
+ * read by the program.
  */
+
 #define RECV_BUF_SIZE	128		/* Arbitrary buffer size */
 char recv_buf[RECV_BUF_SIZE];
 volatile int recv_ndx_nxt;		/* Next place to store */
@@ -116,9 +117,6 @@ void console_putc(char c)
  * Check the console for a character. If the wait flag is
  * non-zero. Continue checking until a character is received
  * otherwise return 0 if called and no character was available.
- *
- * The implementation is a bit different however, now it looks
- * in the ring buffer to see if a character has arrived.
  */
 char console_getc(int wait)
 {
@@ -138,6 +136,9 @@ char console_getc(int wait)
  * Send a string to the console, one character at a time, return
  * after the last character, as indicated by a NUL character, is
  * reached.
+ *
+ * Translate '\n' in the string (newline) to \n\r (newline + 
+ * carraige return)
  */
 void console_puts(char *s)
 {
@@ -154,9 +155,11 @@ void console_puts(char *s)
 /*
  * int console_gets(char *s, int len)
  *
- * Wait for a string to be entered on the console, limited
- * support for editing characters (back space and delete)
- * end when a <CR> character is received.
+ * Wait for a string to be entered on the console, with
+ * support for editing characters (delete letter, word,
+ * entire line). It returns when the length is reached
+ * or a carrige return is entered. <CR> is changed to newline
+ * before the buffer is returned.
  */
 int console_gets(char *s, int len)
 {
@@ -165,12 +168,22 @@ int console_gets(char *s, int len)
 
 	*t = '\000';
 	/* read until a <CR> is received */
-	while ((c = console_getc(1)) != '\r') {
+	while (((c = console_getc(1)) != '\r') && ((t - s) < len) ) {
 		if ((c == '\010') || (c == '\127')) {
 			if (t > s) {
 				/* send ^H ^H to erase previous character */
 				console_puts("\010 \010");
 				t--;
+			}
+		} else if (c == 0x17) {	// ^W erase a word
+			while ((t > s) &&  (!(isspace((int) (*t))))) {
+				t--;
+				console_puts("\010 \010");
+			}
+		} else if (c == 0x15) { // ^U erase the line
+			while (t > s) {
+				t--;
+				console_puts("\010 \010");
 			}
 		} else {
 			*t = c;
@@ -181,6 +194,10 @@ int console_gets(char *s, int len)
 		}
 		/* update end of string with NUL */
 		*t = '\000';
+	}
+	if ((t < s) < len) {
+		*t++ = '\n';
+		*t = 0;
 	}
 	return t - s;
 }
@@ -225,4 +242,12 @@ void console_setup(int baud)
 
 	/* Specifically enable recieve interrupts */
 	usart_enable_rx_interrupt(CONSOLE_UART);
+}
+
+/*
+ * Set a different baud rate for the console.
+ */
+void console_baud(int baud_rate)
+{
+	usart_set_baudrate(CONSOLE_UART, baud_rate);
 }

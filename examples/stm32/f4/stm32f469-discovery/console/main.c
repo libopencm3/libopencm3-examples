@@ -49,7 +49,8 @@ int main(void)
 	while (1) {
 		console_puts("Enter a string: ");
 		len = console_gets(buf, 128);
-		if (len) {
+		if (len > 1) {
+			buf[len-1] = 0; /* kill trailing newline */
 			console_puts("\nYou entered : '");
 			console_puts(buf);
 			console_puts("'\n");
