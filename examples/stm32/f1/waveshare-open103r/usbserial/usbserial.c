@@ -251,7 +251,7 @@ int main(void)
 
   AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 
-  usbd_dev = usbd_init(&stm32f107_usb_driver,
+  usbd_dev = usbd_init(&st_usbfs_v1_usb_driver,
 		       &dev,
 		       &config,
 		       usb_strings,
