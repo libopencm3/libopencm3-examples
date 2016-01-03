@@ -244,7 +244,7 @@ int main(void)
 
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 
-	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
 	gpio_set(GPIOA, GPIO15);
