@@ -1,5 +1,7 @@
 # README
 
+[![Gitter channel](https://badges.gitter.im/libopencm3/discuss.svg)](https://gitter.im/libopencm3/discuss)
+
 This repository contains assorted example projects for libopencm3.
 
 The libopencm3 project aims to create an open-source firmware library for

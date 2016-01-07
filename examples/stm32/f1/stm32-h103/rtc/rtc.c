@@ -103,7 +103,7 @@ int main(void)
 	 * Otherwise enable it with the LSE as clock source and 0x7fff as
 	 * prescale value.
 	 */
-	rtc_auto_awake(LSE, 0x7fff);
+	rtc_auto_awake(RCC_LSE, 0x7fff);
 
 	/* Setup the RTC interrupt. */
 	nvic_setup();

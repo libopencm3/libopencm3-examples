@@ -148,8 +148,8 @@ static int setup_rtc(void)
 	RCC_CSR &= ~RCC_CSR_RTCRST;
 
 	/* We want to use the LSE fitted on the discovery board */
-	rcc_osc_on(LSE);
-	rcc_wait_for_osc_ready(LSE);
+	rcc_osc_on(RCC_LSE);
+	rcc_wait_for_osc_ready(RCC_LSE);
 
 	/* Select the LSE as rtc clock */
 	rcc_rtc_select_clock(RCC_CSR_RTCSEL_LSE);
@@ -260,11 +260,11 @@ static int process_state(volatile struct state_t *st)
 static void reset_clocks(void)
 {
 	/* 4MHz MSI raw range 2*/
-	clock_scale_t myclock_config = {
+	struct rcc_clock_scale myclock_config = {
 		.hpre = RCC_CFGR_HPRE_SYSCLK_NODIV,
 		.ppre1 = RCC_CFGR_PPRE1_HCLK_NODIV,
 		.ppre2 = RCC_CFGR_PPRE2_HCLK_NODIV,
-		.voltage_scale = RANGE2,
+		.voltage_scale = PWR_SCALE2,
 		.flash_config = FLASH_ACR_LATENCY_0WS,
 		.apb1_frequency = 4194000,
 		.apb2_frequency = 4194000,

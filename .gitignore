@@ -9,3 +9,5 @@
 *.map
 *.stylecheck
 nbproject
+.gdb_history
+.DS_Store

@@ -229,6 +229,18 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 	return 0;
 }
 
+static void usbdfu_set_config(usbd_device *usbd_dev, uint16_t wValue)
+{
+	(void)wValue;
+
+	usbd_register_control_callback(
+				usbd_dev,
+				USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
+				USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
+				usbdfu_control_request);
+}
+
+
 int main(void)
 {
 	usbd_device *usbd_dev;
@@ -256,12 +268,8 @@ int main(void)
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 
-	usbd_dev = usbd_init(&stm32f103_usb_driver, &dev, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
-	usbd_register_control_callback(
-				usbd_dev,
-				USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
-				USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
-				usbdfu_control_request);
+	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_register_set_config_callback(usbd_dev, usbdfu_set_config);
 
 	gpio_set(GPIOA, GPIO15);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,

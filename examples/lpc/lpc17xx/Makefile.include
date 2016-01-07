@@ -20,7 +20,7 @@
 
 
 LIBNAME		= opencm3_lpc17xx
-DEFS		= -DLPC17XX
+DEFS		+= -DLPC17XX
 
 FP_FLAGS	?= -msoft-float
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m3 $(FP_FLAGS) -mfix-cortex-m3-ldrd

@@ -21,7 +21,7 @@
 ##
 
 LIBNAME		= opencm3_vf6xx
-DEFS		= -DVF6XX
+DEFS		+= -DVF6XX
 
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
