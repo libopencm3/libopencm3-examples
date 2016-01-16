@@ -1,9 +1,6 @@
 /*
  * This file is part of the libopencm3 project.
  *
- * Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
- * Copyright (C) 2011 Stephen Caudle <scaudle@doceme.com>
- *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +15,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Linker script for Nucleo F411RE  (STM32F411RE, 512K flash, 128K RAM). */
+/* Linker script for Nucleo F401RE  (STM32F401RE, 512K flash, 96K RAM). */
 
 /* Define memory regions. */
 MEMORY
