@@ -24,6 +24,16 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
 
+#define COMM_IN_EP	0x83
+#define DATA_IN_EP	0x82
+#define DATA_OUT_EP	0x01	
+
+/* Buffer to be used for control requests. */
+static uint8_t usbd_control_buffer[128];
+
+/* Data I/O buffer */
+static char data_buf[64];
+
 static const struct usb_device_descriptor dev = {
 	.bLength = USB_DT_DEVICE_SIZE,
 	.bDescriptorType = USB_DT_DEVICE,
@@ -49,7 +59,7 @@ static const struct usb_device_descriptor dev = {
 static const struct usb_endpoint_descriptor comm_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x83,
+	.bEndpointAddress = COMM_IN_EP,
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
 	.wMaxPacketSize = 16,
 	.bInterval = 255,
@@ -58,16 +68,16 @@ static const struct usb_endpoint_descriptor comm_endp[] = {{
 static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x01,
+	.bEndpointAddress = DATA_OUT_EP,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
-	.wMaxPacketSize = 64,
+	.wMaxPacketSize = sizeof(data_buf),
 	.bInterval = 1,
 }, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x82,
+	.bEndpointAddress = DATA_IN_EP,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
-	.wMaxPacketSize = 64,
+	.wMaxPacketSize = sizeof(data_buf),
 	.bInterval = 1,
 } };
 
@@ -111,7 +121,7 @@ static const struct usb_interface_descriptor comm_iface[] = {{
 	.bDescriptorType = USB_DT_INTERFACE,
 	.bInterfaceNumber = 0,
 	.bAlternateSetting = 0,
-	.bNumEndpoints = 1,
+	.bNumEndpoints = sizeof(comm_endp)/sizeof(comm_endp[0]),
 	.bInterfaceClass = USB_CLASS_CDC,
 	.bInterfaceSubClass = USB_CDC_SUBCLASS_ACM,
 	.bInterfaceProtocol = USB_CDC_PROTOCOL_AT,
@@ -128,7 +138,7 @@ static const struct usb_interface_descriptor data_iface[] = {{
 	.bDescriptorType = USB_DT_INTERFACE,
 	.bInterfaceNumber = 1,
 	.bAlternateSetting = 0,
-	.bNumEndpoints = 2,
+	.bNumEndpoints = sizeof(data_endp)/sizeof(data_endp[0]),
 	.bInterfaceClass = USB_CLASS_DATA,
 	.bInterfaceSubClass = 0,
 	.bInterfaceProtocol = 0,
@@ -149,11 +159,12 @@ static const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
 	.wTotalLength = 0,
-	.bNumInterfaces = 2,
+	.bNumInterfaces = sizeof(ifaces)/sizeof(ifaces[0]),
 	.bConfigurationValue = 1,
 	.iConfiguration = 0,
-	.bmAttributes = 0x80,
-	.bMaxPower = 0x32,
+	.bmAttributes = 0x80,	// D7 is reserved and must be set to one for 
+			 	// historical reasons (Table 9-10)
+	.bMaxPower = 0x32, 	// 100mA
 
 	.interface = ifaces,
 };
@@ -163,9 +174,6 @@ static const char * usb_strings[] = {
 	"CDC-ACM Demo",
 	"DEMO",
 };
-
-/* Buffer to be used for control requests. */
-uint8_t usbd_control_buffer[128];
 
 static int cdcacm_control_request(usbd_device *usbd_dev,
 	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
@@ -182,27 +190,28 @@ static int cdcacm_control_request(usbd_device *usbd_dev,
 		 * even though it's optional in the CDC spec, and we don't
 		 * advertise it in the ACM functional descriptor.
 		 */
-		return 1;
+		return USBD_REQ_HANDLED;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:
 		if (*len < sizeof(struct usb_cdc_line_coding)) {
-			return 0;
+			return USBD_REQ_NOTSUPP;
 		}
 
-		return 1;
+		return USBD_REQ_HANDLED;
 	}
-	return 0;
+	return USBD_REQ_NOTSUPP;
 }
 
 static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
 	(void)ep;
-
-	char buf[64];
-	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
+	
+	size_t len = usbd_ep_read_packet(usbd_dev, DATA_OUT_EP, data_buf,
+		sizeof(data_buf));
 
 	if (len) {
-		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
+		while (usbd_ep_write_packet(usbd_dev, DATA_IN_EP, 
+			data_buf, len) == 0);
 	}
 }
 
@@ -210,10 +219,12 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
 	(void)wValue;
 
-	usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64,
-			cdcacm_data_rx_cb);
-	usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_BULK, 64, NULL);
-	usbd_ep_setup(usbd_dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
+	usbd_ep_setup(usbd_dev, DATA_OUT_EP, USB_ENDPOINT_ATTR_BULK, 
+			sizeof(data_buf), cdcacm_data_rx_cb);
+	usbd_ep_setup(usbd_dev, DATA_IN_EP, USB_ENDPOINT_ATTR_BULK, 
+			sizeof(data_buf), NULL);
+	usbd_ep_setup(usbd_dev, COMM_IN_EP, USB_ENDPOINT_ATTR_INTERRUPT, 
+			16, NULL);
 
 	usbd_register_control_callback(
 				usbd_dev,
@@ -236,7 +247,7 @@ int main(void)
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
 
 	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
-			usb_strings, 3,
+			usb_strings, sizeof(usb_strings)/sizeof(usb_strings[0]),
 			usbd_control_buffer, sizeof(usbd_control_buffer));
 
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
