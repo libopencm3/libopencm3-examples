@@ -227,8 +227,8 @@ int main(void)
 {
 	usbd_device *usbd_dev;
 
-  rcc_osc_bypass_enable(RCC_HSE); 	
-  rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
+	rcc_osc_bypass_enable(RCC_HSE);
+	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_OTGFS);
