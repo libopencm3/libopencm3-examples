@@ -5,7 +5,7 @@
 This repository contains assorted example projects for libopencm3.
 
 The libopencm3 project aims to create an open-source firmware library for
-various ARM Cortex-M3 microcontrollers.
+various ARM Cortex-M microcontrollers.
 
 For more information visit http://libopencm3.org
 
