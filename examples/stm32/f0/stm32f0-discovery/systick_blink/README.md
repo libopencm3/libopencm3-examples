@@ -10,4 +10,4 @@ to debug the PLL clock setup by scope.
 
 | Port  | Function | Description              |
 | ----- | -------- | ------------------------ |
-| `PA9` | `(MCO)`  | Internal reference clock |
+| `PA8` | `(MCO)`  | Internal reference clock |
