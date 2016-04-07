@@ -54,18 +54,16 @@ static void clock_setup(void)
 
 static void gpio_setup(void)
 {
-	/* Select pin functions. PC8/PC9 are the two LEDs on the
-	  STM32F0DISCOVERY board. */
-	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 | GPIO9);
+	/* Set blue led (PC8) as output */
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
 
-	/* set GPIOA to AF 0 */
+	/* PA8 to AF 0 for MCO */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8);
 }
 
 static void mco_setup(void)
 {
-	/* Enable system clock output on pin PA8 (so it can be checked with a
-	  scope) */
+	/* clock output on pin PA8 (allows checking with scope) */
 	rcc_set_mco(RCC_CFGR_MCO_SYSCLK);
 }
 
@@ -75,7 +73,7 @@ int main(void)
 	gpio_setup();
 	mco_setup();
 
-	/* setup systick to generate 2 LED flashes per second */
+	/* 8 ticks -> 4 blinks */
 	systick_setup(8);
 
 	/* Do nothing in main loop */
