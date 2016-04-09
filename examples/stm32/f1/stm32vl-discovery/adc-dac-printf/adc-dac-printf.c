@@ -95,7 +95,7 @@ static void adc_setup(void)
 	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_ANALOG, GPIO1);
 
 	/* Make sure the ADC doesn't run during config. */
-	adc_off(ADC1);
+	adc_power_off(ADC1);
 
 	/* We configure everything for one single conversion. */
 	adc_disable_scan_mode(ADC1);

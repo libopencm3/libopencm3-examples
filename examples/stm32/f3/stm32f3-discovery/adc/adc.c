@@ -52,19 +52,19 @@ static void adc_setup(void)
 	//ADC
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
-	adc_off(ADC1);
-	adc_set_clk_prescale(ADC_CCR_CKMODE_DIV2);
+	adc_power_off(ADC1);
+	adc_set_clk_prescale(ADC1,ADC_CCR_CKMODE_DIV2);
 	adc_set_single_conversion_mode(ADC1);
 	adc_disable_external_trigger_regular(ADC1);
 	adc_set_right_aligned(ADC1);
 	/* We want to read the temperature sensor, so we have to enable it. */
 	adc_enable_temperature_sensor();
-	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR1_SMP_61DOT5CYC);
+	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_61DOT5CYC);
 	uint8_t channel_array[16];
 	channel_array[0]=16; // Vts (Internal temperature sensor
 	channel_array[0]=1; //ADC1_IN1 (PA0)
 	adc_set_regular_sequence(ADC1, 1, channel_array);
-	adc_set_resolution(ADC1, ADC_CFGR_RES_12_BIT);
+	adc_set_resolution(ADC1, ADC_CFGR1_RES_12_BIT);
 	adc_power_on(ADC1);
 
 	/* Wait for ADC starting up. */
