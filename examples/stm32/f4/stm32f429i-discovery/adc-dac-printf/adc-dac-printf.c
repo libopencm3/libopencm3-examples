@@ -99,7 +99,7 @@ static void adc_setup(void)
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
 
-	adc_off(ADC1);
+	adc_power_off(ADC1);
 	adc_disable_scan_mode(ADC1);
 	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC);
 

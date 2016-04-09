@@ -87,7 +87,7 @@ static void adc_setup(void)
 	rcc_periph_clock_enable(RCC_ADC1);
 
 	/* Make sure the ADC doesn't run during config. */
-	adc_off(ADC1);
+	adc_power_off(ADC1);
 
 	/* We configure everything for one single timer triggered injected conversion. */
 	adc_disable_scan_mode(ADC1);
