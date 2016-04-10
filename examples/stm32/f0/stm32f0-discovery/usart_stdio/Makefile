@@ -17,7 +17,7 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-BINARY = usart_stdio
+BINARY = 
 
 LDSCRIPT = ../stm32f0-discovery.ld
 
