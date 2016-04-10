@@ -106,7 +106,7 @@ static void adc_setup(void)
 	rcc_periph_clock_enable(RCC_ADC1);
 
 	/* Make sure the ADC doesn't run during config. */
-	adc_off(ADC1);
+	adc_power_off(ADC1);
 
 	/* We configure everything for one single timer triggered injected conversion with interrupt generation. */
 	/* While not needed for a single channel, try out scan mode which does all channels in one sweep and
