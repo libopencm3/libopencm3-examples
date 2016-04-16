@@ -79,35 +79,38 @@ SCRIPT_DIR	= $(OPENCM3_DIR)/scripts
 ###############################################################################
 # C flags
 
-CFLAGS		+= $(OPT) -g
-CFLAGS		+= -Wextra -Wshadow -Wimplicit-function-declaration
-CFLAGS		+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
-CFLAGS		+= -fno-common -ffunction-sections -fdata-sections
+TGT_CFLAGS	+= $(OPT) -g
+TGT_CFLAGS	+= $(ARCH_FLAGS)
+TGT_CFLAGS	+= -Wextra -Wshadow -Wimplicit-function-declaration
+TGT_CFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+TGT_CFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 
 ###############################################################################
 # C++ flags
 
-CXXFLAGS	+= $(OPT) -g
-CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls  -Weffc++
-CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
+TGT_CXXFLAGS	+= $(OPT) -g
+TGT_CXXFLAGS	+= $(ARCH_FLAGS)
+TGT_CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls  -Weffc++
+TGT_CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 
 ###############################################################################
 # C & C++ preprocessor common flags
 
-CPPFLAGS	+= -MD
-CPPFLAGS	+= -Wall -Wundef
-CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
+TGT_CPPFLAGS	+= -MD
+TGT_CPPFLAGS	+= -Wall -Wundef
+TGT_CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
 
 ###############################################################################
 # Linker flags
 
-LDFLAGS		+= --static -nostartfiles
-LDFLAGS		+= -L$(LIB_DIR)
-LDFLAGS		+= -T$(LDSCRIPT)
-LDFLAGS		+= -Wl,-Map=$(*).map
-LDFLAGS		+= -Wl,--gc-sections
+TGT_LDFLAGS		+= --static -nostartfiles
+TGT_LDFLAGS		+= -L$(LIB_DIR)
+TGT_LDFLAGS		+= -T$(LDSCRIPT)
+TGT_LDFLAGS		+= $(ARCH_FLAGS)
+TGT_LDFLAGS		+= -Wl,-Map=$(*).map
+TGT_LDFLAGS		+= -Wl,--gc-sections
 ifeq ($(V),99)
-LDFLAGS		+= -Wl,--print-gc-sections
+TGT_LDFLAGS		+= -Wl,--print-gc-sections
 endif
 
 ###############################################################################
@@ -161,19 +164,19 @@ $(LDSCRIPT):
 
 %.elf %.map: $(OBJS) $(LDSCRIPT)
 	@#printf "  LD      $(*).elf\n"
-	$(Q)$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
+	$(Q)$(LD) $(TGT_LDFLAGS) $(LDFLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
 
 %.o: %.c
 	@#printf "  CC      $(*).c\n"
-	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).c
+	$(Q)$(CC) $(TGT_CFLAGS) $(CFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
 
 %.o: %.cxx
 	@#printf "  CXX     $(*).cxx\n"
-	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).cxx
+	$(Q)$(CXX) $(TGT_CXXFLAGS) $(CXXFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cxx
 
 %.o: %.cpp
 	@#printf "  CXX     $(*).cpp\n"
-	$(Q)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARCH_FLAGS) -o $(*).o -c $(*).cpp
+	$(Q)$(CXX) $(TGT_CXXFLAGS) $(CXXFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cpp
 
 clean:
 	@#printf "  CLEAN\n"
