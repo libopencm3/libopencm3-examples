@@ -158,7 +158,7 @@ $(LDSCRIPT):
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf %.map: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
+%.elf %.map: $(OBJS) $(LDSCRIPT)
 	@#printf "  LD      $(*).elf\n"
 	$(Q)$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
 
