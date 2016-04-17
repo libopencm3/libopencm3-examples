@@ -48,8 +48,6 @@ OPT		:= -Os
 ###############################################################################
 # Source files
 
-LDSCRIPT	?= $(BINARY).ld
-
 OBJS		+= $(BINARY).o
 
 
@@ -72,8 +70,27 @@ ifeq ($(V),1)
 $(info Using $(OPENCM3_DIR) path to library)
 endif
 
-INCLUDE_DIR	= $(OPENCM3_DIR)/include
-LIB_DIR		= $(OPENCM3_DIR)/lib
+define ERR_DEVICE_LDSCRIPT_CONFLICT
+You can either specify DEVICE=blah, and have the LDSCRIPT generated,
+or you can provide LDSCRIPT, and ensure CPPFLAGS, LDFLAGS and LDLIBS
+all contain the correct values for the target you wish to use.
+You cannot provide both!
+endef
+
+ifeq ($(strip $(DEVICE)),)
+# Old style, assume LDSCRIPT exists
+DEFS		+= -I$(OPENCM3_DIR)/include
+LDFLAGS		+= -L$(OPENCM3_DIR)/lib
+LDLIBS		+= -l$(LIBNAME)
+LDSCRIPT	?= $(BINARY).ld
+else
+# New style, assume device is provided, and we're generating the rest.
+ifneq ($(strip $(LDSCRIPT)),)
+$(error $(ERR_DEVICE_LDSCRIPT_CONFLICT))
+endif
+include $(OPENCM3_DIR)/mk/genlink-config.mk
+endif
+
 SCRIPT_DIR	= $(OPENCM3_DIR)/scripts
 
 ###############################################################################
@@ -98,13 +115,12 @@ TGT_CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 
 TGT_CPPFLAGS	+= -MD
 TGT_CPPFLAGS	+= -Wall -Wundef
-TGT_CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
+TGT_CPPFLAGS	+= $(DEFS)
 
 ###############################################################################
 # Linker flags
 
 TGT_LDFLAGS		+= --static -nostartfiles
-TGT_LDFLAGS		+= -L$(LIB_DIR)
 TGT_LDFLAGS		+= -T$(LDSCRIPT)
 TGT_LDFLAGS		+= $(ARCH_FLAGS)
 TGT_LDFLAGS		+= -Wl,-Map=$(*).map
@@ -116,7 +132,6 @@ endif
 ###############################################################################
 # Used libraries
 
-LDLIBS		+= -l$(LIBNAME)
 LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 
 ###############################################################################
@@ -138,10 +153,15 @@ list: $(BINARY).list
 images: $(BINARY).images
 flash: $(BINARY).flash
 
+# Either verify the user provided LDSCRIPT exists, or generate it.
+ifeq ($(strip $(DEVICE)),)
 $(LDSCRIPT):
     ifeq (,$(wildcard $(LDSCRIPT)))
         $(error Unable to find specified linker script: $(LDSCRIPT))
     endif
+else
+include $(OPENCM3_DIR)/mk/genlink-rules.mk
+endif
 
 %.images: %.bin %.hex %.srec %.list %.map
 	@#printf "*** $* images generated ***\n"
