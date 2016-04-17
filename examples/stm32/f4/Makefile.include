@@ -45,7 +45,4 @@ BMP_PORT	?=
 #STLINK_PORT	?= :4242
 
 
-include ../../../../Makefile.rules
-
-
-
+include ../../../../rules.mk
