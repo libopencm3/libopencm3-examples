@@ -30,4 +30,4 @@ OOCD		?= openocd
 OOCD_INTERFACE	?= cmsis-dap
 OOCD_BOARD	?= 
 
-include ../../../../Makefile.rules
+include ../../../../rules.mk
