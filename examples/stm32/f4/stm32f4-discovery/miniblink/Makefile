@@ -19,7 +19,7 @@
 
 BINARY = miniblink
 
-LDSCRIPT = ../stm32f4-discovery.ld
+DEVICE=STM32F407VG
 
 include ../../Makefile.include
 
