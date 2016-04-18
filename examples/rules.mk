@@ -238,27 +238,21 @@ styleclean: $(STYLECHECKFILES:=.styleclean)
 
 ifeq ($(STLINK_PORT),)
 ifeq ($(BMP_PORT),)
-ifeq ($(OOCD_SERIAL),)
-%.flash: %.hex
+ifeq ($(OOCD_FILE),)
+%.flash: %.elf
 	@printf "  FLASH   $<\n"
-	@# IMPORTANT: Don't use "resume", only "reset" will work correctly!
-	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-		    -f board/$(OOCD_BOARD).cfg \
-		    -c "init" -c "reset init" \
-		    -c "flash write_image erase $(*).hex" \
-		    -c "reset" \
-		    -c "shutdown" $(NULL)
+	$(Q)(echo "halt; program $(*).elf verify reset" | nc -4 localhost 4444 2>/dev/null) || \
+		$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
+		-f target/$(OOCD_TARGET).cfg \
+		-c "program $(*).elf verify reset exit" \
+		$(NULL)
 else
-%.flash: %.hex
+%.flash: %.elf
 	@printf "  FLASH   $<\n"
-	@# IMPORTANT: Don't use "resume", only "reset" will work correctly!
-	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-		    -f board/$(OOCD_BOARD).cfg \
-		    -c "ft2232_serial $(OOCD_SERIAL)" \
-		    -c "init" -c "reset init" \
-		    -c "flash write_image erase $(*).hex" \
-		    -c "reset" \
-		    -c "shutdown" $(NULL)
+	$(Q)(echo "halt; program $(*).elf verify reset" | nc -4 localhost 4444 2>/dev/null) || \
+		$(OOCD) -f $(OOCD_FILE) \
+		-c "program $(*).elf verify reset exit" \
+		$(NULL)
 endif
 else
 %.flash: %.elf

@@ -29,7 +29,7 @@ ARCH_FLAGS	= -mthumb -mcpu=cortex-m3 $(FP_FLAGS)
 
 OOCD		?= openocd
 OOCD_INTERFACE	?= flossjtag
-OOCD_BOARD	?= olimex_stm32_h103
+OOCD_TARGET	?= stellaris
 
 ################################################################################
 # Black Magic Probe specific variables
