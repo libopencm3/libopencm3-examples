@@ -18,6 +18,7 @@
 ##
 
 BINARY = usbiap
+CSTD = -std=gnu99
 
 LDSCRIPT = ../stm32-h103.ld
 
