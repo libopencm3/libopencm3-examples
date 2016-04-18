@@ -74,7 +74,9 @@ $(EXAMPLE_DIRS): lib
 examples: $(EXAMPLE_DIRS)
 	$(Q)true
 
-clean: $(EXAMPLE_DIRS:=.clean) styleclean
+examplesclean: $(EXAMPLE_DIRS:=.clean)
+
+clean: examplesclean styleclean
 	$(Q)$(MAKE) -C libopencm3 clean
 
 stylecheck: $(EXAMPLE_DIRS:=.stylecheck)
