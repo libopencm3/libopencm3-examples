@@ -33,7 +33,7 @@ endif
 
 OOCD		?= openocd
 OOCD_INTERFACE	?= stlink-v2
-OOCD_BOARD	?= stm32f4discovery
+OOCD_TARGET	?= stm32f4x
 
 ################################################################################
 # Black Magic Probe specific variables

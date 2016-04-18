@@ -28,6 +28,6 @@ endif
 
 OOCD		?= openocd
 OOCD_INTERFACE	?= cmsis-dap
-OOCD_BOARD	?= 
+OOCD_TARGET	?= at91samdXX
 
 include ../../../../rules.mk

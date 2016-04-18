@@ -29,10 +29,11 @@ ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
 # OpenOCD specific variables
 
 # Support for ICDI is available starting with openocd 0.7.0
+# but a board file maybe required to select jtag/swd transport
 
 OOCD		?= openocd
 OOCD_INTERFACE	?= ti-icdi
-OOCD_BOARD	?= ek-lm4f120xl
+OOCD_TARGET	?= stellaris
 
 ################################################################################
 # Black Magic Probe specific variables

@@ -28,8 +28,8 @@ ARCH_FLAGS	= -mthumb -mcpu=cortex-m0 $(FP_FLAGS)
 # OpenOCD specific variables
 
 OOCD		?= openocd
-OOCD_INTERFACE	?= flossjtag
-OOCD_BOARD	?= olimex_stm32_h103
+OOCD_INTERFACE	?= stlink-v2-1
+OOCD_TARGET	?= stm32f0x
 
 ################################################################################
 # Black Magic Probe specific variables
