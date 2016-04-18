@@ -25,6 +25,19 @@ Q		:= @
 NULL		:= 2>/dev/null
 endif
 
+# Now, before we go any further, let's enter the 21st century.
+# Clear make's built in fortran module pascal yacc idontevenwhat
+.SUFFIXES:
+# And add in things we might maybe actually use.
+.SUFFIXES: .c .h .o .cxx .elf .bin .list .lss
+# And now turn off all implicit rules support long dead version control
+%: %,v
+%: RCS/%,v
+%: RCS/%
+%: s.%
+%: SCCS/s.%
+
+
 ###############################################################################
 # Executables
 
