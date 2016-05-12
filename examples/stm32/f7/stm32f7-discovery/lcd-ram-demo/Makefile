@@ -18,7 +18,7 @@
 OBJS = clock.o \
 	   sdram.o \
 
-BINARY = lcd_ram_demo
+BINARY = lcd-ram-demo
 
 LDSCRIPT = ../stm32f7-discovery.ld
 
