@@ -18,6 +18,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
