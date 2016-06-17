@@ -18,6 +18,7 @@
 ##
 
 BINARY = usart_stdio
+CSTD = -std=gnu99
 
 LDSCRIPT = ../stm32f0-discovery.ld
 

@@ -19,7 +19,7 @@
 
 BINARY = usart_irq
 
-OOCD_BOARD = open-bldc
+OOCD_FILE = board/open-bldc.cfg
 
 LDSCRIPT = ../obldc.ld
 

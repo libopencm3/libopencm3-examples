@@ -8,6 +8,7 @@
 *.list
 *.map
 *.stylecheck
+generated.*.ld
 nbproject
 .gdb_history
 .DS_Store

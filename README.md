@@ -137,7 +137,7 @@ repository)
 These urls grab the latest from the libopencm3-examples repository
 
        wget \
-         https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/Makefile.rules \
+         https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/rules.mk \
          -O libopencm3.rules.mk
 
 4. Grab a copy of your target Makefile in this case, for STM32L1
