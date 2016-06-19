@@ -63,6 +63,12 @@ to the flash target.
     cd examples/stm32/f1/stm32vl-discovery/miniblink
     make flash STLINK_PORT=:4242
 
+If you're using stm32flash to talk to an ST loader over a serial port,
+you can provide STM32\_PORT:
+
+    cd examples/stm32/f1/stm32vl-discovery/miniblink
+    make flash STM32_PORT=/dev/ttyACM0
+
 ## Flashing Manually
 You can also flash manually. Using a miriad of different tools depending on
 your setup. Here are a few examples.
