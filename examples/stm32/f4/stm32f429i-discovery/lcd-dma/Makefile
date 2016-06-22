@@ -1,6 +1,6 @@
 OBJS = sdram.o clock.o console.o lcd-spi.o
 
-BINARY = lcd-dma
+BINARY = 
 
 # we use sin/cos from the library
 LDLIBS += -lm
