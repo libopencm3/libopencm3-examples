@@ -21,7 +21,7 @@
 #include "usb_to_serial_cdcacm.h"
 
 #include <stdlib.h>
-#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usbd/usbd.h>
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/lm4f/rcc.h>
 #include <libopencm3/cm3/scb.h>

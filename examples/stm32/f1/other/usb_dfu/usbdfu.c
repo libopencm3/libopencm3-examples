@@ -22,7 +22,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/cm3/scb.h>
-#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usbd/usbd.h>
 #include <libopencm3/usb/dfu.h>
 
 #define APP_ADDRESS	0x08002000

@@ -25,7 +25,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/otg_fs.h>
-#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usbd/usbd.h>
 #include <libopencm3/usb/hid.h>
 #include "adxl345.h"
 
