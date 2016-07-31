@@ -30,14 +30,19 @@ void sys_tick_handler(void)
 	gpio_toggle(GPIOC, GPIO8);
 }
 
-/* Set up timer to fire freq times per second */
-static void systick_setup(int freq)
+/*
+ * Set up timer to fire every x milliseconds
+ * This is a unusual usage of systick, be very careful with the 24bit range
+ * of the systick counter!  You can range from 1 to 2796ms with this.
+ */
+static void systick_setup(int xms)
 {
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	/* div8 per ST, stays compatible with M3/M4 parts, well done ST */
+	systick_set_clocksource(STK_CSR_CLKSOURCE_EXT);
 	/* clear counter so it starts right away */
 	STK_CVR = 0;
 
-	systick_set_reload(rcc_ahb_frequency / freq);
+	systick_set_reload(rcc_ahb_frequency / 8 / 1000 * xms);
 	systick_counter_enable();
 	systick_interrupt_enable();
 }
@@ -49,23 +54,23 @@ static void clock_setup(void)
 
 	/* Enable clocks to the GPIO subsystems */
 	rcc_periph_clock_enable(RCC_GPIOC);
-	rcc_periph_clock_enable(RCC_GPIOA);
 }
 
 static void gpio_setup(void)
 {
-	/* Select pin functions. PC8/PC9 are the two LEDs on the
-	  STM32F0DISCOVERY board. */
-	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 | GPIO9);
-
-	/* set GPIOA to AF 0 */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8);
+	/* Set blue led (PC8) as output */
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
 }
 
 static void mco_setup(void)
 {
-	/* Enable system clock output on pin PA8 (so it can be checked with a
-	  scope) */
+	/* PA8 to AF 0 for MCO */
+	rcc_periph_clock_enable(RCC_GPIOA);
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8);
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO8);
+	gpio_set_af(GPIOA, 0, GPIO8);
+
+	/* clock output on pin PA8 (allows checking with scope) */
 	rcc_set_mco(RCC_CFGR_MCO_SYSCLK);
 }
 
@@ -75,8 +80,8 @@ int main(void)
 	gpio_setup();
 	mco_setup();
 
-	/* setup systick to generate 2 LED flashes per second */
-	systick_setup(8);
+	/* 125ms ticks =>  250ms period => 4Hz blinks */
+	systick_setup(125);
 
 	/* Do nothing in main loop */
 	while (1);

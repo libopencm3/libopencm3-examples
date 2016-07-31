@@ -22,6 +22,7 @@
 #include <libopencm3/usb/audio.h>
 #include <libopencm3/usb/midi.h>
 #include <libopencm3/cm3/scb.h>
+#include <libopencm3/stm32/desig.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
@@ -46,7 +47,7 @@ static const struct usb_device_descriptor dev = {
 	.bcdDevice = 0x0100,
 	.iManufacturer = 1,  /* index to string desc */
 	.iProduct = 2,       /* index to string desc */
-	.iSerialNumber = 0,
+	.iSerialNumber = 3,  /* index to string desc */
 	.bNumConfigurations = 1,
 };
 
@@ -267,9 +268,12 @@ static const struct usb_config_descriptor config = {
 	.interface = ifaces,
 };
 
+static char usb_serial_number[25]; /* 12 bytes of desig and a \0 */
+
 static const char * usb_strings[] = {
 	"libopencm3.org",
 	"MIDI demo",
+	usb_serial_number
 };
 
 /* Buffer to be used for control requests. */
@@ -371,11 +375,13 @@ int main(void)
 			GPIO9 | GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
 
+	desig_get_unique_id_as_string(usb_serial_number, sizeof(usb_serial_number));
+
 	/* Button pin */
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);
 
 	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
-			usb_strings, 2,
+			usb_strings, 3,
 			usbd_control_buffer, sizeof(usbd_control_buffer));
 
 	usbd_register_set_config_callback(usbd_dev, usbmidi_set_config);

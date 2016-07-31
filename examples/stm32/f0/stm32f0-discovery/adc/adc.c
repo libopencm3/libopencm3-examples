@@ -26,7 +26,7 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/gpio.h>
 
-uint8_t channel_array[] = { ADC_CHANNEL1, ADC_CHANNEL1, ADC_CHANNEL_TEMP};
+uint8_t channel_array[] = { 1, 1, ADC_CHANNEL_TEMP};
 
 static void adc_setup(void)
 {
