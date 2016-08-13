@@ -177,7 +177,7 @@ static inline
 uint16_t*
 ili9341_get_current_layer_buffer_address(void) {
 	return __gfx_state.surface;
-};
+}
 
 /* Flip the double_buffer */
 void ili9341_flip_layer1_buffer(void);

@@ -83,7 +83,7 @@ stmpe811_drag_data_t drag_data;
 point2d_t touch_point;
 point2d_t drag_distance;
 
-static inline
+static
 void
 update_touchscreen_data(void)
 {
@@ -118,7 +118,7 @@ update_touchscreen_data(void)
 		}
 	}
 }
-static inline
+static
 void
 print_touchscreen_data(int16_t x, int16_t y)
 {
@@ -135,6 +135,9 @@ print_touchscreen_data(int16_t x, int16_t y)
 		break;
 	case STMPE811_TOUCH_STATE__TOUCHED_WAITING_FOR_TIMEOUT:
 		state = "touched waiting";
+		break;
+	default:
+		state = "invalid";
 		break;
 	}
 
@@ -163,7 +166,7 @@ print_touchscreen_data(int16_t x, int16_t y)
 #define FROWNY_WIDTH  101
 #define FROWNY_HEIGHT 121
 uint16_t frowny[FROWNY_WIDTH * FROWNY_HEIGHT];
-static inline void init_floodfill4(void)
+static void init_floodfill4(void)
 {
     /* init flood-fill (also offscreen rendering demo) */
 	gfx_offscreen_rendering_begin(frowny, FROWNY_WIDTH, FROWNY_HEIGHT);
@@ -207,9 +210,9 @@ static inline void init_floodfill4(void)
 	/* resume normal rendering */
 	gfx_offscreen_rendering_end();
 }
-static inline void draw_floodfill4(demo_mode_t demo_mode)
+static void draw_floodfill4(demo_mode_t demo_mode)
 {
-	int16_t x, y;
+	int16_t x, y, px,py;
 	static int16_t scan_x = -1, scan_y = -1;
 
 	switch (demo_mode) {
@@ -260,8 +263,8 @@ static inline void draw_floodfill4(demo_mode_t demo_mode)
 		}
 
 		/* Worst case dots */
-		for (int16_t px = x+1; px < x+100; px += 4) {
-			for (int16_t py = y+1; py < y+120; py += 2) {
+		for (px = x+1; px < x+100; px += 4) {
+			for (py = y+1; py < y+120; py += 2) {
 				gfx_draw_pixel(px, py, GFX_COLOR_GREEN2);
 				gfx_draw_pixel(px+2, py+1, GFX_COLOR_GREEN2);
 			}
@@ -295,8 +298,7 @@ static inline void draw_floodfill4(demo_mode_t demo_mode)
  * Bezier demonstration
  */
 uint16_t color = GFX_COLOR_BLACK;
-void draw_segment(point2d_t p1, point2d_t p2);
-void draw_segment(point2d_t p1, point2d_t p2)
+static void draw_segment(point2d_t p1, point2d_t p2)
 {
 	gfx_draw_line(
 			(int16_t)p1.x, (int16_t)p1.y,
@@ -304,11 +306,11 @@ void draw_segment(point2d_t p1, point2d_t p2)
 			color
 		);
 }
-static inline
-void draw_point_list(point2d_t *points, size_t points_count, uint16_t _color)
+static void draw_point_list(point2d_t *points, size_t points_count, uint16_t _color)
 {
+	unsigned int i;
 	color = _color;
-	for (size_t i = 0; i < points_count-1; i++) {
+	for (i = 0; i < points_count-1; i++) {
 		draw_segment(points[i], points[i+1]);
 	}
 }
@@ -335,14 +337,14 @@ point2d_t pentagram[] = {
 };
 uint32_t num_points;
 uint32_t num_ipoints;
-static inline void init_bezier(void)
+static void init_bezier(void)
 {
 	num_points  = sizeof(pentagram)/sizeof(pentagram[0]);
-	num_ipoints = h2_bezier_calculate_int_points_length(num_points);
+	num_ipoints = bezier_calculate_int_points_length(num_points);
 }
 #define TENSION_MIN 0.15f
 #define TENSION_MAX 3.0f
-static inline void draw_bezier(demo_mode_t demo_mode)
+static void draw_bezier(demo_mode_t demo_mode)
 {
 	switch (demo_mode) {
 	case DEMO_MODE_ALL:
@@ -451,9 +453,9 @@ static inline void draw_bezier(demo_mode_t demo_mode)
 		tension_change = 1/tension_change;
 	}
 	point2d_t pi1[num_ipoints];
-	h2_bezier_cubic(pi1, pentagram_, num_points, 0.0001f, tension);
+	bezier_cubic(pi1, pentagram_, num_points, 0.0001f, tension);
 	for (i = 0; i < num_ipoints-1; i += 3) {
-		h2_bezier_draw_cubic(
+		bezier_draw_cubic(
 				draw_segment,
 				15,
 				pi1[i],
@@ -468,7 +470,7 @@ static inline void draw_bezier(demo_mode_t demo_mode)
  * Bezier interactive demo
  */
 
-static inline void draw_bezier_interactive(demo_mode_t demo_mode)
+static void draw_bezier_interactive(demo_mode_t demo_mode)
 {
 	switch (demo_mode) {
 	case DEMO_MODE_ALL:
@@ -526,7 +528,7 @@ static inline void draw_bezier_interactive(demo_mode_t demo_mode)
 
 	/* draw bezier */
 	color = GFX_COLOR_RED;
-	h2_bezier_draw_cubic(
+	bezier_draw_cubic(
 			draw_segment,
 			20,
 			curve_points[0],
@@ -564,7 +566,7 @@ static inline void draw_bezier_interactive(demo_mode_t demo_mode)
 balls_t ball_simulation;
 ball_t  balls[100];
 uint64_t ball_timeout;
-static inline void init_balls(void)
+static void init_balls(void)
 {
 	ball_setup(
 			&ball_simulation,
@@ -608,9 +610,7 @@ static inline void init_balls(void)
 
 	ball_timeout = mtime() + 5000;
 }
-static inline
-void
-draw_balls(demo_mode_t demo_mode)
+static void draw_balls(demo_mode_t demo_mode)
 {
 	uint64_t ctime = mtime();
 	switch (demo_mode) {
@@ -646,9 +646,7 @@ draw_balls(demo_mode_t demo_mode)
 /**
  * Re-/draw background
  */
-static inline
-void
-draw_background(demo_mode_t demo_mode)
+static void draw_background(demo_mode_t demo_mode)
 {
 	ili9341_set_layer1();
 
@@ -656,7 +654,8 @@ draw_background(demo_mode_t demo_mode)
 
 	gfx_draw_rect(0, 0, gfx_width()  , 40  , GFX_COLOR_DARKGREY);
 	gfx_fill_rect(1, 1, gfx_width()-2, 40-2,
-			ltdc_get_rgb565_from_rgb888(0x111111));
+						((0x11 << 11) | (0x11 << 5) | 0x11));
+	/*					ltdc_get_rgb565_from_rgb888(0x111111));*/
 
 	gfx_set_font_scale(3);
 	gfx_puts2(10, 10, "äLTDC Demo", &font_Tamsyn5x9b_9 , GFX_COLOR_WHITE);

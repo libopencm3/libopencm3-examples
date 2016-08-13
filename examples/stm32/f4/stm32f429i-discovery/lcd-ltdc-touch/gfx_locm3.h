@@ -33,11 +33,6 @@
 
 #define swap(a, b) { int16_t t = a; a = b; b = t; }
 
-typedef union {
-	struct { int16_t x, y; };
-	struct { int16_t w, h; };
-} gfx_vec2_t;
-
 /*
  * Python
  * def get_rgb565(x) :

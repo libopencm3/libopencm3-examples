@@ -288,7 +288,7 @@ fowler_angle(point2d_t p1, point2d_t p2) {
 
 	switch (code) {
 	case 0:
-		return (d.x == 0) ? 0 :    dabs.y/dabs.x;   /* [  0, 45] */
+		return (d.x == 0) ? 0 :   dabs.y/dabs.x;  /* [  0, 45] */
 	case 1:
 		return (vector_flt_t)2 - (dabs.x/dabs.y); /* ( 45, 90] */
 	case 3:
