@@ -9,6 +9,10 @@
 *.map
 *.stylecheck
 generated.*.ld
-nbproject
 .gdb_history
 .DS_Store
+
+# Project files from idea/netbeans/eclipse
+nbproject/
+.idea/
+.project
