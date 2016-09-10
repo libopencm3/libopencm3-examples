@@ -22,8 +22,8 @@
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-#include <libopencm3/usb/usbd.h>
-#include <libopencm3/usb/msc.h>
+#include <libopencm3/usbd/usbd.h>
+#include <libopencm3/usbd/msc.h>
 
 #include "ramdisk.h"
 

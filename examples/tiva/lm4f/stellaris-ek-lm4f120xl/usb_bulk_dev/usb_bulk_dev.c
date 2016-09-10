@@ -26,7 +26,7 @@
 #include <libopencm3/lm4f/rcc.h>
 #include <libopencm3/lm4f/gpio.h>
 #include <libopencm3/lm4f/nvic.h>
-#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usbd/usbd.h>
 #include <libopencm3/lm4f/usb.h>
 
 #include<stdio.h>

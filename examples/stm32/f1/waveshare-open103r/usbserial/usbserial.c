@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usbd/usbd.h>
 #include <libopencm3/usb/cdc.h>
 
 static const struct usb_device_descriptor dev = {
@@ -89,7 +89,7 @@ static const struct {
     .bcdCDC = 0x0110,
   },
   .call_mgmt = {
-    .bFunctionLength = 
+    .bFunctionLength =
     sizeof(struct usb_cdc_call_management_descriptor),
     .bDescriptorType = CS_INTERFACE,
     .bDescriptorSubtype = USB_CDC_TYPE_CALL_MANAGEMENT,
@@ -107,7 +107,7 @@ static const struct {
     .bDescriptorType = CS_INTERFACE,
     .bDescriptorSubtype = USB_CDC_TYPE_UNION,
     .bControlInterface = 0,
-    .bSubordinateInterface0 = 1, 
+    .bSubordinateInterface0 = 1,
   }
 };
 
@@ -207,7 +207,7 @@ static int cdcacm_control_request(usbd_device *usbd_dev,
     // usbd_ep_write_packet(0x83, buf, 10);
     return 1;
   }
-  case USB_CDC_REQ_SET_LINE_CODING: 
+  case USB_CDC_REQ_SET_LINE_CODING:
     if(*len < sizeof(struct usb_cdc_line_coding)) {
       return 0;
     }
@@ -231,7 +231,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
   (void)wValue;
-  
+
   usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64, cdcacm_data_rx_cb);
   usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_BULK, 64, NULL);
   usbd_ep_setup(usbd_dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
