@@ -167,8 +167,10 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
-		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static enum usbd_request_return_codes
+cdcacm_control_request(usbd_device *usbd_dev,
+		struct usb_setup_data *req, uint8_t **buf,
+		uint16_t *len, usbd_control_complete_callback *complete)
 {
 	(void)complete;
 	(void)buf;
@@ -193,14 +195,14 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		local_buf[8] = req->wValue & 3;
 		local_buf[9] = 0;
 		// usbd_ep_write_packet(0x83, buf, 10);
-		return 1;
+		return USBD_REQ_HANDLED;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:
 		if (*len < sizeof(struct usb_cdc_line_coding))
-			return 0;
-		return 1;
+			return USBD_REQ_NOTSUPP;
+		return USBD_REQ_HANDLED;
 	}
-	return 0;
+	return USBD_REQ_NOTSUPP;
 }
 
 static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
