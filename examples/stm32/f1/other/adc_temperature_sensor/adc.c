@@ -72,7 +72,7 @@ static void adc_setup(void)
 	adc_disable_external_trigger_regular(ADC1);
 	adc_set_right_aligned(ADC1);
 	/* We want to read the temperature sensor, so we have to enable it. */
-	adc_enable_temperature_sensor(ADC1);
+	adc_enable_temperature_sensor();
 	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_28DOT5CYC);
 
 	adc_power_on(ADC1);
