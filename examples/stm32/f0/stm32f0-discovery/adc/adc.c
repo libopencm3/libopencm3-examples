@@ -38,8 +38,7 @@ static void adc_setup(void)
 
 	adc_power_off(ADC1);
 	adc_set_clk_source(ADC1, ADC_CLKSOURCE_ADC);
-	adc_calibrate_start(ADC1);
-	adc_calibrate_wait_finish(ADC1);
+	adc_calibrate(ADC1);
 	adc_set_operation_mode(ADC1, ADC_MODE_SCAN);
 	adc_disable_external_trigger_regular(ADC1);
 	adc_set_right_aligned(ADC1);

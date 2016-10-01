@@ -85,7 +85,7 @@ static void adc_setup(void)
 		__asm__("nop");
 
 	adc_reset_calibration(ADC1);
-	adc_calibration(ADC1);
+	adc_calibrate(ADC1);
 }
 
 static void my_usart_print_int(uint32_t usart, int value)

@@ -109,9 +109,7 @@ static void adc_setup(void)
 		__asm__("nop");
 
 	adc_reset_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_RSTCAL) != 0);
-	adc_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_CAL) != 0);
+	adc_calibrate(ADC1);
 }
 
 static void my_usart_print_int(uint32_t usart, int value)
