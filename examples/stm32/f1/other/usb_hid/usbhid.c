@@ -279,6 +279,13 @@ int main(void)
 	rcc_clock_setup_in_hsi_out_48mhz();
 
 	rcc_periph_clock_enable(RCC_GPIOA);
+	/* Hack to force renumeration */
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
+		GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
+	gpio_clear(GPIOA, GPIO12);
+	for (unsigned i = 0; i < 800000; i++) {
+		__asm__("nop");
+	}
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev_descr, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, hid_set_config);
