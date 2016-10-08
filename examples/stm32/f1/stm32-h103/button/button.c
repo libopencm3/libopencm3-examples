@@ -23,8 +23,6 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
 
-uint16_t exti_line_state;
-
 /* Set STM32 to 72 MHz. */
 static void clock_setup(void)
 {
@@ -62,8 +60,7 @@ int main(void)
 	while (1) {
 		gpio_toggle(GPIOC, GPIO12);
 
-		exti_line_state = GPIOA_IDR;
-		if ((exti_line_state & (1 << 0)) != 0) {
+		if (gpio_get(GPIOA, GPIO0)) {
 			for (i = 0; i < 800000; i++)	/* Wait a bit. */
 				__asm__("nop");
 		}

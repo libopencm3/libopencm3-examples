@@ -24,8 +24,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-uint16_t exti_line_state;
-
 /* Set STM32 to 64 MHz. */
 static void clock_setup(void)
 {
@@ -64,8 +62,7 @@ int main(void)
 		gpio_toggle(GPIOE, GPIO11);
 
 		/* Upon button press, blink more slowly. */
-		exti_line_state = GPIOA_IDR;
-		if ((exti_line_state & (1 << 0)) != 0) {
+		if (gpio_get(GPIOA, GPIO0)) {
 			for (i = 0; i < 3000000; i++)	/* Wait a bit. */
 				__asm__("nop");
 		}
