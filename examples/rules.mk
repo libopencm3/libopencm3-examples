@@ -39,6 +39,7 @@ OBJCOPY		:= $(PREFIX)-objcopy
 OBJDUMP		:= $(PREFIX)-objdump
 GDB		:= $(PREFIX)-gdb
 STFLASH		= $(shell which st-flash)
+DFU_UTIL	= $(shell which dfu-util)
 STYLECHECK	:= /checkpatch.pl
 STYLECHECKFLAGS	:= --no-tree -f --terse --mailback
 STYLECHECKFILES	:= $(shell find . -name '*.[ch]')
@@ -153,6 +154,7 @@ list: $(BINARY).list
 
 images: $(BINARY).images
 flash: $(BINARY).flash
+dfu: $(BINARY).dfu
 
 # Either verify the user provided LDSCRIPT exists, or generate it.
 ifeq ($(strip $(DEVICE)),)
@@ -258,6 +260,15 @@ else
 		   $(*).elf
 endif
 
+ifeq ($(VID),)
+ifeq ($(PID),)
+VID	:=	1209
+PID	:=	db42
+endif
+endif
+%.dfu:	%.bin
+	@printf "  DFU   $(*).bin\n"
+	$(Q)$(DFU_UTIL) -d $(VID):$(PID) -D $(*).bin
 .PHONY: images clean stylecheck styleclean elf bin hex srec list
 
 -include $(OBJS:.o=.d)
