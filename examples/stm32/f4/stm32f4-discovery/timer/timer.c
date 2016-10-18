@@ -92,7 +92,7 @@ static void tim_setup(void)
 		       TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
 	/* Reset prescaler value.
-	 * Running the clock at 5kHz.
+	 * Running the clock at 10kHz.
 	 */
 	/*
 	 * On STM32F4 the timers are not running directly from pure APB1 or
@@ -104,17 +104,17 @@ static void tim_setup(void)
 	 * the APBx prescaler is set to 1 the derived timer APBx will equal the
 	 * original APBx frequencies.
 	 *
-	 * In our case here the APB1 is devided by 4 system frequency and APB2
-	 * divided by 2. This means APB1 timer will be 2 x APB1 and APB2 will
-	 * be 2 x APB2. So when we try to calculate the prescaler value we have
-	 * to use rcc_apb1_freqency * 2!!! 
+	 * In our case here the APB1 is system frequency divided by 4 and APB2
+	 * is system frequency divided by 2. This means APB1 timer will be 2 x
+	 * APB1 and APB2 will be 2 x APB2. So when we try to calculate the
+	 * prescaler value we have to use rcc_apb1_freqency * 2!!!
 	 *
 	 * For additional information see reference manual for the stm32f4
 	 * familiy of chips. Page 204 and 213
 	 */
 	timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 10000));
 
-	/* Enable preload. */
+	/* Disable preload. */
 	timer_disable_preload(TIM2);
 
 	/* Continous mode. */
