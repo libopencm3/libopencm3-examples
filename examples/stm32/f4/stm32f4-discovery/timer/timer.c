@@ -104,10 +104,10 @@ static void tim_setup(void)
 	 * the APBx prescaler is set to 1 the derived timer APBx will equal the
 	 * original APBx frequencies.
 	 *
-	 * In our case here the APB1 is devided by 4 system frequency and APB2
-	 * divided by 2. This means APB1 timer will be 2 x APB1 and APB2 will
-	 * be 2 x APB2. So when we try to calculate the prescaler value we have
-	 * to use rcc_apb1_freqency * 2!!! 
+	 * In our case here the APB1 is system frequency divided by 4 and APB2
+	 * is system frequency divided by 2. This means APB1 timer will be 2 x
+	 * APB1 and APB2 will be 2 x APB2. So when we try to calculate the
+	 * prescaler value we have to use rcc_apb1_freqency * 2!!!
 	 *
 	 * For additional information see reference manual for the stm32f4
 	 * familiy of chips. Page 204 and 213
