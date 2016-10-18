@@ -92,7 +92,7 @@ static void tim_setup(void)
 		       TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
 	/* Reset prescaler value.
-	 * Running the clock at 5kHz.
+	 * Running the clock at 10kHz.
 	 */
 	/*
 	 * On STM32F4 the timers are not running directly from pure APB1 or
