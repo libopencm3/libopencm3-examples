@@ -114,7 +114,7 @@ static void tim_setup(void)
 	 */
 	timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 10000));
 
-	/* Enable preload. */
+	/* Disable preload. */
 	timer_disable_preload(TIM2);
 
 	/* Continous mode. */

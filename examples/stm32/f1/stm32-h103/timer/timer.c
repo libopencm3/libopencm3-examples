@@ -90,7 +90,7 @@ static void tim_setup(void)
 	/* Reset prescaler value. */
 	timer_set_prescaler(TIM2, 36000);
 
-	/* Enable preload. */
+	/* Disable preload. */
 	timer_disable_preload(TIM2);
 
 	/* Continous mode. */
