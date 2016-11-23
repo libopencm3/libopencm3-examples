@@ -43,7 +43,7 @@ static void button_setup(void)
 	/* Enable GPIOA clock. */
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* Set GPIO0 (in GPIO port A) to 'input open-drain'. */
+	/* Set GPIOA0 to 'input floating'. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);
 }
 
