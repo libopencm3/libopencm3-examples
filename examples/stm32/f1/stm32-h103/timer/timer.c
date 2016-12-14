@@ -77,7 +77,7 @@ static void tim_setup(void)
 	nvic_enable_irq(NVIC_TIM2_IRQ);
 
 	/* Reset TIM2 peripheral. */
-	timer_reset(TIM2);
+	rcc_periph_reset_pulse(RST_TIM2);
 
 	/* Timer global mode:
 	 * - No divider

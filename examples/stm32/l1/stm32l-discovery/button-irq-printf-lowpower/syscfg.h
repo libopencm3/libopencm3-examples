@@ -44,6 +44,7 @@ extern "C" {
 #define BUTTON_DISCO_USER_isr exti0_isr
 #define BUTTON_DISCO_USER_NVIC NVIC_EXTI0_IRQ
 #define TIMER_BUTTON_PRESS TIM7
+#define TIMER_BUTTON_PRESS_RST RST_TIM7
 
 	struct state_t {
 		bool falling;

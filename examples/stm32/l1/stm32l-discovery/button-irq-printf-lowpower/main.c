@@ -131,7 +131,7 @@ int _write(int file, char *ptr, int len)
  */
 static void setup_button_press_timer(void)
 {
-	timer_reset(TIMER_BUTTON_PRESS);
+	rcc_periph_reset_pulse(TIMER_BUTTON_PRESS_RST);
 	timer_set_prescaler(TIMER_BUTTON_PRESS, 3999); /* 4Mhz/1000hz - 1 */
 	timer_set_period(TIMER_BUTTON_PRESS, 0xffff);
 	timer_enable_counter(TIMER_BUTTON_PRESS);

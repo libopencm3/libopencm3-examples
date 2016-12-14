@@ -70,7 +70,7 @@ static void timer_setup(void)
 	rcc_periph_clock_enable(RCC_TIM2);
 
 	/* Time Base configuration */
-    timer_reset(timer);
+    rcc_periph_reset_pulse(RST_TIM2);
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
 	    TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     timer_set_period(timer, 0xFF);
