@@ -7,7 +7,7 @@ SOS -> ...---...
 
 using international morse timing, with a dot element of 100ms
 
-It's intended for the ST STM32F4DISCOVERY eval board. It should blink
+It's intended for the olimex stm32-h103 eval board. It should blink
 a LED on the board.
 
 ## Board connections

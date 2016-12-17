@@ -22,41 +22,45 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
-#include <libopencm3/stm32/exti.h>
-
 #include <libopencmsis/core_cm3.h>
 
 #ifndef ARRAY_LEN
 #define ARRAY_LEN(array) (sizeof((array))/sizeof((array)[0]))
 #endif
 
-uint16_t frequency_sequence[18] = {
-	1000,
-	500,
-	1000,
-	500,
-	1000,
-	500,
-	2000,
-	500,
-	2000,
-	500,
-	2000,
-	500,
-	1000,
-	500,
-	1000,
-	500,
-	1000,
-	5000,
+#define LED1_PORT GPIOD
+#define LED1_PIN GPIO12
+
+/* Morse standard timings */
+#define ELEMENT_TIME 500
+#define DIT (1*ELEMENT_TIME)
+#define DAH (3*ELEMENT_TIME)
+#define INTRA (1*ELEMENT_TIME)
+#define INTER (3*ELEMENT_TIME)
+#define WORD (7*ELEMENT_TIME)
+
+uint16_t frequency_sequence[] = {
+	DIT,
+	INTRA,
+	DIT,
+	INTRA,
+	DIT,
+	INTER,
+	DAH,
+	INTRA,
+	DAH,
+	INTRA,
+	DAH,
+	INTER,
+	DIT,
+	INTRA,
+	DIT,
+	INTRA,
+	DIT,
+	WORD,
 };
 
-uint16_t frequency_sel = 0;
-
-uint16_t compare_time;
-uint16_t new_time;
-uint16_t frequency;
-int debug = 0;
+int frequency_sel = 0;
 
 static void clock_setup(void)
 {
@@ -68,12 +72,9 @@ static void gpio_setup(void)
 	/* Enable GPIO clock for leds. */
 	rcc_periph_clock_enable(RCC_GPIOD);
 
-	/* Set GPIO12 (in GPIO port D) to 'output push-pull'. */
-	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT,
-		      GPIO_PUPD_NONE, GPIO12 | GPIO13);
-
-	gpio_set(GPIOD, GPIO12);
-	gpio_clear(GPIOD, GPIO13);
+	/* Enable led as output */
+	gpio_mode_setup(LED1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED1_PIN);
+	gpio_set(LED1_PORT, LED1_PIN);
 }
 
 static void tim_setup(void)
@@ -95,15 +96,16 @@ static void tim_setup(void)
 	 * is strictly unnecessary, but demos the api for alternative settings)
 	 */
 	timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,
-		       TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-        /*
-         * Please take note that the clock source for STM32F4 timers
-         * might not be the raw APB1/APB2 clocks.  In various conditions they
-         * are doubled.  See the Reference Manual for full details!
-         * In our case, TIM2 on APB1 is running at double frequency, so this
-         * sets the prescaler to have the timer run at 10kHz
-         */
-	timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 10000));
+		TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+
+	/*
+	 * Please take note that the clock source for STM32 timers
+	 * might not be the raw APB1/APB2 clocks.  In various conditions they
+	 * are doubled.  See the Reference Manual for full details!
+	 * In our case, TIM2 on APB1 is running at double frequency, so this
+	 * sets the prescaler to have the timer run at 5kHz
+	 */
+	timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 5000));
 
 	/* Disable preload. */
 	timer_disable_preload(TIM2);
@@ -113,7 +115,7 @@ static void tim_setup(void)
 	timer_set_period(TIM2, 65535);
 
 	/* Set the initual output compare value for OC1. */
-	timer_set_oc_value(TIM2, TIM_OC1, 1000);
+	timer_set_oc_value(TIM2, TIM_OC1, frequency_sequence[frequency_sel++]);
 
 	/* Counter enable. */
 	timer_enable_counter(TIM2);
@@ -133,11 +135,11 @@ void tim2_isr(void)
 		 * Get current timer value to calculate next
 		 * compare register value.
 		 */
-		compare_time = timer_get_counter(TIM2);
+		uint16_t compare_time = timer_get_counter(TIM2);
 
 		/* Calculate and set the next compare value. */
-		frequency = frequency_sequence[frequency_sel++];
-		new_time = compare_time + frequency;
+		uint16_t frequency = frequency_sequence[frequency_sel++];
+		uint16_t new_time = compare_time + frequency;
 
 		timer_set_oc_value(TIM2, TIM_OC1, new_time);
 		if (frequency_sel == ARRAY_LEN(frequency_sequence)) {
@@ -145,8 +147,7 @@ void tim2_isr(void)
 		}
 
 		/* Toggle LED to indicate compare event. */
-		gpio_toggle(GPIOD, GPIO12);
-		gpio_toggle(GPIOD, GPIO13);
+		gpio_toggle(LED1_PORT, LED1_PIN);
 	}
 }
 
@@ -164,8 +165,9 @@ int main(void)
 	 * an interrupt masked by PRIMASK becomes pending
 	 * a Debug Entry request
 	 */
-	while (1)
+	while (1) {
 		__WFI(); /* Wait For Interrupt. */
+	}
 
 	return 0;
 }
