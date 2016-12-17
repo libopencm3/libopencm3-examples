@@ -22,7 +22,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
-#include <libopencmsis/core_cm3.h>
 
 #ifndef ARRAY_LEN
 #define ARRAY_LEN(array) (sizeof((array))/sizeof((array)[0]))
@@ -157,16 +156,8 @@ int main(void)
 	gpio_setup();
 	tim_setup();
 
-	/* Loop calling Wait For Interrupt. In older pre cortex ARM this is
-	 * just equivalent to nop. On cortex it puts the cpu to sleep until
-	 * one of the three occurs:
-	 *
-	 * a non-masked interrupt occurs and is taken
-	 * an interrupt masked by PRIMASK becomes pending
-	 * a Debug Entry request
-	 */
 	while (1) {
-		__WFI(); /* Wait For Interrupt. */
+		;
 	}
 
 	return 0;
