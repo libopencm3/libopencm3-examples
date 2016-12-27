@@ -22,6 +22,8 @@ library and all examples.  If you're simply hacking on a single example after
 that, you can type "make clean; make" in any of the individual project
 directories later.
 
+Some examples use the libopencm3 dynamic linker script generator.  This (currently) requires GNU awk.  (mawk will not work) See https://github.com/libopencm3/libopencm3/pull/731
+
 For more verbose output, to see compiler command lines, use "make V=1"
 For insanity levels of verboseness, use "make V=99"
 
