@@ -29,33 +29,29 @@ The makefiles are generally useable for your own projects with
 only minimal changes for the libopencm3 install path (See Reuse)
 
 ## Make Flash Target
+
+Please note, the "make flash" target is complicated and not always self-consistent.  Please see: https://github.com/libopencm3/libopencm3-examples/issues/34
+
 For flashing the 'miniblink' example (after you built libopencm3 and the
 examples by typing 'make' at the top-level directory) onto the Olimex
 STM32-H103 eval board (ST STM32F1 series microcontroller), you can execute:
 
     cd examples/stm32/f1/stm32-h103/miniblink
-    make flash
+    make flash V=1
 
 The Makefiles of the examples are configured to use a certain OpenOCD
 flash programmer, you might need to change some of the variables in the
 Makefile if you use a different one.
 
-The make flash target also supports a few other programmers. If you provide the
-Black Magic Probe serial port the target will automatically choose to program
-via Black Magic Probe. For example on linux you would do the following:
+To program via a Black Magic Probe, simply provide the serial port, eg:
 
     cd examples/stm32/f1/stm32-h103/miniblink
     make flash BMP_PORT=/dev/ttyACM0
 
-This will also work with discovery boards that got the st-link firmware
-replaced with the Black Magic Probe firmware.
-
-In case you did not replace the firmware you can program using the st-flash
-program by invoking the stlink-flash target:
+To program via texane/stlink (st-flash utility), use the special target:
 
     cd examples/stm32/f1/stm32vl-discovery/miniblink
     make miniblink.stlink-flash
-
 
 If you rather use GDB to connect to the st-util you can provide the STLINK\_PORT
 to the flash target.
