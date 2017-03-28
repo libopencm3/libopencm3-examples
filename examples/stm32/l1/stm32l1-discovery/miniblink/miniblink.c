@@ -24,15 +24,16 @@
 
 static void gpio_setup(void)
 {
-	/* Enable GPIOB clock. */
+	/* Enable GPIOC clock. */
 	/* Manually: */
-	//RCC_AHBENR |= RCC_AHBENR_GPIOBEN;
+	// RCC_AHBENR |= RCC_AHBENR_GPIOCEN;
 	/* Using API functions: */
-	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
-	/* Set GPIO6 (in GPIO port B) to 'output push-pull'. */
+	/* Set GPIO8 and GPIO9 (in GPIO port C) to 'output push-pull'. */
 	/* Using API functions: */
-	gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6);
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
 }
 
 int main(void)
@@ -41,29 +42,33 @@ int main(void)
 
 	gpio_setup();
 
-	/* Blink the LED (PB6) on the board. */
+	/* Blink both LEDs (PC8 and PC9) on the board. */
 	while (1) {
 		/* Manually: */
-		// GPIOB_BSRR = GPIO6;		/* LED off */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+		// GPIOC_BSRR = GPIO8;		/* blue LED on   */
+		// GPIOC_BSRR = GPIO9 << 16;	/* green LED off */
+		// for (i = 0; i < 100000; i++)	/* Wait a bit.   */
 		//	__asm__("nop");
-		// GPIOB_BRR = GPIO6;		/* LED on */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+		// GPIOC_BSRR = GPIO8 << 16;	/* blue LED off  */
+		// GPIOC_BSRR = GPIO9;		/* green LED on  */
+		// for (i = 0; i < 100000; i++)	/* Wait a bit.   */
 		//	__asm__("nop");
 
-		/* Using API functions gpio_set()/gpio_clear(): */
-		// gpio_set(GPIOB, GPIO6);	/* LED off */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+		/* Using API functions gpio_set()/gpio_clear():  */
+		// gpio_set(GPIOC, GPIO8);	/* blue LED on   */
+		// gpio_clear(GPIOC, GPIO9);	/* green LED off */
+		// for (i = 0; i < 100000; i++)	/* Wait a bit. 	 */
 		//	__asm__("nop");
-		// gpio_clear(GPIOB, GPIO6);	/* LED on */
-		// for (i = 0; i < 1000000; i++)	/* Wait a bit. */
+		// gpio_clear(GPIOC, GPIO8);	/* blue LED off  */
+		// gpio_set(GPIOC, GPIO9);	/* green LED on  */
+		// for (i = 0; i < 100000; i++)	/* Wait a bit.   */
 		//	__asm__("nop");
 
 		/* Using API function gpio_toggle(): */
-		gpio_toggle(GPIOB, GPIO6);	/* LED on/off */
-		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
-			__asm__("nop");
-		}
+		 gpio_toggle(GPIOC, GPIO8);	/* toggle blue LED  */
+		 gpio_toggle(GPIOC, GPIO9);	/* toggle green LED */
+		 for (i = 0; i < 100000; i++) 	/* Wait a bit.	    */
+		 __asm__("nop");
 	}
 
 	return 0;
