@@ -188,7 +188,7 @@ int main(void)
 	can_setup();
 	systick_setup();
 
-	while (1); /* Halt. */
+	while (1); 
 
 	return 0;
 }
