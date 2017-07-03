@@ -1,6 +1,11 @@
 /*
  * This file is NOT part of the libopencm3 project. The project maintainers
- * might feel free to include it into their examples
+ * might feel free to include it into their examples. Otherwise it might
+ * just rest here for users interested in it.
+ *
+ * At the time of writing this, you need a patched libopencm3, enabling
+ * CAN for STM32F0 as suggested in
+ * https://github.com/hallo-alex/libopencm3/commit/13cf8bac005d6b85aaaaa12ce0f5bf56578d0426
  *
  *
  * This file is derived from examples/stm32/f1/obldc/can/can.c
