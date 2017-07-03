@@ -84,9 +84,6 @@ static void systick_setup(void)
 static void can_setup(void)
 {
 	/* Enable peripheral clocks. */
-
-	//B8 Rx
-	//B9 Tx
 	rcc_periph_clock_enable(RCC_GPIOB);
 
 	rcc_periph_clock_enable(RCC_CAN);
