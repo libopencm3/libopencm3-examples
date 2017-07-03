@@ -119,7 +119,7 @@ static void can_setup(void)
 		 * or other reasons keeping the can module from reading 11 recessive bits for
 		 * leaving initialization phase
 		 */
-		__asm__("bkpt");
+    		while(1){}
 	}
 	/* CAN filter 0 init. */
 	can_filter_id_mask_32bit_init(CAN1,
@@ -130,8 +130,8 @@ static void can_setup(void)
 				true); /* Enable the filter. */
 
 	/* NVIC setup. */
-		nvic_enable_irq(NVIC_CEC_CAN_IRQ);
-		nvic_set_priority(NVIC_CEC_CAN_IRQ, 1);
+	nvic_enable_irq(NVIC_CEC_CAN_IRQ);
+	nvic_set_priority(NVIC_CEC_CAN_IRQ, 1);
 
 	/* Enable CAN RX interrupt. */
 	can_enable_irq(CAN1, CAN_IER_FMPIE0);
