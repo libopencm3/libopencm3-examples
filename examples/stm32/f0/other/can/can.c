@@ -33,13 +33,15 @@
 #include <libopencm3/stm32/can.h>
 
 
-#define TS1FROMBTRVAL(value)	(value & 0xF0000) //((1<<16)|(1<<17)(1<<18)(1<<19)))
-#define TS2FROMBTRVAL(value)	(value & 0x700000)//((1<<20)|(1<<21)(1<<22)))
-#define SJWFROMBTRVAL(value)	(value & 0x3000000)//((1<<24)|(1<<24)))
+ /* 500kbit/s -> CAN_BTR = 0x001c0005 source: http://www.bittiming.can-wiki.info/ */
+#define BTR500k 0x001c0005
+
+/* to get the values needed by can_init from a BTR register value */
+#define TS1FROMBTRVAL(value)	(value & 0xF0000)
+#define TS2FROMBTRVAL(value)	(value & 0x700000)
+#define SJWFROMBTRVAL(value)	(value & 0x3000000)
 #define BRPFROMBTRVAL(value)	((value & 0x1FF)+1)
 
- /* 500kbit/s -> CAN_BTR = 0x001c0005 http://www.bittiming.can-wiki.info/ */
-#define BTR500k 0x001c0005
 
 struct can_tx_msg {
 	uint32_t std_id;
