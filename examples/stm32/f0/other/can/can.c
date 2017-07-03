@@ -33,7 +33,8 @@
 #include <libopencm3/stm32/can.h>
 
 
- /* 500kbit/s -> CAN_BTR = 0x001c0005 source: http://www.bittiming.can-wiki.info/ */
+/* 500kbit/s -> CAN_BTR = 0x001c0005 source:
+ * http://www.bittiming.can-wiki.info/ */
 #define BTR500k 0x001c0005
 
 /* to get the values needed by can_init from a BTR register value */
@@ -100,34 +101,34 @@ static void can_setup(void)
 	can_reset(CAN1);
 
 	/* CAN cell init. */
-    if (can_init(CAN1,
-                 false,           /* TTCM: Time triggered comm mode? */
-                 true,            /* ABOM: Automatic bus-off management? */
-                 false,           /* AWUM: Automatic wakeup mode? */
-                 true,            /* NART: No automatic retransmission? */
-                 false,           /* RFLM: Receive FIFO locked mode? */
-                 false,           /* TXFP: Transmit FIFO priority? */
-                 SJWFROMBTRVAL(BTR500k),
-                 TS1FROMBTRVAL(BTR500k),
-                 TS2FROMBTRVAL(BTR500k),
-                 BRPFROMBTRVAL(BTR500k),
-                 false,				 /* Loopback */
-                 false))             /* Silent */
-	{
+	if (can_init(CAN1,
+			false,     /* TTCM: Time triggered comm mode? */
+			true,      /* ABOM: Automatic bus-off management? */
+			false,     /* AWUM: Automatic wakeup mode? */
+			true,      /* NART: No automatic retransmission? */
+			false,     /* RFLM: Receive FIFO locked mode? */
+			false,     /* TXFP: Transmit FIFO priority? */
+			SJWFROMBTRVAL(BTR500k),
+			TS1FROMBTRVAL(BTR500k),
+			TS2FROMBTRVAL(BTR500k),
+			BRPFROMBTRVAL(BTR500k),
+			false,     /* Loopback */
+			false)) {  /* Silent */
+
 		/* can init returned a non zero value
-		 * this can be caused by wrong configuration of the alternate function pins,
-		 * or other reasons keeping the can module from reading 11 recessive bits for
-		 * leaving initialization phase
+		 * this can be caused by wrong configuration of the alternate
+		 * function pins,or other reasons keeping the can module from
+		 * reading 11 recessive bits for leaving initialization phase
 		 */
-    		while(1){}
+		while (1);
 	}
 	/* CAN filter 0 init. */
 	can_filter_id_mask_32bit_init(CAN1,
-				0,     /* Filter ID */
-				0,     /* CAN ID */
-				0,     /* CAN ID mask */
-				0,     /* FIFO assignment (here: FIFO0) */
-				true); /* Enable the filter. */
+			0,     /* Filter ID */
+			0,     /* CAN ID */
+			0,     /* CAN ID mask */
+			0,     /* FIFO assignment (here: FIFO0) */
+			true); /* Enable the filter. */
 
 	/* NVIC setup. */
 	nvic_enable_irq(NVIC_CEC_CAN_IRQ);
@@ -138,7 +139,7 @@ static void can_setup(void)
 }
 
 
-uint8_t rxcnt=0;
+uint8_t rxcnt;
 
 void sys_tick_handler(void)
 {
@@ -146,15 +147,16 @@ void sys_tick_handler(void)
 	static uint8_t data[8] = {0, 1, 2, 0, 0, 0, 0, 0};
 
 	/* We call this handler every 1ms so 1000ms = 1s on/off. */
-	if (++temp32 != 1000)
+	if (++temp32 != 1000) {
 		return;
+	}
 
 	temp32 = 0;
 
 	/* Transmit CAN frame. */
 	data[0]++;
 
-	data[7]=rxcnt; /* send count of received messages in last byte */
+	data[7] = rxcnt; /* send count of received messages in last byte */
 	/* "running your can transmission directly from within the systick
 	 *  IRQ doesn't seem like very good style to use as an example" [karlp]
 	 *
@@ -162,11 +164,11 @@ void sys_tick_handler(void)
 	 * it uses the same send mechanism as the original
 	 */
 	can_transmit(CAN1,
-			 0,     /* (EX/ST)ID: CAN ID */
-			 false, /* IDE: CAN ID extended? */
-			 false, /* RTR: Request transmit? */
-			 8,     /* DLC: Data length */
-			 data);
+			0,     /* (EX/ST)ID: CAN ID */
+			false, /* IDE: CAN ID extended? */
+			false, /* RTR: Request transmit? */
+			8,     /* DLC: Data length */
+			data);
 
 }
 
@@ -188,7 +190,7 @@ int main(void)
 	can_setup();
 	systick_setup();
 
-	while (1); 
+	while (1);
 
 	return 0;
 }
