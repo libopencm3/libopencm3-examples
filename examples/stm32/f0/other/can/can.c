@@ -1,6 +1,13 @@
 /*
- * This file is part of the libopencm3 project.
+ * This file is NOT part of the libopencm3 project. The project maintainers
+ * might feel free to include it into their examples
  *
+ *
+ * This file is derived from examples/stm32/f1/obldc/can/can.c
+ *
+ * Additions/changes 2017 by Alex Kist
+ *
+ * Original copyright:
  * Copyright (C) 2010 Thomas Otto <tommi@viadmin.org>
  * Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
  *
@@ -170,6 +177,7 @@ void cec_can_isr(void)
 	rxcnt++;
 }
 
+//ca. 70 Befehle bis main
 int main(void)
 {
 	rcc_clock_setup_in_hsi_out_48mhz();
