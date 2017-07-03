@@ -100,19 +100,19 @@ static void can_setup(void)
 	can_reset(CAN1);
 
 	/* CAN cell init. */
-	if (can_init(CAN1,
-		     false,           /* TTCM: Time triggered comm mode? */
-		     true,            /* ABOM: Automatic bus-off management? */
-		     false,           /* AWUM: Automatic wakeup mode? */
-		     true,           /* NART: No automatic retransmission? */
-		     false,           /* RFLM: Receive FIFO locked mode? */
-		     false,           /* TXFP: Transmit FIFO priority? */
-		     SJWFROMBTRVAL(BTR500k),
-			 TS1FROMBTRVAL(BTR500k),
-		     TS2FROMBTRVAL(BTR500k),
-			 BRPFROMBTRVAL(BTR500k),
-		     false,				 /* Loopback */
-		     false))             /* Silent */
+    if (can_init(CAN1,
+                 false,           /* TTCM: Time triggered comm mode? */
+                 true,            /* ABOM: Automatic bus-off management? */
+                 false,           /* AWUM: Automatic wakeup mode? */
+                 true,            /* NART: No automatic retransmission? */
+                 false,           /* RFLM: Receive FIFO locked mode? */
+                 false,           /* TXFP: Transmit FIFO priority? */
+                 SJWFROMBTRVAL(BTR500k),
+                 TS1FROMBTRVAL(BTR500k),
+                 TS2FROMBTRVAL(BTR500k),
+                 BRPFROMBTRVAL(BTR500k),
+                 false,				 /* Loopback */
+                 false))             /* Silent */
 	{
 		/* can init returned a non zero value
 		 * this can be caused by wrong configuration of the alternate function pins,
