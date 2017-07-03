@@ -155,6 +155,12 @@ void sys_tick_handler(void)
 	data[0]++;
 
 	data[7]=rxcnt; /* send count of received messages in last byte */
+	/* "running your can transmission directly from within the systick
+	 *  IRQ doesn't seem like very good style to use as an example" [karlp]
+	 *
+	 * As this is a derived work from examples/stm32/f1/obldc/can/can.c
+	 * it uses the same send mechanism as the original
+	 */
 	can_transmit(CAN1,
 			 0,     /* (EX/ST)ID: CAN ID */
 			 false, /* IDE: CAN ID extended? */
@@ -176,7 +182,6 @@ void cec_can_isr(void)
 	rxcnt++;
 }
 
-//ca. 70 Befehle bis main
 int main(void)
 {
 	rcc_clock_setup_in_hsi_out_48mhz();
