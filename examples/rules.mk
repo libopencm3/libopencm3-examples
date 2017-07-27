@@ -93,7 +93,7 @@ include $(OPENCM3_DIR)/mk/genlink-config.mk
 endif
 
 OPENCM3_SCRIPT_DIR = $(OPENCM3_DIR)/scripts
-EXAMPLES_SCRIPT_DIR	= $(OPENCM3_DIR)../scripts
+EXAMPLES_SCRIPT_DIR	= $(OPENCM3_DIR)/../scripts
 
 ###############################################################################
 # C flags
