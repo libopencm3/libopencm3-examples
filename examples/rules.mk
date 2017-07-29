@@ -231,7 +231,6 @@ styleclean: $(STYLECHECKFILES:=.styleclean)
 	@printf "  FLASH  $<\n"
 	$(STFLASH) write $(*).bin 0x8000000
 
-ifeq ($(STLINK_PORT),)
 ifeq ($(BMP_PORT),)
 ifeq ($(OOCD_FILE),)
 %.flash: %.elf
@@ -255,14 +254,6 @@ else
 	$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(EXAMPLES_SCRIPT_DIR)/black_magic_probe_flash.scr \
-		   $(*).elf
-endif
-else
-%.flash: %.elf
-	@printf "  GDB   $(*).elf (flash)\n"
-	$(GDB) --batch \
-		   -ex 'target extended-remote $(STLINK_PORT)' \
-		   -x $(EXAMPLES_SCRIPT_DIR)/stlink_flash.scr \
 		   $(*).elf
 endif
 
