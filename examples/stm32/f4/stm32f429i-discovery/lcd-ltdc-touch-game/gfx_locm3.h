@@ -31,7 +31,7 @@
 #include "fonts/utf8.h"
 #include "fonts/fonts.h"
 
-#define swap(a, b) { int16_t t = a; a = b; b = t; }
+#define swap_i16(a, b) { int16_t t = a; a = b; b = t; }
 
 /*
  * Python

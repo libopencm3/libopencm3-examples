@@ -37,6 +37,37 @@
 #include "fonts/Tamsyn5x9b_9.h"
 #include "vector_gfx/vector_gfx.h"
 
+
+/* snake definitions */
+typedef enum {
+	RIGHT,UP,LEFT,DOWN
+} direction_t;
+typedef enum {
+	LOST,
+	STARTED
+} state_t;
+typedef struct {
+	bool placed;
+	point2d_t pos;
+} snake_food_t;
+typedef struct {
+	/* play-field */
+	int16_t off_x,off_y,fw,fh;
+	/* snake */
+	uint64_t last_time;
+	float size, length, max_length, speed;
+	point2d_t *history, *hcurr, *hfirst, *hend;
+	direction_t dir;
+	state_t state;
+	snake_food_t food;
+} snake_state_t;
+
+snake_state_t snake;
+
+static inline void snake_history_reset(void);
+static void snake_turn(direction_t dir);
+
+
 // simple static extension functions
 static inline void enable_interrupts(void) {
 	__enable_irq();
@@ -72,22 +103,13 @@ exti15_10_isr() {
 }
 
 /* Blue button interrupt */
-typedef enum {
-	DEMO_MODE_ALL,
-	DEMO_MODE_FLOODFILL4,
-	DEMO_MODE_BEZIER,
-	DEMO_MODE_BEZIER_INTERACTIVE,
-	DEMO_MODE_BALLS,
-} demo_mode_t;
-demo_mode_t new_demo_mode = DEMO_MODE_ALL;
-
-static void snake_left(void);
 void
 exti0_isr()
 {
 	exti_reset_request(EXTI0);
 //	new_demo_mode = (new_demo_mode+1) % (DEMO_MODE_BALLS+1);
-	snake_left();
+	snake_history_reset();
+	snake.state = STARTED;
 }
 
 
@@ -110,14 +132,49 @@ update_touchscreen_data(void)
 
 	touch_data = stmpe811_get_touch_data();
 	if (touch_data.touched == 1) {
+		switch (gfx_get_rotation()) {
+			case GFX_ROTATION_0_DEGREES :
+			case GFX_ROTATION_180_DEGREES :
+				break;
+			case GFX_ROTATION_90_DEGREES :
+			case GFX_ROTATION_270_DEGREES :
+				swap_i16(touch_data.x,touch_data.y);
+				break;
+		}
+		switch (gfx_get_rotation()) {
+			case GFX_ROTATION_0_DEGREES :
+				touch_data.x = STMPE811_X_MAX - touch_data.x;
+				break;
+			case GFX_ROTATION_90_DEGREES :
+				touch_data.x = STMPE811_X_MAX - touch_data.x;
+				touch_data.y = STMPE811_Y_MAX - touch_data.y;
+				break;
+			case GFX_ROTATION_180_DEGREES :
+				touch_data.y = STMPE811_Y_MAX - touch_data.y;
+				break;
+			case GFX_ROTATION_270_DEGREES :
+				break;
+		}
 		touch_point = (point2d_t) {
 				(vector_flt_t)gfx_width()
-				* (touch_data.y - STMPE811_Y_MIN)
+				* (touch_data.x - STMPE811_Y_MIN)
 				/ (STMPE811_Y_MAX - STMPE811_Y_MIN),
 				(vector_flt_t)gfx_height()
-				* (touch_data.x-STMPE811_X_MIN)
+				* (touch_data.y-STMPE811_X_MIN)
 				/ (STMPE811_X_MAX-STMPE811_X_MIN)
 		};
+		if (touch_point.x < gfx_width()/2) {
+		//if (point2d_compare((point2d_t){            25,gfx_height()-25},touch_point, 50)) {
+			disable_interrupts();
+			snake_turn(LEFT);
+			enable_interrupts();
+		} else
+		if (touch_point.x > gfx_width()/2) {
+		//if (point2d_compare((point2d_t){gfx_width()-25,gfx_height()-25},touch_point, 50)) {
+			disable_interrupts();
+			snake_turn(RIGHT);
+			enable_interrupts();
+		}
 	} else {
 		drag_data = stmpe811_get_drag_data();
 		if (drag_data.data_is_valid) {
@@ -177,7 +234,7 @@ update_touchscreen_data(void)
 /**
  * Re-/draw background
  */
-static void draw_background(demo_mode_t demo_mode)
+static void draw_background()
 {
 	ili9341_set_layer1();
 
@@ -199,32 +256,13 @@ static void draw_background(demo_mode_t demo_mode)
 			GFX_ALIGNMENT_RIGHT
 		);
 
+//	draw_antialised_line((segment2d_t){20,20,200,200},GFX_COLOR_GREEN2);
+
 	/* flip background buffer */
 	ili9341_flip_layer1_buffer();
 }
 
 /* Snake */
-/* snake */
-typedef enum {
-	RIGHT,UP,LEFT,DOWN
-} direction_t;
-typedef enum {
-	LOST,
-	STARTED
-} state_t;
-typedef struct {
-	/* play-field */
-	int16_t off_x,off_y,fw,fh;
-	/* snake */
-	uint64_t last_time;
-	float size, length, speed;
-	point2d_t *history, *hcurr, *hfirst, *hend;
-	direction_t dir;
-	state_t state;
-} snake_state_t;
-
-snake_state_t snake;
-
 static inline
 point2d_t *dec(point2d_t *p) {
 	if (p==snake.history) p = snake.hend-1;
@@ -246,21 +284,23 @@ bool inc_and_test(point2d_t **p, point2d_t *test_p) {
 	return test_p == (*p=inc(*p));
 }
 #define SNAKE_HISTORY_LENGTH 1000
-static inline void snake_history_reset(void);
 static void init_snake(void) {
 	point2d_t *history = malloc(sizeof(point2d_t)*SNAKE_HISTORY_LENGTH);
 	snake = (snake_state_t) {
 		.off_x=5,.off_y=45, .fw=gfx_width()-10, .fh=gfx_height()-50,
 		.last_time=mtime(),
-		.size=6,.length=0,.speed=30,
+		.size=10,.length=0,.max_length=50,.speed=30,
 		.history=history,.hcurr=history,.hfirst=history,.hend=history+SNAKE_HISTORY_LENGTH,
 		.dir=RIGHT,
-		.state=LOST
+		.state=LOST,
+		.food={0}
 	};
 	snake_history_reset();
+	rand_r(666);
 }
 static inline void snake_history_reset(void) {
-	snake.length = 0;
+	snake.length = 0; snake.max_length = 50;
+	snake.speed = 30;
 	snake.dir    = RIGHT;
 	snake.hfirst = snake.hcurr;
 	point2d_t reset_point = (point2d_t){snake.off_x+snake.fw/2,snake.off_y+snake.fh/2};
@@ -268,16 +308,22 @@ static inline void snake_history_reset(void) {
 	 snake.hcurr = inc(snake.hcurr);
 	*snake.hcurr = reset_point;
 }
+static vector_flt_t var_thickness(vector_flt_t *arg, int16_t p, int16_t length) {
+	(void)p;(void)length;
+	return snake.size/4-1+snake.size/4*(((1+vector_flt_cos((*arg+p)/5))/2));
+}
 static void do_snake(void) {
 	disable_interrupts();
 
 	uint64_t t = mtime();
+	float tdiff = (float)(t-snake.last_time) / 1000;
 
 	point2d_t *p = snake.hcurr;
+	bool lost;
 	switch (snake.state) {
 		case STARTED :
 		{
-			float dist = snake.speed * (float)(t-snake.last_time) / 1000;
+			float dist = snake.speed * tdiff;
 			switch (snake.dir) {
 				case RIGHT :
 					p->x += dist;
@@ -294,140 +340,132 @@ static void do_snake(void) {
 			}
 
 			snake.length += dist;
-			if (snake.length > 1000) snake.length = 1000;
+			if (snake.length > snake.max_length) snake.length = snake.max_length;
+
+			lost = p->x < snake.off_x
+				|| p->x > snake.off_x+snake.fw
+				|| p->y < snake.off_y
+				|| p->y > snake.off_y+snake.fh;
+
+			if (!snake.food.placed) {
+				snake.food.placed = true;
+				snake.food.pos = (point2d_t){
+					(vector_flt_t)rand()/RAND_MAX*snake.fw+snake.off_x,
+					(vector_flt_t)rand()/RAND_MAX*snake.fh+snake.off_y
+				};
+			}
 		} break;
 		case LOST :
+//		default :
+			lost = true;
 			break;
 	}
 	snake.last_time = t;
 
-
-	bool lost = p->x < snake.off_x
-			 || p->x > snake.off_x+snake.fw
-			 || p->y < snake.off_y
-			 || p->y > snake.off_y+snake.fh;
-
-	if (!lost) {
-		float x,y;
-		x = p->x;
-		y = p->y;
-		float l = snake.length;
-		bool done = false;
-		while (true) {
-			float nx,ny,w,h;
-			int16_t sx,sy,sw,sh;
-			done = dec_and_test(&p, snake.hfirst);
-			assert((p-snake.history)!=999);
-			nx = p->x;
-			ny = p->y;
-			w = nx-x;
-			h = ny-y;
-			sw = (int16_t)floorf(w);
-			sh = (int16_t)floorf(h);
-			if (sw!=0) {
-				sy = (int16_t)roundf(y);
-				bool bw;
-				if ((bw = (sw < 0))) {
-					sx = (int16_t)roundf(nx);
-					sw = -sw;
-					l +=   w;
-				} else {
-					sx = (int16_t)roundf(x);
-					l -= w;
-				}
-				int16_t sl = (int16_t)roundf(l);
-				if (sl<=0) {
-					if (bw) {
-						sx   -= sl;
-						p->x -= l;
-					} else {
-						p->x += l;
-					}
-					sw   += sl;
-					done  = true;
-				}
-				assert(sh==0);
-//				sh = 0;
-			} else
-			if (sh!=0) {
-				sx = (int16_t)roundf(x);
-				bool bw;
-				if ((bw = (sh < 0))) {
-					sy = (int16_t)roundf(ny);
-					sh = -sh;
-					l += h;
-				} else {
-					sy = (int16_t)roundf(y);
-					l -= h;
-				}
-				int16_t sl = (int16_t)roundf(l);
-				if (sl<=0) {
-					if (bw) {
-						sy   -= sl;
-						p->y -= l;
-					} else {
-						p->y += l;
-					}
-					sh   += sl;
-					done  = true;
-				}
-				assert(sw==0);
-//				sw = 0;
-			} else {
-				sx = (int16_t)roundf(x);
-				sy = (int16_t)roundf(y);
+	/* drawing snake from front to back, while keeping track of the total length */
+	bool done = false;
+	float l = snake.length;
+	float dl = 0;
+	point2d_t *lp = p;
+	while (true) {
+		done = dec_and_test(&p, snake.hfirst);
+		vector_flt_t dist = point2d_dist(*lp,*p);
+		l -= dist;
+		if (l<=0.0001f) { // <=0
+			if (l<0) {
+				point2d_t dir = point2d_normalize(point2d_sub_ts(*lp,*p));
+				*p = point2d_add_ts(*p, point2d_mul_t(dir,-l));
 			}
-			sx -= (int16_t)roundf(snake.size/2);
-			sy -= (int16_t)roundf(snake.size/2);
-			sw += (int16_t)roundf(snake.size);
-			sh += (int16_t)roundf(snake.size);
-			gfx_fill_round_rect(
-					sx,sy,sw,sh,
-					(int16_t)(snake.size/2),
-					GFX_COLOR_GREEN2
-				);
-			if (done) break;
-			x = nx; y = ny;
+			done  = true;
 		}
-		snake.hfirst = p;
+
+		draw_thick_line(
+				lp->x,lp->y,p->x,p->y,
+				snake.size,
+				GFX_COLOR_GREEN2
+			);
+		draw_varthick_line(
+				lp->x,lp->y,p->x,p->y,
+				(drawing_varthick_fct_t)var_thickness, &dl,
+				(drawing_varthick_fct_t)var_thickness, &dl,
+				GFX_COLOR_RED
+			);
+//		draw_antialised_line((segment2d_t){*lp,*p},GFX_COLOR_WHITE);
+
+		if (done) break;
+		lp  = p;
+		dl += dist;
+	}
+	gfx_fill_circle(
+			(int16_t)snake.hcurr->x,(int16_t)snake.hcurr->y,
+			(int16_t)vector_flt_round(snake.size/2),
+			GFX_COLOR_GREEN2
+		);
+
+	snake.hfirst = p;
+	if (!lost) {
 		/* test for intersections in the current direction */
 		/* TODO this is very inefficient.. */
-		while (p != snake.hcurr) {
-			segment2d_t s1;
-			p = snake.hcurr;
-			s1.p1 = *p;
-			if (dec_and_test(&p, snake.hfirst)) break;
-			s1.p2 = *p;
-			/* TODO optimize.. */
-			if (dec_and_test(&p, snake.hfirst)) break;
-			while (true) {
-				bool last_p;
+		segment2d_t s1;
+		p = snake.hcurr;
+		s1.p1 = *p;
+		if (snake.food.placed
+		 && (point2d_dist(snake.food.pos,s1.p1) < snake.size)
+		) {
+			snake.food.placed = false;
+			snake.max_length += 50;
+			snake.speed += 5;
+		}
+
+		done = dec_and_test(&p, snake.hfirst);
+		s1.p2 = *p;
+		if (snake.food.placed
+		 && (dist_point_to_segment(snake.food.pos,s1) < snake.size)
+		) {
+			snake.food.placed = false;
+		}
+		if (!done) {
+			while (p != snake.hcurr) {
+				/* TODO optimize.. */
+				if (dec_and_test(&p, snake.hfirst)) break;
 				segment2d_t s2;
-				s2.p2 = *p;
-				last_p = dec_and_test(&p, snake.hfirst);
 				s2.p1 = *p;
-				if (dist_segment_to_segment(s1,s2).distance < snake.size) {
-					lost = true;
-					break;
+				while (true) {
+					bool last_p;
+					last_p = dec_and_test(&p, snake.hfirst);
+					s2.p2 = *p;
+					if (dist_segment_to_segment(s1,s2).distance < snake.size) {
+						lost = true;
+						break;
+					}
+					if (snake.food.placed
+					 && (dist_point_to_segment(snake.food.pos,s2) < snake.size)
+					) {
+						snake.food.placed = false;
+					}
+					if (last_p) break;
+					s2.p1 = s2.p2;
 				}
-				if (last_p) break;
-				last_p = dec_and_test(&p, snake.hfirst);
-				s2.p2 = *p;
-				if (dist_segment_to_segment(s1,s2).distance < snake.size) {
-					lost = true;
-					break;
-				}
-				if (last_p) break;
+				break;
 			}
-			break;
 		}
 	}
+
+	/* draw food */
+	if (snake.food.placed) {
+		gfx_fill_circle(
+				(int16_t)snake.food.pos.x,(int16_t)snake.food.pos.y,
+				(int16_t)vector_flt_round(snake.size/2),
+				GFX_COLOR_RED
+			);
+	}
+
 	/* check if lost */
 	if (lost) { snake.state = LOST; }
 
 	enable_interrupts();
 }
-static void snake_left(void) {
+static void snake_turn(direction_t dir) {
 	/* snake */
 	switch (snake.state) {
 		case LOST :
@@ -450,7 +488,20 @@ static void snake_left(void) {
 						break;
 				}
 			}
-			snake.dir = (snake.dir+1) % (DOWN+1);
+			switch (dir) {
+				case UP :
+				case DOWN :
+					assert(0);
+					break;
+				case LEFT :
+					if (snake.dir==DOWN) snake.dir = RIGHT;
+					else snake.dir++;
+					break;
+				case RIGHT :
+					if (snake.dir==RIGHT) snake.dir = DOWN;
+					else snake.dir--;
+					break;
+			}
 			point2d_t p = *snake.hcurr;
 			snake.hcurr++;
 			if (snake.hcurr==snake.hend) {
@@ -530,7 +581,7 @@ int main(void)
 	 * Application start..
 	 */
 
-	/* rotate LCD for 90 degrees */
+	/* rotate LCD */
 	gfx_rotate(GFX_ROTATION_180_DEGREES);
 
 	/* set background color */
@@ -553,8 +604,7 @@ int main(void)
 	while (LTDC_SRCR_IS_RELOADING());
 
 	/* draw background */
-	demo_mode_t demo_mode = new_demo_mode;
-	draw_background(demo_mode);
+	draw_background();
 
 	/* init snake */
 	init_snake();
@@ -577,11 +627,6 @@ int main(void)
 		static char fps_s[7] = "   fps";
 
 		if (!LTDC_SRCR_IS_RELOADING() && (draw_timeout <= ctime)) {
-			if (demo_mode != new_demo_mode) {
-				demo_mode = new_demo_mode;
-				draw_background(demo_mode);
-			}
-
 			/* calculate fps */
 			uint32_t fps;
 			fps = 1000 / (ctime-draw_timeout+DISPLAY_TIMEOUT);
@@ -602,6 +647,9 @@ int main(void)
 			 * Snake
 			 */
 			do_snake();
+			char snake_length_s[64];
+			sprintf(snake_length_s, "snake length:% 6.1f", snake.length);
+			gfx_puts3(gfx_width()-10,30,snake_length_s, GFX_ALIGNMENT_RIGHT);
 
 //			/**
 //			 * Flood fill test

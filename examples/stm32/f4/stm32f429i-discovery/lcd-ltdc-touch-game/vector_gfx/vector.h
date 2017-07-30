@@ -104,6 +104,13 @@ point2d_dist(point2d_t u, point2d_t v) {
 	return point2d_norm(point2d_sub_ts(u, v));
 }
 static inline
+point2d_t
+point2d_normalize(point2d_t v) {
+	vector_flt_t norm = point2d_norm(v);
+	if (norm <= vector_flt_EPSILON) return (point2d_t){0,0};
+	return point2d_div_t(v, norm);
+}
+static inline
 bool
 point2d_compare(point2d_t p1, point2d_t p2, float resolution) {
 	point2d_t dist = point2d_sub_ts(p1, p2);

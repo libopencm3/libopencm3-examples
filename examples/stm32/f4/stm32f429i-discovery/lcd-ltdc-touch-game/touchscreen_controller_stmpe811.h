@@ -148,8 +148,8 @@
 
 /* STMPE811_INTERRUPT_TIMEOUT ms no stmpe811-interrupt
  * shall occur until touch data is considered to set touched again :P */
-#define STMPE811_INTERRUPT_TIMEOUT 300
-#define STMPE811_DRAG_TIMEOUT      300 /* values bigger than STMPE811_INTERRUPT_TIMEOUT make no sense..*/
+#define STMPE811_INTERRUPT_TIMEOUT 100
+#define STMPE811_DRAG_TIMEOUT      100 /* values bigger than STMPE811_INTERRUPT_TIMEOUT make no sense..*/
 
 typedef enum {
 	STMPE811_TOUCH_STATE__UNTOUCHED = 0,                /* set by init / timeout in interrupt */
