@@ -20,6 +20,8 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
+#include <stdio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/i2c.h>
@@ -97,33 +99,23 @@ static void gpio_setup(void)
 		GPIO14 | GPIO15);
 }
 
-static void my_usart_print_int(uint32_t usart, int32_t value)
+int _write(int file, char *ptr, int len)
 {
-	int8_t i;
-	int8_t nr_digits = 0;
-	char buffer[25];
+        int i;
 
-	if (value < 0) {
-		usart_send_blocking(usart, '-');
-		value = value * -1;
-	}
-
-	if (value == 0) {
-		usart_send_blocking(usart, '0');
-	}
-
-	while (value > 0) {
-		buffer[nr_digits++] = "0123456789"[value % 10];
-		value /= 10;
-	}
-
-	for (i = nr_digits-1; i >= 0; i--) {
-		usart_send_blocking(usart, buffer[i]);
-	}
-
-	usart_send_blocking(usart, '\r');
-	usart_send_blocking(usart, '\n');
+        if (file == 1) {
+                for (i = 0; i < len; i++) {
+			if (ptr[i] == '\n') {
+				usart_send_blocking(USART2, '\r');
+			}
+                        usart_send_blocking(USART2, ptr[i]);
+		}
+                return i;
+        }
+        errno = EIO;
+        return -1;
 }
+
 
 static void clock_setup(void)
 {
@@ -150,13 +142,14 @@ int main(void)
 	clock_setup();
 	gpio_setup();
 	usart_setup();
+	printf("Hello, we're running\n");
 	i2c_setup();
 	/*uint8_t data[1]={(0x4 << ACC_CTRL_REG1_A_ODR_SHIFT) | ACC_CTRL_REG1_A_XEN};*/
 	uint8_t data[1]={0x97};
 	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG1_A, 1, data);
 	data[0]=0x08;
 	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG4_A, 1, data);
-	uint16_t acc_x;
+	int16_t acc_x;
 
 	while (1) {
 
@@ -166,7 +159,7 @@ int main(void)
 		acc_x=data[0];
 		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_H_A, 1, data);
 		acc_x|=(data[0] << 8);
-		my_usart_print_int(USART2, (int16_t) acc_x);
+		printf("data was %d\n", acc_x);
 		//int i;
 		//for (i = 0; i < 800000; i++)    /* Wait a bit. */
 		//  __asm__("nop");
