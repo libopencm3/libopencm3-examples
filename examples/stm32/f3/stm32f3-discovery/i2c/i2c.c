@@ -54,14 +54,13 @@ static void i2c_setup(void)
 	i2c_reset(I2C1);
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
-	gpio_set_af(GPIOB, GPIO_AF4, GPIO6| GPIO7);
+	gpio_set_af(GPIOB, GPIO_AF4, GPIO6 | GPIO7);
 	i2c_peripheral_disable(I2C1);
 	//configure ANFOFF DNF[3:0] in CR1
 	i2c_enable_analog_filter(I2C1);
 	i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
-	//Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0] SCLH[7:0] SCLL[7:0]
-	// in TIMINGR
-	i2c_100khz_i2cclk8mhz(I2C1);
+	/* HSI is at 8Mhz */
+	i2c_set_speed(I2C1, i2c_speed_sm_100k, 8);
 	//configure No-Stretch CR1 (only relevant in slave mode)
 	i2c_enable_stretching(I2C1);
 	//addressing mode
@@ -134,9 +133,6 @@ static void clock_setup(void)
 #define ACC_OUT_X_L_A 0x28
 #define ACC_OUT_X_H_A 0x29
 
-//      gpio_port_write(GPIOE, (I2C_ISR(i2c) & 0xFF) << 8);
-//      my_usart_print_int(USART2, (I2C_ISR(i2c) & 0xFF));
-
 int main(void)
 {
 	clock_setup();
@@ -144,25 +140,24 @@ int main(void)
 	usart_setup();
 	printf("Hello, we're running\n");
 	i2c_setup();
-	/*uint8_t data[1]={(0x4 << ACC_CTRL_REG1_A_ODR_SHIFT) | ACC_CTRL_REG1_A_XEN};*/
-	uint8_t data[1]={0x97};
-	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG1_A, 1, data);
-	data[0]=0x08;
-	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG4_A, 1, data);
+	uint8_t cmd = ACC_CTRL_REG1_A;
+	uint8_t data;
+	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+	cmd = ACC_CTRL_REG4_A;
+	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
 	int16_t acc_x;
 
 	while (1) {
 
-		read_i2c(I2C1, I2C_ACC_ADDR, ACC_STATUS, 1, data);
-		/*my_usart_print_int(USART2, data[0]);*/
-		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_L_A, 1, data);
-		acc_x=data[0];
-		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_H_A, 1, data);
-		acc_x|=(data[0] << 8);
+		cmd = ACC_STATUS;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		cmd = ACC_OUT_X_L_A;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		acc_x = data;
+		cmd = ACC_OUT_X_H_A;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		acc_x |= ((uint16_t)data << 8);
 		printf("data was %d\n", acc_x);
-		//int i;
-		//for (i = 0; i < 800000; i++)    /* Wait a bit. */
-		//  __asm__("nop");
 	}
 
 	return 0;

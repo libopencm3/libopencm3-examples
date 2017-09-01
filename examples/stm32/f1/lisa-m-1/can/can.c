@@ -18,12 +18,13 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/flash.h>
-#include <libopencm3/stm32/gpio.h>
+#include <stddef.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/stm32/can.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/flash.h>
+#include <libopencm3/stm32/rcc.h>
 
 struct can_tx_msg {
 	uint32_t std_id;
@@ -195,11 +196,11 @@ void sys_tick_handler(void)
 
 void usb_lp_can_rx0_isr(void)
 {
-	uint32_t id, fmi;
+	uint32_t id;
 	bool ext, rtr;
-	uint8_t length, data[8];
+	uint8_t fmi, length, data[8];
 
-	can_receive(CAN1, 0, false, &id, &ext, &rtr, &fmi, &length, data);
+	can_receive(CAN1, 0, false, &id, &ext, &rtr, &fmi, &length, data, NULL);
 
 	if (data[0] & 1)
 		gpio_clear(GPIOA, GPIO8);
