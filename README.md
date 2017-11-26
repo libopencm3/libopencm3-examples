@@ -112,7 +112,7 @@ This example uses the st-util by texane that you can find on [GitHub](https://gi
 
     cd examples/stm32/f1/stm32vl-discovery/miniblink
     arm-none-eabi-gdb miniblink.elf
-    tar extended-remote :4242
+    target extended-remote :4242
     load
     run
 
