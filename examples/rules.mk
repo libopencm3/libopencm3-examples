@@ -98,7 +98,7 @@ EXAMPLES_SCRIPT_DIR	= $(OPENCM3_DIR)/../scripts
 ###############################################################################
 # C flags
 
-TGT_CFLAGS	+= $(OPT) $(CSTD) -g
+TGT_CFLAGS	+= $(OPT) $(CSTD) -ggdb3
 TGT_CFLAGS	+= $(ARCH_FLAGS)
 TGT_CFLAGS	+= -Wextra -Wshadow -Wimplicit-function-declaration
 TGT_CFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
@@ -107,7 +107,7 @@ TGT_CFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 ###############################################################################
 # C++ flags
 
-TGT_CXXFLAGS	+= $(OPT) $(CXXSTD) -g
+TGT_CXXFLAGS	+= $(OPT) $(CXXSTD) -ggdb3
 TGT_CXXFLAGS	+= $(ARCH_FLAGS)
 TGT_CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls  -Weffc++
 TGT_CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
