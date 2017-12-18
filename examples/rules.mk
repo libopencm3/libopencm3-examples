@@ -43,6 +43,7 @@ STYLECHECK	:= /checkpatch.pl
 STYLECHECKFLAGS	:= --no-tree -f --terse --mailback
 STYLECHECKFILES	:= $(shell find . -name '*.[ch]')
 OPT		:= -Os
+DEBUG		:= -ggdb3
 CSTD		?= -std=c99
 
 
@@ -98,7 +99,7 @@ EXAMPLES_SCRIPT_DIR	= $(OPENCM3_DIR)/../scripts
 ###############################################################################
 # C flags
 
-TGT_CFLAGS	+= $(OPT) $(CSTD) -g
+TGT_CFLAGS	+= $(OPT) $(CSTD) $(DEBUG)
 TGT_CFLAGS	+= $(ARCH_FLAGS)
 TGT_CFLAGS	+= -Wextra -Wshadow -Wimplicit-function-declaration
 TGT_CFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
@@ -107,7 +108,7 @@ TGT_CFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 ###############################################################################
 # C++ flags
 
-TGT_CXXFLAGS	+= $(OPT) $(CXXSTD) -g
+TGT_CXXFLAGS	+= $(OPT) $(CXXSTD) $(DEBUG)
 TGT_CXXFLAGS	+= $(ARCH_FLAGS)
 TGT_CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls  -Weffc++
 TGT_CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
@@ -124,7 +125,7 @@ TGT_CPPFLAGS	+= $(DEFS)
 
 TGT_LDFLAGS		+= --static -nostartfiles
 TGT_LDFLAGS		+= -T$(LDSCRIPT)
-TGT_LDFLAGS		+= $(ARCH_FLAGS)
+TGT_LDFLAGS		+= $(ARCH_FLAGS) $(DEBUG)
 TGT_LDFLAGS		+= -Wl,-Map=$(*).map
 TGT_LDFLAGS		+= -Wl,--gc-sections
 ifeq ($(V),99)
