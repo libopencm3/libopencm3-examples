@@ -1,0 +1,39 @@
+##
+## This file is part of the libopencm3 project.
+##
+## Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
+##
+## This library is free software: you can redistribute it and/or modify
+## it under the terms of the GNU Lesser General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This library is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU Lesser General Public License for more details.
+##
+## You should have received a copy of the GNU Lesser General Public License
+## along with this library.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+BINARY = sokoban
+CSOURCES = uart-int.c sdram.c mprintf.c ili9341c.c i2c3_touch.c levels.c
+BITMAPS = guy.bmp wall.bmp box.bmp box2.bmp bigguy.bmp
+HEADERS	 = ili9341.h sdram.h uart.h i2c3_touch.h
+
+# Suffix rules
+OBJS = $(CSOURCES:.c=.o)
+
+LDSCRIPT = ../stm32f429i-discovery.ld
+
+include ../../Makefile.include
+
+# Added directives to compile the bitmap to c header converter (bmp2c.c)
+# and to use it to generate the file bmp.c which contain the images as
+# initialized arrays.
+bmp2c: bmp2c.c
+	gcc -o bmp2c bmp2c.c -Wall
+
+bmp.c: bmp2c $(BITMAPS)
+	$(DIRLOC)bmp2c $(BITMAPS) > bmp.c
