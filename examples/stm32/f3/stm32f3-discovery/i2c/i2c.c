@@ -45,6 +45,8 @@
 #define LD8 GPIOE, GPIO14
 #define LD6 GPIOE, GPIO15
 
+int _write(int file, char *ptr, int len);
+
 static void i2c_setup(void)
 {
 	rcc_periph_clock_enable(RCC_I2C1);
@@ -58,7 +60,7 @@ static void i2c_setup(void)
 	i2c_peripheral_disable(I2C1);
 	//configure ANFOFF DNF[3:0] in CR1
 	i2c_enable_analog_filter(I2C1);
-	i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
+	i2c_set_digital_filter(I2C1, 0);
 	/* HSI is at 8Mhz */
 	i2c_set_speed(I2C1, i2c_speed_sm_100k, 8);
 	//configure No-Stretch CR1 (only relevant in slave mode)
