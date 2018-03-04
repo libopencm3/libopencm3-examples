@@ -174,39 +174,38 @@ static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_da
 	}
 }
 
-static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
+static enum usbd_request_return_codes usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
 		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)usbd_dev;
 
 	if ((req->bmRequestType & 0x7F) != 0x21)
-		return 0; /* Only accept class request. */
+		return USBD_REQ_NOTSUPP; /* Only accept class request. */
 
 	switch (req->bRequest) {
 	case DFU_DNLOAD:
 		if ((len == NULL) || (*len == 0)) {
 			usbdfu_state = STATE_DFU_MANIFEST_SYNC;
-			return 1;
 		} else {
 			/* Copy download data for use on GET_STATUS. */
 			prog.blocknum = req->wValue;
 			prog.len = *len;
 			memcpy(prog.buf, *buf, *len);
 			usbdfu_state = STATE_DFU_DNLOAD_SYNC;
-			return 1;
 		}
+		return USBD_REQ_HANDLED;
 	case DFU_CLRSTATUS:
 		/* Clear error and return to dfuIDLE. */
 		if (usbdfu_state == STATE_DFU_ERROR)
 			usbdfu_state = STATE_DFU_IDLE;
-		return 1;
+		return USBD_REQ_HANDLED;
 	case DFU_ABORT:
 		/* Abort returns to dfuIDLE state. */
 		usbdfu_state = STATE_DFU_IDLE;
-		return 1;
+		return USBD_REQ_HANDLED;
 	case DFU_UPLOAD:
 		/* Upload not supported for now. */
-		return 0;
+		return USBD_REQ_NOTSUPP;
 	case DFU_GETSTATUS: {
 		uint32_t bwPollTimeout = 0; /* 24-bit integer in DFU class spec */
 		(*buf)[0] = usbdfu_getstatus(&bwPollTimeout);
@@ -217,16 +216,16 @@ static int usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		(*buf)[5] = 0; /* iString not used here */
 		*len = 6;
 		*complete = usbdfu_getstatus_complete;
-		return 1;
+		return USBD_REQ_HANDLED;
 		}
 	case DFU_GETSTATE:
 		/* Return state with no state transision. */
 		*buf[0] = usbdfu_state;
 		*len = 1;
-		return 1;
+		return USBD_REQ_HANDLED;
 	}
 
-	return 0;
+	return USBD_REQ_NOTSUPP;
 }
 
 static void usbdfu_set_config(usbd_device *usbd_dev, uint16_t wValue)

@@ -214,13 +214,13 @@ static enum usbd_request_return_codes hid_control_request(usbd_device *dev, stru
 	if((req->bmRequestType != 0x81) ||
 	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
 	   (req->wValue != 0x2200))
-		return 0;
+		return USBD_REQ_NOTSUPP;
 
 	/* Handle the HID report descriptor. */
 	*buf = (uint8_t *)hid_report_descriptor;
 	*len = sizeof(hid_report_descriptor);
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 #ifdef INCLUDE_DFU_INTERFACE
@@ -244,11 +244,11 @@ static enum usbd_request_return_codes dfu_control_request(usbd_device *dev, stru
 	(void)dev;
 
 	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH))
-		return 0; /* Only accept class request. */
+		return USBD_REQ_NOTSUPP; /* Only accept class request. */
 
 	*complete = dfu_detach_complete;
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 #endif
 
