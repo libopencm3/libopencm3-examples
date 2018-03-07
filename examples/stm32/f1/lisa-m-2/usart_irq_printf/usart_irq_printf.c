@@ -45,7 +45,7 @@ struct ring {
 #define RING_DATA(RING)  (RING)->data
 #define RING_EMPTY(RING) ((RING)->begin == (RING)->end)
 
-int _write(int file, char *ptr, int len);
+int __attribute__((used)) _write(int file, char *ptr, int len);
 
 static void ring_init(struct ring *ring, uint8_t *buf, ring_size_t size)
 {
