@@ -27,4 +27,4 @@ MEMORY
 }
 
 /* Include the common ld script. */
-INCLUDE libopencm3_lpc13xx.ld
+INCLUDE cortex-m-generic.ld
