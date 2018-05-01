@@ -235,12 +235,12 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 
 static void usb_setup(void)
 {
-	/* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
+	/* Enable clocks for GPIO port A and USB peripheral. */
 	rcc_usb_prescale_1();
 	rcc_periph_clock_enable(RCC_USB);
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
+	/* Setup GPIO pins for USB D+/D-. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF14, GPIO11| GPIO12);
 }
