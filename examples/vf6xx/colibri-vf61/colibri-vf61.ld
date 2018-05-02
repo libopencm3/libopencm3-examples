@@ -34,5 +34,5 @@ MEMORY
 }
 
 /* Include the common ld script. */
-INCLUDE libopencm3_vf6xx.ld
+INCLUDE vf6xx/libopencm3_vf6xx.ld
 
