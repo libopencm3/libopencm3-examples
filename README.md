@@ -124,12 +124,15 @@ shows the general way.  (If there's interest, we can make a stub template
 repository)
 
 1. Create an empty repository
-
-       mkdir mycoolrobot && cd mycoolrobot && git init .
+```
+mkdir mycoolrobot && cd mycoolrobot && git init .
+```
 
 2. Add libopencm3 as a submodule
 
-       git submodule add https://github.com/libopencm3/libopencm3
+```
+git submodule add https://github.com/libopencm3/libopencm3
+```
 
 2. Build the library, some of the code is generated.
 
@@ -137,7 +140,6 @@ repository)
 make -C libopencm3 -j5
 ```
     
-
 3. Grab a copy of the basic rules
 These urls grab the latest from the libopencm3-examples repository
 
@@ -161,9 +163,11 @@ project in the next step..
 6. beg/borrow/steal an example project
 For sanity's sake, use the same target as the makefile you grabbed up above)
 
-       cp -a \
-         somewhere/libopencm3-examples/examples/stm32/l1/stm32ldiscovery/miniblink \
-         myproject
+```
+cp -a \
+  somewhere/libopencm3-examples/examples/stm32/l1/stm32ldiscovery/miniblink \
+  myproject
+```
 
 Add the path to OPENCM3\_DIR, and modify the path to makefile include
 
