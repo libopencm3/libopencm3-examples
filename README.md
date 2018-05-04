@@ -134,13 +134,13 @@ mkdir mycoolrobot && cd mycoolrobot && git init .
 git submodule add https://github.com/libopencm3/libopencm3
 ```
 
-2. Build the library, some of the code is generated.
+3. Build the library, some of the code is generated.
 
 ```
 make -C libopencm3 -j5
 ```
     
-3. Grab a copy of the basic rules
+4. Grab a copy of the basic rules
 These urls grab the latest from the libopencm3-examples repository
 
 ```
@@ -148,19 +148,19 @@ wget -O libopencm3.rules.mk \
 https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/rules.mk
 ```
 
-4. Grab a copy of your target Makefile in this case, for STM32L1
+5. Grab a copy of your target Makefile in this case, for STM32L1
 
 ```
 wget -O libopencm3.target.mk \
 https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/stm32/l1/Makefile.include
 ```
 
-5. Edit paths in `libopencm3.target.mk`  
+6. Edit paths in `libopencm3.target.mk`
 Edit the _last_ line of `libopencm3.target.mk` and change the include to read
 include `../libopencm3.rules.mk` (the amount of .. depends on where you put your
 project in the next step..
 
-6. beg/borrow/steal an example project
+7. beg/borrow/steal an example project
 For sanity's sake, use the same target as the makefile you grabbed up above)
 
 ```
@@ -188,7 +188,7 @@ Add the path to OPENCM3\_DIR, and modify the path to makefile include
  
 You're done :)
 
-7. If you need extra source files, just add them as their object form to your project makefile
+8. If you need extra source files, just add them as their object form to your project makefile
 ```make
 ...
 BINARY=miniblink
