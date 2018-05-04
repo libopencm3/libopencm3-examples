@@ -176,6 +176,17 @@ Add the path to OPENCM3\_DIR, and modify the path to makefile include
  
 You're done :)
 
+If you want to have multiple source files in your project, you can modify
+makefiles as following:
+
+7. Add this in to Makefile (after `BINARY = ...` line):
+
+    `SRC = file1.o file2.o ... fileN.o`
+
+8. Add this in to libopencm3.rules.mk (next line after `OBJS += $(BINARY).o` line):
+
+    `OBJS += $(SRC)`
+
 You need to run "make" inside the libopencm3 directory once to build the
 library, then you can just run make/make clean in your project directory as
 often as you like.
