@@ -130,20 +130,28 @@ repository)
 2. Add libopencm3 as a submodule
 
        git submodule add https://github.com/libopencm3/libopencm3
+
+2. Build the library, some of the code is generated.
+
+```
+make -C libopencm3 -j5
+```
     
 
 3. Grab a copy of the basic rules
 These urls grab the latest from the libopencm3-examples repository
 
-       wget \
-         https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/rules.mk \
-         -O libopencm3.rules.mk
+```
+wget -O libopencm3.rules.mk \
+https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/rules.mk
+```
 
 4. Grab a copy of your target Makefile in this case, for STM32L1
 
-       wget \  
-         https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/stm32/l1/Makefile.include \  
-         -O libopencm3.target.mk
+```
+wget -O libopencm3.target.mk \
+https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/stm32/l1/Makefile.include
+```
 
 5. Edit paths in `libopencm3.target.mk`  
 Edit the _last_ line of `libopencm3.target.mk` and change the include to read
@@ -176,6 +184,11 @@ Add the path to OPENCM3\_DIR, and modify the path to makefile include
  
 You're done :)
 
-You need to run "make" inside the libopencm3 directory once to build the
-library, then you can just run make/make clean in your project directory as
-often as you like.
+7. If you need extra source files, just add them as their object form to your project makefile
+```make
+...
+BINARY=miniblink
+OBJS=extra.o other_extra.o
+OPENCM3_DIR=../libopencm3
+...
+```
