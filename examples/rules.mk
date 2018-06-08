@@ -152,6 +152,7 @@ bin: $(BINARY).bin
 hex: $(BINARY).hex
 srec: $(BINARY).srec
 list: $(BINARY).list
+GENERATED_BINARIES=$(BINARY).elf $(BINARY).bin $(BINARY).hex $(BINARY).srec $(BINARY).list $(BINARY).map
 
 images: $(BINARY).images
 flash: $(BINARY).flash
@@ -210,7 +211,7 @@ print-%:
 
 clean:
 	@#printf "  CLEAN\n"
-	$(Q)$(RM) $(BINARY).{elf,bin,hex,srec,list,map} *.map generated.* $(OBJS) $(OBJS:%.o=%.d)
+	$(Q)$(RM) $(GENERATED_BINARIES) generated.* $(OBJS) $(OBJS:%.o=%.d)
 
 stylecheck: $(STYLECHECKFILES:=.stylecheck)
 styleclean: $(STYLECHECKFILES:=.styleclean)
