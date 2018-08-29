@@ -117,80 +117,8 @@ This example uses the st-util by texane that you can find on [GitHub](https://gi
 
 ## Reuse
 
-If you want to use libopencm3 in your own project, this examples repository
-shows the general way.  (If there's interest, we can make a stub template
-repository)
+If you want to use libopencm3 in your own project, the _easiest_ way is
+to use the template repository we created for this purpose.
 
-1. Create an empty repository
-```
-mkdir mycoolrobot && cd mycoolrobot && git init .
-```
+See https://github.com/libopencm3/libopencm3-template
 
-2. Add libopencm3 as a submodule
-
-```
-git submodule add https://github.com/libopencm3/libopencm3
-```
-
-3. Build the library, some of the code is generated.
-
-```
-make -C libopencm3 -j5
-```
-    
-4. Grab a copy of the basic rules
-These urls grab the latest from the libopencm3-examples repository
-
-```
-wget -O libopencm3.rules.mk \
-https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/rules.mk
-```
-
-5. Grab a copy of your target Makefile in this case, for STM32L1
-
-```
-wget -O libopencm3.target.mk \
-https://raw.githubusercontent.com/libopencm3/libopencm3-examples/master/examples/stm32/l1/Makefile.include
-```
-
-6. Edit paths in `libopencm3.target.mk`
-Edit the _last_ line of `libopencm3.target.mk` and change the include to read
-include `../libopencm3.rules.mk` (the amount of .. depends on where you put your
-project in the next step..
-
-7. beg/borrow/steal an example project
-For sanity's sake, use the same target as the makefile you grabbed up above)
-
-```
-cp -a \
-  somewhere/libopencm3-examples/examples/stm32/l1/stm32ldiscovery/miniblink \
-  myproject
-```
-
-Add the path to OPENCM3\_DIR, and modify the path to makefile include
-
-
-    diff -u
-    ---
-    2014-01-24 21:10:52.687477831 +0000
-    +++ Makefile    2014-03-23 12:27:57.696088076 +0000
-    @@ -19,7 +19,8 @@
-     
-     BINARY = miniblink
-     
-    +OPENCM3_DIR=../libopencm3
-     LDSCRIPT = $(OPENCM3_DIR)/lib/stm32/l1/stm32l15xxb.ld
-     
-    -include ../../Makefile.include
-    +include ../libopencm3.target.mk
- 
-You're done :)
-
-8. If you need extra source files, just add them as their object form to your project makefile
-```make
-...
-BINARY=miniblink
-OBJS=extra.o other_extra.o
-OPENCM3_DIR=../libopencm3
-...
-```
