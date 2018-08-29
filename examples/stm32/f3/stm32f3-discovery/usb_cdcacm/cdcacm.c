@@ -236,7 +236,6 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 static void usb_setup(void)
 {
 	/* Enable clocks for GPIO port A and USB peripheral. */
-	rcc_usb_prescale_1();
 	rcc_periph_clock_enable(RCC_USB);
 	rcc_periph_clock_enable(RCC_GPIOA);
 
@@ -247,20 +246,16 @@ static void usb_setup(void)
 
 int main(void)
 {
-	int i;
-
 	usbd_device *usbd_dev;
 
-	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_48MHZ]);
+	rcc_clock_setup_pll(&rcc_hse8mhz_configs[RCC_CLOCK_HSE8_72MHZ]);
 	usb_setup();
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings,
 			3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
-	for (i = 0; i < 0x800000; i++)
-		__asm__("nop");
-
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }
