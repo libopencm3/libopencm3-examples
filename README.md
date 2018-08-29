@@ -11,7 +11,9 @@ various ARM Cortex-M microcontrollers.
 For more information visit http://libopencm3.org
 
 The examples are meant as starting points for different subsystems on multitude
-of platforms.
+of platforms. If you're just looking to test your build environment and hardware,
+the [libopencm3-miniblink](https://github.com/libopencm3/libopencm3-miniblink) 
+may be more useful, as it covers _many_ more boards, but it is much more limited.
 
 Feel free to add new examples and send them to us either via the mailinglist or
 preferably via a github pull request.
