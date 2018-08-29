@@ -120,7 +120,7 @@ int _write(int file, char *ptr, int len)
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_64MHZ]);
+	rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 }
 
 #define I2C_ACC_ADDR 0x19
