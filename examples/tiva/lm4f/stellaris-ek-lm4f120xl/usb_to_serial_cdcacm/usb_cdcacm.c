@@ -171,7 +171,6 @@ static const char *usb_strings[] = {
 
 usbd_device *acm_dev;
 uint8_t usbd_control_buffer[128];
-extern usbd_driver lm4f_usb_driver;
 
 static enum usbd_request_return_codes cdcacm_control_request(usbd_device * usbd_dev,
 				  struct usb_setup_data *req, uint8_t ** buf,

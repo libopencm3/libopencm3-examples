@@ -176,7 +176,6 @@ static const struct usb_config_descriptor config_descr = {
 	.interface = ifaces,
 };
 
-extern usbd_driver lm4f_usb_driver;
 static usbd_device *bulk_dev;
 static uint8_t usbd_control_buffer[128];
 static uint8_t config_set = 0;
