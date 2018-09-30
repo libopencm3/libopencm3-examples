@@ -26,7 +26,4 @@ DEFS		+= -DVF6XX
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
 
-include ../../../Makefile.rules
-
-
-
+include ../../../rules.mk

@@ -25,6 +25,7 @@ TARGETS		+= lpc/lpc13xx lpc/lpc17xx #lpc/lpc43xx
 TARGETS		+= tiva/lm3s tiva/lm4f
 TARGETS		+= efm32/efm32tg efm32/efm32g efm32/efm32lg efm32/efm32gg
 TARGETS		+= vf6xx
+TARGETS		+= sam/d
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
@@ -73,7 +74,9 @@ $(EXAMPLE_DIRS): lib
 examples: $(EXAMPLE_DIRS)
 	$(Q)true
 
-clean: $(EXAMPLE_DIRS:=.clean) styleclean
+examplesclean: $(EXAMPLE_DIRS:=.clean)
+
+clean: examplesclean styleclean
 	$(Q)$(MAKE) -C libopencm3 clean
 
 stylecheck: $(EXAMPLE_DIRS:=.stylecheck)

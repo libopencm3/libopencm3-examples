@@ -18,7 +18,7 @@
 ##
 
 BINARY = miniblink
-
+OOCD_FILE = board/ek-lm4f120xl.cfg
 LDSCRIPT = ../ek-lm4f120xl.ld
 
 include ../../Makefile.include

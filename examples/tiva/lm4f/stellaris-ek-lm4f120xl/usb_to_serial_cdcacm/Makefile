@@ -18,7 +18,7 @@
 ##
 
 BINARY = usb_to_serial_cdcacm
-
+OOCD_FILE = board/ek-lm4f120xl.cfg
 LDSCRIPT = ../ek-lm4f120xl.ld
 
 

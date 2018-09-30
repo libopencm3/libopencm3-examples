@@ -33,6 +33,163 @@
 #include "vector_gfx/vector_gfx.h"
 #include "application_balls.h"
 
+
+/* Blue button interrupt */
+typedef enum {
+	DEMO_MODE_ALL,
+	DEMO_MODE_FLOODFILL4,
+	DEMO_MODE_BEZIER,
+	DEMO_MODE_BEZIER_INTERACTIVE,
+	DEMO_MODE_BALLS,
+} demo_mode_t;
+demo_mode_t new_demo_mode = DEMO_MODE_ALL;
+
+static void next_demo(void) {
+	if (new_demo_mode==DEMO_MODE_BALLS) new_demo_mode = 0;
+	else                                new_demo_mode++;
+}
+static void previous_demo(void) {
+	if (new_demo_mode==0) new_demo_mode = DEMO_MODE_BALLS;
+	else                  new_demo_mode--;
+}
+
+
+/**
+ * Update touchscreen input
+ */
+typedef enum {
+	TS_TOUCHED,
+	TS_DRAGGING,
+	TS_DRAGGED,
+	TS_NONE,
+} touchscreen_action_t;
+static
+point2d_t
+touch_data_to_coordinate(stmpe811_touch_t touch_data)
+{
+	point2d_t p = (point2d_t){
+			.x = (vector_flt_t)(touch_data.x-STMPE811_X_MIN)/(STMPE811_X_MAX-STMPE811_X_MIN),
+			.y = (vector_flt_t)(touch_data.y-STMPE811_Y_MIN)/(STMPE811_Y_MAX-STMPE811_Y_MIN)
+		};
+	switch (gfx_get_rotation()) {
+	case GFX_ROTATION_0_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(1.0f-p.x), .y = gfx_height()*      p.y  };
+		break;
+	case GFX_ROTATION_180_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.x , .y = gfx_height()*(1.0f-p.y)  };
+		break;
+	case GFX_ROTATION_90_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(1.0f-p.y), .y = gfx_height()*(1.0f-p.x) };
+		break;
+	case GFX_ROTATION_270_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.y , .y = gfx_height()*      p.x  };
+		break;
+	}
+	return p;
+}
+static
+point2d_t
+drag_data_to_coordinate(stmpe811_drag_data_t drag_data)
+{
+	point2d_t p = (point2d_t){
+			.x = (vector_flt_t)drag_data.dx/(STMPE811_X_MAX-STMPE811_X_MIN),
+			.y = (vector_flt_t)drag_data.dy/(STMPE811_Y_MAX-STMPE811_Y_MIN)
+		};
+	switch (gfx_get_rotation()) {
+	case GFX_ROTATION_0_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(    -p.x), .y = gfx_height()*(     p.y) };
+		break;
+	case GFX_ROTATION_180_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.x , .y = gfx_height()*     -p.y  };
+		break;
+	case GFX_ROTATION_90_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(    -p.y), .y = gfx_height()*     -p.x  };
+		break;
+	case GFX_ROTATION_270_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.y , .y = gfx_height()*(     p.x) };
+		break;
+	}
+	return p;
+}
+static
+touchscreen_action_t
+update_touchscreen_data(point2d_t *touch_point, point2d_t *drag_distance)
+{
+	stmpe811_touch_t touch_data = stmpe811_get_touch_data();
+	if (touch_data.touched == 1) {
+		*touch_point = touch_data_to_coordinate(touch_data);
+		return TS_TOUCHED;
+	} else {
+		stmpe811_drag_data_t drag_data = stmpe811_get_drag_data();
+		if (drag_data.data_is_valid) {
+			*drag_distance = drag_data_to_coordinate(drag_data);
+			return TS_DRAGGING;
+		} else {
+			/* stop drag*/
+			return TS_DRAGGED;
+		}
+	}
+	return TS_NONE;
+}
+
+
+static
+void
+print_touchscreen_data(
+			int16_t x, int16_t y, uint16_t color,
+			touchscreen_action_t ts_action,
+			point2d_t touch_point, point2d_t drag_distance
+) {
+	char conv_buf[1024];
+
+	//const char *state;
+	//switch (stmpe811.current_touch_state) {
+	//case STMPE811_TOUCH_STATE__UNTOUCHED:
+		//state = "untouched";
+		//break;
+	//case STMPE811_TOUCH_STATE__TOUCHED:
+		//state = "touched";
+		//break;
+	//case STMPE811_TOUCH_STATE__TOUCHED_WAITING_FOR_TIMEOUT:
+		//state = "touched waiting";
+		//break;
+	//default:
+		//state = "invalid";
+		//break;
+	//}
+
+	static char *action = "none";
+	switch (ts_action) {
+	case TS_TOUCHED:
+		action = "touched";
+		break;
+	case TS_DRAGGING:
+		action = "dragging";
+		break;
+	case TS_DRAGGED:
+		action = "dragged";
+		break;
+	case TS_NONE:
+		break;
+	}
+
+	sprintf(conv_buf,
+			"action : %s\n"
+			"touch  : %5.1f % 5.1f\n"
+			"drag   : %+5.1f %+5.1f\n"
+			"ints   : %lu\n"
+			"count  : %lu",
+			action,
+			(double)touch_point.x, (double)touch_point.y,
+			(double)drag_distance.x, (double)drag_distance.y,
+			stmpe811.touch_interrupts,
+			stmpe811.last_values_count
+		);
+
+	gfx_puts2(x, y, conv_buf, &font_Tamsyn5x9r_9, color);
+}
+
+
 /**
  * Interrupts
  */
@@ -55,109 +212,12 @@ exti15_10_isr() {
 	stmpe811_handle_interrupt();
 }
 
-/* Blue button interrupt */
-typedef enum {
-	DEMO_MODE_ALL,
-	DEMO_MODE_FLOODFILL4,
-	DEMO_MODE_BEZIER,
-	DEMO_MODE_BEZIER_INTERACTIVE,
-	DEMO_MODE_BALLS,
-} demo_mode_t;
-demo_mode_t new_demo_mode = DEMO_MODE_ALL;
-
 void
 exti0_isr()
 {
 	exti_reset_request(EXTI0);
-	new_demo_mode = (new_demo_mode+1) % (DEMO_MODE_BALLS+1);
+	next_demo();
 }
-
-
-
-
-/**
- * update touchscreen infos
- */
-stmpe811_touch_t touch_data;
-stmpe811_drag_data_t drag_data;
-point2d_t touch_point;
-point2d_t drag_distance;
-
-static
-void
-update_touchscreen_data(void)
-{
-	touch_data    = (stmpe811_touch_t){0};
-	drag_data     = (stmpe811_drag_data_t){0};
-	touch_point   = (point2d_t) {-1, -1};
-	drag_distance = (point2d_t) { 0,  0};
-
-	touch_data = stmpe811_get_touch_data();
-	if (touch_data.touched == 1) {
-		touch_point = (point2d_t) {
-				(vector_flt_t)gfx_width()
-				* (touch_data.y - STMPE811_Y_MIN)
-				/ (STMPE811_Y_MAX - STMPE811_Y_MIN),
-				(vector_flt_t)gfx_height()
-				* (touch_data.x-STMPE811_X_MIN)
-				/ (STMPE811_X_MAX-STMPE811_X_MIN)
-		};
-	} else {
-		drag_data = stmpe811_get_drag_data();
-		if (drag_data.data_is_valid) {
-			drag_distance = (point2d_t) {
-					(vector_flt_t)gfx_width()
-					* drag_data.dy
-					/ (STMPE811_Y_MAX-STMPE811_Y_MIN),
-					(vector_flt_t)gfx_height()
-					* drag_data.dx
-					/ (STMPE811_X_MAX-STMPE811_X_MIN)
-			};
-		} else {
-			/* stop drag*/
-		}
-	}
-}
-static
-void
-print_touchscreen_data(int16_t x, int16_t y)
-{
-	char conv_buf[1024];
-
-	const char *state;
-	/*switch (stmpe811.sample_read_state) {*/
-	switch (stmpe811.current_touch_state) {
-	case STMPE811_TOUCH_STATE__UNTOUCHED:
-		state = "untouched";
-		break;
-	case STMPE811_TOUCH_STATE__TOUCHED:
-		state = "touched";
-		break;
-	case STMPE811_TOUCH_STATE__TOUCHED_WAITING_FOR_TIMEOUT:
-		state = "touched waiting";
-		break;
-	default:
-		state = "invalid";
-		break;
-	}
-
-	sprintf(conv_buf,
-			"touch % 8.1f%8.1f\n"
-			"drag  % 8.1f%8.1f\n"
-			"touch interrupts: %lu\n"
-			"state : %s\n"
-			"values count : %lu",
-			touch_point.x, touch_point.y,
-			drag_distance.x, drag_distance.y,
-			stmpe811.touch_interrupts,
-			state,
-			stmpe811.last_values_count
-		);
-
-	gfx_puts2(x, y, conv_buf, &font_Tamsyn5x9r_9, GFX_COLOR_WHITE);
-}
-
-
 
 
 /**
@@ -470,26 +530,24 @@ static void draw_bezier(demo_mode_t demo_mode)
  * Bezier interactive demo
  */
 
-static void draw_bezier_interactive(demo_mode_t demo_mode)
-{
-	switch (demo_mode) {
-	case DEMO_MODE_ALL:
-		print_touchscreen_data(200, 190);
-		return;
+static void draw_bezier_interactive(
+				demo_mode_t demo_mode,
+				touchscreen_action_t ts_action,
+				point2d_t touch_point, point2d_t drag_distance
 
+) {
+	switch (demo_mode) {
 	case DEMO_MODE_BEZIER_INTERACTIVE:
-		print_touchscreen_data(10, 190);
 		break;
 	default:
 		return;
 	}
 
-
 	uint32_t i;
 	char buf[2];
 	buf[1] = 0;
 
-	int16_t point_radius = 15;
+	const int16_t point_radius = 15;
 
 	/* small demo curve */
 	static point2d_t curve_points[4] = {
@@ -500,7 +558,8 @@ static void draw_bezier_interactive(demo_mode_t demo_mode)
 	};
 	static point2d_t *selected_point;
 
-	if ((touch_point.x != -1.0f) || (touch_point.y != -1.0f)) {
+	switch (ts_action) {
+	case TS_TOUCHED: {
 		/* find nearest point */
 		vector_flt_t min_dist = point2d_dist(curve_points[0], touch_point);
 		selected_point = &curve_points[0];
@@ -514,17 +573,17 @@ static void draw_bezier_interactive(demo_mode_t demo_mode)
 		if (min_dist > point_radius*1.5f) {
 			selected_point = NULL;
 		}
-	}
-	if ((selected_point != NULL)
-	 && ((drag_distance.x != 0.0f) || (drag_distance.y != 0.0f))
-	) {
+	}	break;
+	case TS_DRAGGING:
 		selected_point->x += drag_distance.x;
 		selected_point->y += drag_distance.y;
-	} else
-	if (stmpe811.current_touch_state == STMPE811_TOUCH_STATE__UNTOUCHED) {
+		break;
+	case TS_DRAGGED:
 		selected_point = NULL;
+		break;
+	case TS_NONE:
+		break;
 	}
-
 
 	/* draw bezier */
 	color = GFX_COLOR_RED;
@@ -648,27 +707,53 @@ static void draw_balls(demo_mode_t demo_mode)
  */
 static void draw_background(demo_mode_t demo_mode)
 {
+	const char *mode_s;
+	switch (demo_mode) {
+	case DEMO_MODE_ALL:
+		mode_s = "All demos";
+		break;
+	case DEMO_MODE_FLOODFILL4:
+		mode_s = "Floodfill";
+		break;
+	case DEMO_MODE_BEZIER:
+		mode_s = "Animated Vectors";
+		break;
+	case DEMO_MODE_BEZIER_INTERACTIVE:
+		mode_s = "Interactive Bezier";
+		break;
+	case DEMO_MODE_BALLS:
+		mode_s = "Ballz";
+		break;
+	default :
+		mode_s = "Invalid";
+		break;
+	}
+
 	ili9341_set_layer1();
 
 	gfx_fill_screen(GFX_COLOR_BLACK);
 
-	gfx_draw_rect(0, 0, gfx_width()  , 40  , GFX_COLOR_DARKGREY);
-	gfx_fill_rect(1, 1, gfx_width()-2, 40-2,
-						((0x11 << 11) | (0x11 << 5) | 0x11));
-	/*					ltdc_get_rgb565_from_rgb888(0x111111));*/
-
+	gfx_draw_rect(0,0, 40,40, GFX_COLOR_WHITE);
+	gfx_draw_rect(gfx_width()-40,0, 40,40, GFX_COLOR_WHITE);
 	gfx_set_font_scale(3);
-	gfx_puts2(10, 10, "äLTDC Demo", &font_Tamsyn5x9b_9 , GFX_COLOR_WHITE);
-	gfx_set_font_scale(1);
+	gfx_puts2(            14, 7, "<", &font_Tamsyn5x9b_9 , GFX_COLOR_WHITE);
+	gfx_puts2(gfx_width()-26, 7, ">", &font_Tamsyn5x9b_9 , GFX_COLOR_WHITE);
+
+	gfx_draw_rect(40, 0, gfx_width()-80, 40  , GFX_COLOR_DARKGREY);
+	gfx_fill_rect(41, 1, gfx_width()-82, 40-2, GFX_COLOR_BLUE);
+
+	gfx_set_font_scale(2);
 	gfx_set_font(&font_Tamsyn5x9r_9);
-	gfx_set_text_color(GFX_COLOR_BLUE2);
+	gfx_set_text_color(GFX_COLOR_WHITE);
+	gfx_puts3(gfx_width()/2, 4, mode_s, GFX_ALIGNMENT_CENTER);
+	gfx_set_font_scale(1);
 	gfx_puts3(
-			gfx_width()-10, 14,
-			"Press the blue button to\nchange the demonstrations",
-			GFX_ALIGNMENT_RIGHT
+			gfx_width()/2, 21,
+			"Press the blue button, '<' or '>'\n"
+			"to change the demonstrations",
+			GFX_ALIGNMENT_CENTER
 		);
 
-	/*  */
 	/* draw the stage (draw_plane) */
 	if (demo_mode == DEMO_MODE_ALL) {
 		ball_simulation.walls = (walls_t) {
@@ -764,7 +849,7 @@ int main(void)
 	 */
 
 	/* rotate LCD for 90 degrees */
-	gfx_rotate(GFX_ROTATION_270_DEGREES);
+	gfx_set_rotation(GFX_ROTATION_270_DEGREES);
 
 	/* set background color */
 	ltdc_set_background_color(0, 0, 0);
@@ -801,10 +886,12 @@ int main(void)
 
 	ltdc_reload(LTDC_SRCR_RELOAD_VBR);
 
+	point2d_t touch_point = {0};
+	point2d_t drag_distance = {0};
 	while (1) {
 		uint64_t ctime   = mtime();
 		static uint64_t draw_timeout = 1;
-		static char fps_s[7] = "   fps";
+		static char fps_s[32] = "   fps";
 
 		if (!LTDC_SRCR_IS_RELOADING() && (draw_timeout <= ctime)) {
 			if (demo_mode != new_demo_mode) {
@@ -826,7 +913,40 @@ int main(void)
 			/**
 			 * Get touch infos
 			 */
-			update_touchscreen_data();
+			touchscreen_action_t ts_action = update_touchscreen_data(&touch_point,&drag_distance);
+			switch (ts_action) {
+			case TS_TOUCHED:
+				if (touch_point.y < 40) {
+					if (touch_point.x < 40) {
+						previous_demo();
+					} else
+					if (touch_point.x > gfx_width()-40) {
+						next_demo();
+					}
+				}
+				break;
+			case TS_DRAGGING:
+				break;
+			case TS_DRAGGED:
+				break;
+			case TS_NONE:
+				break;
+			}
+
+			/**
+			 * Display touch infos
+			 */
+			switch (demo_mode) {
+			case DEMO_MODE_ALL:
+				print_touchscreen_data(200,190,GFX_COLOR_WHITE, ts_action,touch_point,drag_distance);
+				break;
+			case DEMO_MODE_BEZIER_INTERACTIVE:
+				print_touchscreen_data( 10,190,GFX_COLOR_WHITE, ts_action,touch_point,drag_distance);
+				break;
+			default :
+				break;
+			}
+
 
 			/**
 			 * Flood fill test
@@ -841,23 +961,19 @@ int main(void)
 			/**
 			 * Bezier interactive
 			 */
-			draw_bezier_interactive(demo_mode);
+			draw_bezier_interactive(demo_mode, ts_action,touch_point,drag_distance);
 
 			/**
 			 * Ball stuff
 			 */
 			draw_balls(demo_mode);
 
-
 			/* draw fps */
-			gfx_set_font_scale(1);
 			sprintf(fps_s, "%lu fps", fps);
-			gfx_puts2(
-					10, 55,
-					fps_s,
-					&font_Tamsyn5x9b_9,
-					GFX_COLOR_WHITE
-				);
+			gfx_set_font_scale(1);
+			gfx_set_font(&font_Tamsyn5x9b_9);
+			gfx_set_text_color(GFX_COLOR_WHITE);
+			gfx_puts3(gfx_width()-1, 40, fps_s, GFX_ALIGNMENT_RIGHT);
 
 			/* swap the double buffer */
 			ili9341_flip_layer2_buffer();

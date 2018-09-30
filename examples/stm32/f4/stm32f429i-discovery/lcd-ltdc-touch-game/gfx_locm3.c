@@ -465,7 +465,7 @@ gfx_flood_fill4(
 		} else {
 			/* fill all lastline-adjacent old-colored pixels */
 			bool adjacent_pixel_drawn = false;
-			int16_t xa0, xa1;
+			int16_t xa0=0, xa1;
 			while ((x < x1l) || adjacent_pixel_drawn) {
 				if (gfx_get_pixel(++x, y) == old_color) {
 					gfx_draw_pixel(x, y, new_color);
@@ -1002,9 +1002,7 @@ void gfx_write(const uint32_t c)
 		return;
 	}
 	if (c == '\n') {
-		__gfx_state.cursor_y +=
-				__gfx_state.fontscale
-			  * __gfx_state.font->lineheight;
+		__gfx_state.cursor_y += gfx_get_line_height();
 		__gfx_state.cursor_x  = __gfx_state.cursor_x_orig;
 	} else if (c == '\r') {
 		__gfx_state.cursor_x  = __gfx_state.cursor_x_orig;
@@ -1014,22 +1012,17 @@ void gfx_write(const uint32_t c)
 			__gfx_state.cursor_x
 		  > (
 				__gfx_state.visible_area.x2
-			  - __gfx_state.fontscale
-			  * __gfx_state.font->charwidth
+			  - gfx_get_char_width()
 		))) {
 			__gfx_state.cursor_x = __gfx_state.cursor_x_orig;
-			__gfx_state.cursor_y +=
-					__gfx_state.fontscale
-				 * __gfx_state.font->lineheight;
+			__gfx_state.cursor_y += gfx_get_line_height();
 		}
 		gfx_draw_char(
 				__gfx_state.cursor_x, __gfx_state.cursor_y,
 				c,
 				__gfx_state.textcolor, __gfx_state.fontscale
 			);
-		__gfx_state.cursor_x +=
-				__gfx_state.fontscale
-			  * __gfx_state.font->charwidth;
+		__gfx_state.cursor_x += gfx_get_char_width();
 	}
 }
 
@@ -1082,7 +1075,7 @@ void gfx_puts3(
 			gfx_set_cursor(
 					x
 					- utf8_find_pointer_diff(s, s_end)
-					* __gfx_state.font->charwidth,
+					* gfx_get_char_width(),
 					y
 				);
 			gfx_puts(s);
@@ -1093,10 +1086,10 @@ void gfx_puts3(
 				gfx_set_cursor(
 						x
 						- utf8_find_pointer_diff(s, next_nl)
-						* __gfx_state.font->charwidth,
+						* gfx_get_char_width(),
 						y
 						+ line_count
-						* __gfx_state.font->lineheight
+						* gfx_get_line_height()
 					);
 				do {
 					int32_t value;
@@ -1115,7 +1108,7 @@ void gfx_puts3(
 		if (0) { //next_nl == s_end) {
 			gfx_set_cursor(
 					x-(utf8_find_pointer_diff(s, s_end)
-					* __gfx_state.font->charwidth)/2,
+					* gfx_get_char_width())/2,
 				y
 			);
 			gfx_puts(s);
@@ -1140,13 +1133,13 @@ void gfx_puts3(
 				gfx_set_cursor(
 						x
 						-(utf8_find_pointer_diff(s, next_nl)
-						* __gfx_state.font->charwidth)/2,
-						//- (longest_line*__gfx_state.font->charwidth)
+						* gfx_get_char_width())/2,
+						//- (longest_line*gfx_get_char_width())
 //						- ((longest_line
 //							- utf8_find_pointer_diff(s, next_nl)
-//						) * __gfx_state.font->charwidth)/2,
+//						) * gfx_get_char_width())/2,
 						y
-						+ line_count*__gfx_state.font->lineheight);
+						+ line_count*gfx_get_line_height());
 				do {
 					int32_t value;
 					s = utf8_read_value(s, &value);

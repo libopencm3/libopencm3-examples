@@ -201,7 +201,7 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+static enum usbd_request_return_codes hid_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			void (**complete)(usbd_device *, struct usb_setup_data *))
 {
 	(void)complete;
@@ -210,13 +210,13 @@ static int hid_control_request(usbd_device *dev, struct usb_setup_data *req, uin
 	if((req->bmRequestType != 0x81) ||
 	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
 	   (req->wValue != 0x2200))
-		return 0;
+		return USBD_REQ_NOTSUPP;
 
 	/* Handle the HID report descriptor. */
 	*buf = (uint8_t *)hid_report_descriptor;
 	*len = sizeof(hid_report_descriptor);
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 #ifdef INCLUDE_DFU_INTERFACE
@@ -225,14 +225,13 @@ static void dfu_detach_complete(usbd_device *dev, struct usb_setup_data *req)
 	(void)req;
 	(void)dev;
 
-	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO10);
 	gpio_set(GPIOA, GPIO10);
 	scb_reset_core();
 }
 
-static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+static enum usbd_request_return_codes dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			void (**complete)(usbd_device *, struct usb_setup_data *))
 {
 	(void)buf;
@@ -240,11 +239,11 @@ static int dfu_control_request(usbd_device *dev, struct usb_setup_data *req, uin
 	(void)dev;
 
 	if ((req->bmRequestType != 0x21) || (req->bRequest != DFU_DETACH))
-		return 0; /* Only accept class request. */
+		return USBD_REQ_NOTSUPP; /* Only accept class request. */
 
 	*complete = dfu_detach_complete;
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 #endif
 
@@ -280,17 +279,24 @@ int main(void)
 	rcc_clock_setup_in_hsi_out_48mhz();
 
 	rcc_periph_clock_enable(RCC_GPIOA);
-	rcc_periph_clock_enable(RCC_AFIO);
-
-	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
-	gpio_set_mode(GPIOA, GPIO_MODE_INPUT, 0, GPIO15);
+	/*
+	 * This is a somewhat common cheap hack to trigger device re-enumeration
+	 * on startup.  Assuming a fixed external pullup on D+, (For USB-FS)
+	 * setting the pin to output, and driving it explicitly low effectively
+	 * "removes" the pullup.  The subsequent USB init will "take over" the
+	 * pin, and it will appear as a proper pullup to the host.
+	 * The magic delay is somewhat arbitrary, no guarantees on USBIF
+	 * compliance here, but "it works" in most places.
+	 */
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
+		GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
+	gpio_clear(GPIOA, GPIO12);
+	for (unsigned i = 0; i < 800000; i++) {
+		__asm__("nop");
+	}
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev_descr, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, hid_set_config);
-
-	gpio_set(GPIOA, GPIO15);
-	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
-		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO15);
 
 	while (1)
 		usbd_poll(usbd_dev);

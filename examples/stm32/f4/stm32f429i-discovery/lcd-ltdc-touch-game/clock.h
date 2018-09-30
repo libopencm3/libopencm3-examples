@@ -24,7 +24,8 @@ void clock_setup(void);
 static inline void wait_cycles(uint32_t n)
 {
 	uint32_t l = n/CYCLES_PER_LOOP;
-	asm volatile("0:" "SUBS %[count], 1;" "BNE 0b;":[count]"+r"(l));
+	//asm volatile("0:" "SUBS %[count], 1;" "BNE 0b;":[count]"+r"(l));
+	__asm__ __volatile__("0:" "SUBS %[count], 1;" "BNE 0b;":[count]"+r"(l));
 }
 
 static inline void msleep_loop(uint32_t ms)

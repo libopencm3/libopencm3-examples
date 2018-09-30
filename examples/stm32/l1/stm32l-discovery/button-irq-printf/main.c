@@ -137,7 +137,7 @@ void tim6_isr(void)
  */
 static void setup_tim6(void)
 {
-	timer_reset(TIM6);
+	rcc_periph_reset_pulse(RST_TIM6);
 	/* 24Mhz / 10khz -1. */
 	timer_set_prescaler(TIM6, 2399); /* 24Mhz/10000hz - 1 */
 	/* 10khz for 10 ticks = 1 khz overflow = 1ms overflow interrupts */
@@ -154,7 +154,7 @@ static void setup_tim6(void)
  */
 static void setup_tim7(void)
 {
-	timer_reset(TIM7);
+	rcc_periph_reset_pulse(RST_TIM7);
 	timer_set_prescaler(TIM7, 23999); /* 24Mhz/1000hz - 1 */
 	timer_set_period(TIM7, 0xffff);
 	timer_enable_counter(TIM7);

@@ -21,6 +21,7 @@
 #ifndef VECTOR_GFX_H_
 #define VECTOR_GFX_H_
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <inttypes.h>
 #include <float.h>
@@ -40,9 +41,15 @@
 #define vector_flt_atan2     atan2f
 #define vector_flt_min       fminf
 #define vector_flt_max       fmaxf
+#define vector_flt_round     roundf
+#define vector_flt_floor     floorf
+#define vector_flt_ceil      ceilf
+#define vector_flt_mod       modf
+#define vector_flt_swap(a,b) { vector_flt_t t = a; a = b; b = t; }
 
 #include "vector.h"
 #include "matrix.h"
 #include "bezier.h"
+#include "drawing.h"
 
 #endif /* VECTOR_GFX_H_ */

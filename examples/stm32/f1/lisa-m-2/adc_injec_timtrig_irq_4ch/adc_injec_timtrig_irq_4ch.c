@@ -81,7 +81,7 @@ static void timer_setup(void)
 	rcc_periph_clock_enable(RCC_TIM2);
 
 	/* Time Base configuration */
-    timer_reset(timer);
+    rcc_periph_reset_pulse(RST_TIM2);
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
 	    TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     timer_set_period(timer, 0xFF);
@@ -120,7 +120,7 @@ static void adc_setup(void)
 	adc_enable_eoc_interrupt_injected(ADC1);
 	adc_set_right_aligned(ADC1);
 	/* We want to read the temperature sensor, so we have to enable it. */
-	adc_enable_temperature_sensor(ADC1);
+	adc_enable_temperature_sensor();
 	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_28DOT5CYC);
 
 	/* Select the channels we want to convert.
@@ -139,9 +139,7 @@ static void adc_setup(void)
 		__asm__("nop");
 
 	adc_reset_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_RSTCAL) != 0); //added this check
-	adc_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_CAL) != 0); //added this check
+	adc_calibrate(ADC1);
 }
 
 static void my_usart_print_int(uint32_t usart, int value)

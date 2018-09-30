@@ -18,6 +18,7 @@
 ##
 
 BINARY = usbdfu
+CSTD = -std=gnu99
 
 include ../../Makefile.include
 

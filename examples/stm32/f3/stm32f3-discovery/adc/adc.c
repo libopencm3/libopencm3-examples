@@ -60,9 +60,7 @@ static void adc_setup(void)
 	/* We want to read the temperature sensor, so we have to enable it. */
 	adc_enable_temperature_sensor();
 	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_61DOT5CYC);
-	uint8_t channel_array[16];
-	channel_array[0]=16; // Vts (Internal temperature sensor
-	channel_array[0]=1; //ADC1_IN1 (PA0)
+	uint8_t channel_array[] = { 1 }; /* ADC1_IN1 (PA0) */
 	adc_set_regular_sequence(ADC1, 1, channel_array);
 	adc_set_resolution(ADC1, ADC_CFGR1_RES_12_BIT);
 	adc_power_on(ADC1);
@@ -134,7 +132,7 @@ static void my_usart_print_int(uint32_t usart, int16_t value)
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_64MHZ]);
+	rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 }
 
 

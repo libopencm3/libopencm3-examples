@@ -58,7 +58,7 @@ static FILE *usart_setup(uint32_t dev)
 	usart_set_baudrate(dev, 38400);
 	usart_set_databits(dev, 8);
 	usart_set_parity(dev, USART_PARITY_NONE);
-	usart_set_stopbits(dev, USART_CR2_STOP_1_0BIT);
+	usart_set_stopbits(dev, USART_CR2_STOPBITS_1);
 	usart_set_mode(dev, USART_MODE_TX_RX);
 	usart_set_flow_control(dev, USART_FLOWCONTROL_NONE);
 

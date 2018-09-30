@@ -104,6 +104,13 @@ point2d_dist(point2d_t u, point2d_t v) {
 	return point2d_norm(point2d_sub_ts(u, v));
 }
 static inline
+point2d_t
+point2d_normalize(point2d_t v) {
+	vector_flt_t norm = point2d_norm(v);
+	if (norm <= vector_flt_EPSILON) return (point2d_t){0,0};
+	return point2d_div_t(v, norm);
+}
+static inline
 bool
 point2d_compare(point2d_t p1, point2d_t p2, float resolution) {
 	point2d_t dist = point2d_sub_ts(p1, p2);
@@ -130,6 +137,29 @@ dist_point_to_line(point2d_t p, segment2d_t s) {
 
 	point2d_t pb = point2d_add_ts(s.p1, point2d_mul_t(v, b));
 	return point2d_dist(p, pb);
+}
+static inline
+vector_flt_t
+dist_point_to_segment(point2d_t p, segment2d_t s) {
+	point2d_t n  = point2d_sub_ts(s.p2, s.p1);
+	point2d_t pa = point2d_sub_ts(s.p1, p);
+
+	vector_flt_t c = point2d_dot(n, pa);
+
+    // Closest point is a
+    if ( c > 0.0f )
+        return point2d_dot(pa, pa);
+
+    point2d_t bp = point2d_sub_ts(p, s.p2);
+
+    // Closest point is b
+    if ( point2d_dot( n, bp ) > 0.0f )
+        return point2d_dot( bp, bp );
+
+    // Closest point is between a and b
+    point2d_t e = point2d_sub_ts(pa, point2d_mul_t(n, c / point2d_dot( n, n )));
+
+    return point2d_norm(e);
 }
 static inline
 vector_flt_t

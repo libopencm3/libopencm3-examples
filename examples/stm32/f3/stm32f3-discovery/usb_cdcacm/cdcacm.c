@@ -166,7 +166,7 @@ static const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
+static enum usbd_request_return_codes cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
 		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)complete;
@@ -192,14 +192,14 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
 		local_buf[8] = req->wValue & 3;
 		local_buf[9] = 0;
 		// usbd_ep_write_packet(0x83, buf, 10);
-		return 1;
+		return USBD_REQ_HANDLED;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:
 		if (*len < sizeof(struct usb_cdc_line_coding))
-			return 0;
-		return 1;
+			return USBD_REQ_NOTSUPP;
+		return USBD_REQ_HANDLED;
 	}
-	return 0;
+	return USBD_REQ_NOTSUPP;
 }
 
 static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
@@ -235,32 +235,27 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 
 static void usb_setup(void)
 {
-	/* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
-	rcc_usb_prescale_1();
+	/* Enable clocks for GPIO port A and USB peripheral. */
 	rcc_periph_clock_enable(RCC_USB);
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
+	/* Setup GPIO pins for USB D+/D-. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF14, GPIO11| GPIO12);
 }
 
 int main(void)
 {
-	int i;
-
 	usbd_device *usbd_dev;
 
-	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_48MHZ]);
+	rcc_clock_setup_pll(&rcc_hse8mhz_configs[RCC_CLOCK_HSE8_72MHZ]);
 	usb_setup();
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings,
 			3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
-	for (i = 0; i < 0x800000; i++)
-		__asm__("nop");
-
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }

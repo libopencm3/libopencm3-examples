@@ -441,14 +441,14 @@ void ili9341_init_ltdc(void)
 	/* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAI_N = 192 Mhz */
 	/* PLLLCDCLK = PLLSAI_VCO Output/PLLSAI_R = 192/4 = 96 Mhz */
 	/* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = 96/4 = 24 Mhz */
-	rcc_pllsai_config(192, 7, 4);
+	rcc_pllsai_config(192, RCC_PLLSAICFGR_PLLSAIP_DIV2, 7, 4);
 
 	/* this results in tearing */
-	/*rcc_ltdc_set_clock_divr(RCC_DCKCFGR_PLLSAIDIVR_DIVR_4); */
+	/*rcc_pllsai_postscalers(0, RCC_DCKCFGR_PLLSAIDIVR_DIVR_4); */
 	/* this seems ideal.. */
-	rcc_ltdc_set_clock_divr(RCC_DCKCFGR_PLLSAIDIVR_DIVR_8);
+	rcc_pllsai_postscalers(0, RCC_DCKCFGR_PLLSAIDIVR_DIVR_8);
 	/* this results slightly moving screen */
-	/*rcc_ltdc_set_clock_divr(RCC_DCKCFGR_PLLSAIDIVR_DIVR_16);*/
+	/*rcc_pllsai_postscalers(0, RCC_DCKCFGR_PLLSAIDIVR_DIVR_16);*/
 
 	/* Enable PLLSAI Clock */
 	rcc_pllsai_enable();

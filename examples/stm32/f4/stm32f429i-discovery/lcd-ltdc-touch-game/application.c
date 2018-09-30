@@ -103,160 +103,166 @@ exti15_10_isr() {
 }
 
 /* Blue button interrupt */
+bool rotate_screen = false;
 void
 exti0_isr()
 {
 	exti_reset_request(EXTI0);
-//	new_demo_mode = (new_demo_mode+1) % (DEMO_MODE_BALLS+1);
-	snake_history_reset();
-	snake.state = STARTED;
+	rotate_screen = true;
 }
 
 
 /**
- * update touchscreen infos
+ * Update touchscreen input
  */
-stmpe811_touch_t touch_data;
-stmpe811_drag_data_t drag_data;
-point2d_t touch_point;
-point2d_t drag_distance;
+typedef enum {
+	TS_TOUCHED,
+	TS_DRAGGING,
+	TS_DRAGGED,
+	TS_NONE,
+} touchscreen_action_t;
+static
+point2d_t
+touch_data_to_coordinate(stmpe811_touch_t touch_data)
+{
+	point2d_t p = (point2d_t){
+			.x = (vector_flt_t)(touch_data.x-STMPE811_X_MIN)/(STMPE811_X_MAX-STMPE811_X_MIN),
+			.y = (vector_flt_t)(touch_data.y-STMPE811_Y_MIN)/(STMPE811_Y_MAX-STMPE811_Y_MIN)
+		};
+	switch (gfx_get_rotation()) {
+	case GFX_ROTATION_0_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(1.0f-p.x), .y = gfx_height()*      p.y  };
+		break;
+	case GFX_ROTATION_180_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.x , .y = gfx_height()*(1.0f-p.y)  };
+		break;
+	case GFX_ROTATION_90_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(1.0f-p.y), .y = gfx_height()*(1.0f-p.x) };
+		break;
+	case GFX_ROTATION_270_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.y , .y = gfx_height()*      p.x  };
+		break;
+	}
+	return p;
+}
+static
+point2d_t
+drag_data_to_coordinate(stmpe811_drag_data_t drag_data)
+{
+	point2d_t p = (point2d_t){
+			.x = (vector_flt_t)drag_data.dx/(STMPE811_X_MAX-STMPE811_X_MIN),
+			.y = (vector_flt_t)drag_data.dy/(STMPE811_Y_MAX-STMPE811_Y_MIN)
+		};
+	switch (gfx_get_rotation()) {
+	case GFX_ROTATION_0_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(    -p.x), .y = gfx_height()*(     p.y) };
+		break;
+	case GFX_ROTATION_180_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.x , .y = gfx_height()*     -p.y  };
+		break;
+	case GFX_ROTATION_90_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*(    -p.y), .y = gfx_height()*     -p.x  };
+		break;
+	case GFX_ROTATION_270_DEGREES :
+		p = (point2d_t){ .x = gfx_width()*      p.y , .y = gfx_height()*(     p.x) };
+		break;
+	}
+	return p;
+}
+static
+touchscreen_action_t
+update_touchscreen_data(point2d_t *touch_point, point2d_t *drag_distance)
+{
+	stmpe811_touch_t touch_data = stmpe811_get_touch_data();
+	if (touch_data.touched == 1) {
+		*touch_point = touch_data_to_coordinate(touch_data);
+		return TS_TOUCHED;
+	} else {
+		stmpe811_drag_data_t drag_data = stmpe811_get_drag_data();
+		if (drag_data.data_is_valid) {
+			*drag_distance = drag_data_to_coordinate(drag_data);
+			return TS_DRAGGING;
+		} else {
+			/* stop drag*/
+			return TS_DRAGGED;
+		}
+	}
+	return TS_NONE;
+}
+
 
 static
 void
-update_touchscreen_data(void)
-{
-	touch_data    = (stmpe811_touch_t){0};
-	drag_data     = (stmpe811_drag_data_t){0};
-	touch_point   = (point2d_t) {-1, -1};
-	drag_distance = (point2d_t) { 0,  0};
+print_touchscreen_data(
+			int16_t x, int16_t y, uint16_t color,
+			touchscreen_action_t ts_action,
+			point2d_t touch_point, point2d_t drag_distance
+) {
+	char conv_buf[1024];
 
-	touch_data = stmpe811_get_touch_data();
-	if (touch_data.touched == 1) {
-		switch (gfx_get_rotation()) {
-			case GFX_ROTATION_0_DEGREES :
-			case GFX_ROTATION_180_DEGREES :
-				break;
-			case GFX_ROTATION_90_DEGREES :
-			case GFX_ROTATION_270_DEGREES :
-				swap_i16(touch_data.x,touch_data.y);
-				break;
-		}
-		switch (gfx_get_rotation()) {
-			case GFX_ROTATION_0_DEGREES :
-				touch_data.x = STMPE811_X_MAX - touch_data.x;
-				break;
-			case GFX_ROTATION_90_DEGREES :
-				touch_data.x = STMPE811_X_MAX - touch_data.x;
-				touch_data.y = STMPE811_Y_MAX - touch_data.y;
-				break;
-			case GFX_ROTATION_180_DEGREES :
-				touch_data.y = STMPE811_Y_MAX - touch_data.y;
-				break;
-			case GFX_ROTATION_270_DEGREES :
-				break;
-		}
-		touch_point = (point2d_t) {
-				(vector_flt_t)gfx_width()
-				* (touch_data.x - STMPE811_Y_MIN)
-				/ (STMPE811_Y_MAX - STMPE811_Y_MIN),
-				(vector_flt_t)gfx_height()
-				* (touch_data.y-STMPE811_X_MIN)
-				/ (STMPE811_X_MAX-STMPE811_X_MIN)
-		};
-		if (touch_point.x < gfx_width()/2) {
-		//if (point2d_compare((point2d_t){            25,gfx_height()-25},touch_point, 50)) {
-			disable_interrupts();
-			snake_turn(LEFT);
-			enable_interrupts();
-		} else
-		if (touch_point.x > gfx_width()/2) {
-		//if (point2d_compare((point2d_t){gfx_width()-25,gfx_height()-25},touch_point, 50)) {
-			disable_interrupts();
-			snake_turn(RIGHT);
-			enable_interrupts();
-		}
-	} else {
-		drag_data = stmpe811_get_drag_data();
-		if (drag_data.data_is_valid) {
-			drag_distance = (point2d_t) {
-					(vector_flt_t)gfx_width()
-					* drag_data.dy
-					/ (STMPE811_Y_MAX-STMPE811_Y_MIN),
-					(vector_flt_t)gfx_height()
-					* drag_data.dx
-					/ (STMPE811_X_MAX-STMPE811_X_MIN)
-			};
-		} else {
-			/* stop drag*/
-		}
+	//const char *state;
+	//switch (stmpe811.current_touch_state) {
+	//case STMPE811_TOUCH_STATE__UNTOUCHED:
+		//state = "untouched";
+		//break;
+	//case STMPE811_TOUCH_STATE__TOUCHED:
+		//state = "touched";
+		//break;
+	//case STMPE811_TOUCH_STATE__TOUCHED_WAITING_FOR_TIMEOUT:
+		//state = "touched waiting";
+		//break;
+	//default:
+		//state = "invalid";
+		//break;
+	//}
+
+	static char *action = "none";
+	switch (ts_action) {
+	case TS_TOUCHED:
+		action = "touched";
+		break;
+	case TS_DRAGGING:
+		action = "dragging";
+		break;
+	case TS_DRAGGED:
+		action = "dragged";
+		break;
+	case TS_NONE:
+		break;
 	}
+
+	sprintf(conv_buf,
+			"action : %s\n"
+			"touch  : %5.1f % 5.1f\n"
+			"drag   : %+5.1f %+5.1f\n"
+			"ints   : %lu\n"
+			"count  : %lu",
+			action,
+			(double)touch_point.x, (double)touch_point.y,
+			(double)drag_distance.x, (double)drag_distance.y,
+			stmpe811.touch_interrupts,
+			stmpe811.last_values_count
+		);
+
+	gfx_puts2(x, y, conv_buf, &font_Tamsyn5x9r_9, color);
 }
-//static
-//void
-//print_touchscreen_data(int16_t x, int16_t y)
-//{
-//	char conv_buf[1024];
-//
-//	const char *state;
-//	/*switch (stmpe811.sample_read_state) {*/
-//	switch (stmpe811.current_touch_state) {
-//	case STMPE811_TOUCH_STATE__UNTOUCHED:
-//		state = "untouched";
-//		break;
-//	case STMPE811_TOUCH_STATE__TOUCHED:
-//		state = "touched";
-//		break;
-//	case STMPE811_TOUCH_STATE__TOUCHED_WAITING_FOR_TIMEOUT:
-//		state = "touched waiting";
-//		break;
-//	default:
-//		state = "invalid";
-//		break;
-//	}
-//
-//	sprintf(conv_buf,
-//			"touch % 8.1f%8.1f\n"
-//			"drag  % 8.1f%8.1f\n"
-//			"touch interrupts: %lu\n"
-//			"state : %s\n"
-//			"values count : %lu",
-//			touch_point.x, touch_point.y,
-//			drag_distance.x, drag_distance.y,
-//			stmpe811.touch_interrupts,
-//			state,
-//			stmpe811.last_values_count
-//		);
-//
-//	gfx_puts2(x, y, conv_buf, &font_Tamsyn5x9r_9, GFX_COLOR_WHITE);
-//}
 
 
 /**
  * Re-/draw background
  */
-static void draw_background()
+static void draw_background(void)
 {
 	ili9341_set_layer1();
 
 	gfx_fill_screen(GFX_COLOR_BLACK);
 
 	gfx_draw_rect(0, 0, gfx_width()  , 40  , GFX_COLOR_DARKGREY);
-	gfx_fill_rect(1, 1, gfx_width()-2, 40-2, GFX_COLOR_BLUE2);
-//						ltdc_get_rgb565_from_rgb888(0x111111));
-//						((0x11 << 11) | (0x11 << 5) | 0x11));
-
-	gfx_set_font_scale(3);
-	gfx_puts2(10, 10, "Snake", &font_Tamsyn5x9b_9 , GFX_COLOR_WHITE);
-	gfx_set_font_scale(1);
-	gfx_set_font(&font_Tamsyn5x9r_9);
-	gfx_set_text_color(GFX_COLOR_BLUE2);
-	gfx_puts3(
-			gfx_width()-10, 14,
-			"Press the blue button to\nchange something",
-			GFX_ALIGNMENT_RIGHT
-		);
+	gfx_fill_rect(1, 1, gfx_width()-2, 40-2, GFX_COLOR_BLUE);
 
 //	draw_antialised_line((segment2d_t){20,20,200,200},GFX_COLOR_GREEN2);
+	gfx_set_font_scale(3);
+	gfx_puts2(10, 8, "Snake", &font_Tamsyn5x9b_9 , GFX_COLOR_WHITE);
 
 	/* flip background buffer */
 	ili9341_flip_layer1_buffer();
@@ -296,7 +302,7 @@ static void init_snake(void) {
 		.food={0}
 	};
 	snake_history_reset();
-	rand_r(666);
+	srand(666);
 }
 static inline void snake_history_reset(void) {
 	snake.length = 0; snake.max_length = 50;
@@ -319,46 +325,46 @@ static void do_snake(void) {
 	float tdiff = (float)(t-snake.last_time) / 1000;
 
 	point2d_t *p = snake.hcurr;
-	bool lost;
+	bool lost = false;
 	switch (snake.state) {
-		case STARTED :
-		{
-			float dist = snake.speed * tdiff;
-			switch (snake.dir) {
-				case RIGHT :
-					p->x += dist;
-					break;
-				case UP :
-					p->y -= dist;
-					break;
-				case LEFT :
-					p->x -= dist;
-					break;
-				case DOWN :
-					p->y += dist;
-					break;
-			}
+	case STARTED :
+	{
+		float dist = snake.speed * tdiff;
+		switch (snake.dir) {
+			case RIGHT :
+				p->x += dist;
+				break;
+			case UP :
+				p->y -= dist;
+				break;
+			case LEFT :
+				p->x -= dist;
+				break;
+			case DOWN :
+				p->y += dist;
+				break;
+		}
 
-			snake.length += dist;
-			if (snake.length > snake.max_length) snake.length = snake.max_length;
+		snake.length += dist;
+		if (snake.length > snake.max_length) snake.length = snake.max_length;
 
-			lost = p->x < snake.off_x
-				|| p->x > snake.off_x+snake.fw
-				|| p->y < snake.off_y
-				|| p->y > snake.off_y+snake.fh;
+		lost = p->x < snake.off_x
+			|| p->x > snake.off_x+snake.fw
+			|| p->y < snake.off_y
+			|| p->y > snake.off_y+snake.fh;
 
-			if (!snake.food.placed) {
-				snake.food.placed = true;
-				snake.food.pos = (point2d_t){
-					(vector_flt_t)rand()/RAND_MAX*snake.fw+snake.off_x,
-					(vector_flt_t)rand()/RAND_MAX*snake.fh+snake.off_y
-				};
-			}
-		} break;
-		case LOST :
-//		default :
-			lost = true;
-			break;
+		if (!snake.food.placed) {
+			snake.food.placed = true;
+			snake.food.pos = (point2d_t){
+				(vector_flt_t)rand()/RAND_MAX*snake.fw+snake.off_x,
+				(vector_flt_t)rand()/RAND_MAX*snake.fh+snake.off_y
+			};
+		}
+	} break;
+	case LOST :
+//	default :
+		lost = true;
+		break;
 	}
 	snake.last_time = t;
 
@@ -468,47 +474,47 @@ static void do_snake(void) {
 static void snake_turn(direction_t dir) {
 	/* snake */
 	switch (snake.state) {
-		case LOST :
-			snake_history_reset();
-			snake.state = STARTED;
-			break;
-		case STARTED :
-		{
-			point2d_t *third_last = snake.hcurr;
-			if (!dec_and_test(&third_last, snake.hfirst)) {
-				dec(third_last);
-				switch (snake.dir) {
-					case RIGHT :
-					case LEFT :
-						if (fabs(third_last->x-snake.hcurr->x) < snake.size) return;
-						break;
-					case UP :
-					case DOWN :
-						if (fabs(third_last->y-snake.hcurr->y) < snake.size) return;
-						break;
-				}
-			}
-			switch (dir) {
+	case LOST :
+		snake_history_reset();
+		snake.state = STARTED;
+		break;
+	case STARTED :
+	{
+		point2d_t *third_last = snake.hcurr;
+		if (!dec_and_test(&third_last, snake.hfirst)) {
+			dec(third_last);
+			switch (snake.dir) {
+				case RIGHT :
+				case LEFT :
+					if (fabsf(third_last->x-snake.hcurr->x) < snake.size) return;
+					break;
 				case UP :
 				case DOWN :
-					assert(0);
-					break;
-				case LEFT :
-					if (snake.dir==DOWN) snake.dir = RIGHT;
-					else snake.dir++;
-					break;
-				case RIGHT :
-					if (snake.dir==RIGHT) snake.dir = DOWN;
-					else snake.dir--;
+					if (fabsf(third_last->y-snake.hcurr->y) < snake.size) return;
 					break;
 			}
-			point2d_t p = *snake.hcurr;
-			snake.hcurr++;
-			if (snake.hcurr==snake.hend) {
-				snake.hcurr = snake.history;
-			}
-			*snake.hcurr = p;
-		}	break;
+		}
+		switch (dir) {
+			case UP :
+			case DOWN :
+				assert(0);
+				break;
+			case LEFT :
+				if (snake.dir==DOWN) snake.dir = RIGHT;
+				else snake.dir++;
+				break;
+			case RIGHT :
+				if (snake.dir==RIGHT) snake.dir = DOWN;
+				else snake.dir--;
+				break;
+		}
+		point2d_t p = *snake.hcurr;
+		snake.hcurr++;
+		if (snake.hcurr==snake.hend) {
+			snake.hcurr = snake.history;
+		}
+		*snake.hcurr = p;
+	}	break;
 	}
 }
 
@@ -609,24 +615,22 @@ int main(void)
 	/* init snake */
 	init_snake();
 
-//	/* init floodfill4 demo */
-//	init_floodfill4();
-//
-//	/* init/draw bezier */
-//	init_bezier();
-//
-//	/* init balls demo */
-//	init_balls();
-
-
 	ltdc_reload(LTDC_SRCR_RELOAD_VBR);
 
+	point2d_t touch_point = {0};
+	point2d_t drag_distance = {0};
 	while (1) {
 		uint64_t ctime   = mtime();
 		static uint64_t draw_timeout = 1;
-		static char fps_s[7] = "   fps";
+		static char fps_s[32] = "   fps";
 
 		if (!LTDC_SRCR_IS_RELOADING() && (draw_timeout <= ctime)) {
+			if (rotate_screen) {
+				rotate_screen = false;
+				gfx_set_rotation((gfx_get_rotation()+1)%(GFX_ROTATION_270_DEGREES+1));
+				draw_background();
+			}
+			
 			/* calculate fps */
 			uint32_t fps;
 			fps = 1000 / (ctime-draw_timeout+DISPLAY_TIMEOUT);
@@ -641,46 +645,78 @@ int main(void)
 			/**
 			 * Get touch infos
 			 */
-			update_touchscreen_data();
+			touchscreen_action_t ts_action;
+			ts_action = update_touchscreen_data(&touch_point,&drag_distance);
+			switch (ts_action) {
+			case TS_TOUCHED:
+				if (touch_point.y > gfx_height()/2) {
+					if (touch_point.x < gfx_width()/2) {
+						disable_interrupts();
+						snake_turn(LEFT);
+						enable_interrupts();
+					} else
+					if (touch_point.x > gfx_width()/2) {
+						disable_interrupts();
+						snake_turn(RIGHT);
+						enable_interrupts();
+					}
+				}
+				break;
+			case TS_DRAGGING:
+				break;
+			case TS_DRAGGED:
+				break;
+			case TS_NONE:
+				break;
+			}
+
+			/**
+			 * Display touch infos
+			 */
+			print_touchscreen_data(2,42,GFX_COLOR_DARKGREY, ts_action,touch_point,drag_distance);
+			//gfx_fill_circle((int16_t)touch_point.x,(int16_t)touch_point.y,10,GFX_COLOR_WHITE);
+
+
+			/* draw fps */
+			gfx_set_font_scale(1);
+			gfx_set_font(&font_Tamsyn5x9r_9);
+			gfx_set_text_color(GFX_COLOR_DARKGREY);
+			sprintf(fps_s, "%lu fps", fps);
+			gfx_puts3(gfx_width()-2,gfx_height()-11,fps_s, GFX_ALIGNMENT_RIGHT);
 
 			/**
 			 * Snake
 			 */
 			do_snake();
 			char snake_length_s[64];
-			sprintf(snake_length_s, "snake length:% 6.1f", snake.length);
-			gfx_puts3(gfx_width()-10,30,snake_length_s, GFX_ALIGNMENT_RIGHT);
-
-//			/**
-//			 * Flood fill test
-//			 */
-//			draw_floodfill4(demo_mode);
-//
-//			/**
-//			 * Bezier test
-//			 */
-//			draw_bezier(demo_mode);
-//
-//			/**
-//			 * Bezier interactive
-//			 */
-//			draw_bezier_interactive(demo_mode);
-//
-//			/**
-//			 * Ball stuff
-//			 */
-//			draw_balls(demo_mode);
-
-
-			/* draw fps */
 			gfx_set_font_scale(1);
-			sprintf(fps_s, "%lu fps", fps);
-			gfx_puts2(
-					200, 15,
-					fps_s,
-					&font_Tamsyn5x9b_9,
-					GFX_COLOR_WHITE
-				);
+			gfx_set_font(&font_Tamsyn5x9r_9);
+			gfx_set_text_color(GFX_COLOR_WHITE);
+			sprintf(snake_length_s, "snake length:% 6.1f", (double)snake.length);
+			switch (snake.state) {
+			case STARTED:
+				gfx_puts3(gfx_width()-2,17,snake_length_s, GFX_ALIGNMENT_RIGHT);
+				break;
+			case LOST:
+				gfx_draw_rect(20,60,gfx_width()-40,96, GFX_COLOR_DARKGREY);
+				gfx_fill_rect(21,61,gfx_width()-42,94, GFX_COLOR_WHITE);
+				
+				gfx_set_font(&font_Tamsyn5x9r_9);
+				gfx_set_text_color(GFX_COLOR_BLACK);
+				gfx_set_font_scale(3);
+				gfx_puts3(gfx_width()/2,65,"Game over!", GFX_ALIGNMENT_CENTER);
+				gfx_set_cursor(25, 100);
+				gfx_set_font_scale(2);
+				gfx_puts(snake_length_s);
+				gfx_set_font_scale(1);
+				gfx_puts("\n"
+						 "\n"
+						 "\n"
+						 "Help:\n"
+						 " Blue button rotates the screen\n"
+						 " Touch screen controls the snake");
+				break;
+			}
 
 			/* swap the double buffer */
 			ili9341_flip_layer2_buffer();

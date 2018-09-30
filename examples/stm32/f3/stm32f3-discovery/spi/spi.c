@@ -138,7 +138,7 @@ static void my_usart_print_int(uint32_t usart, int32_t value)
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_64MHZ]);
+	rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 }
 
 #define GYR_RNW			(1 << 7) /* Write when zero */

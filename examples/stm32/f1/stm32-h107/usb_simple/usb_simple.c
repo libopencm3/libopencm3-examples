@@ -77,7 +77,7 @@ const char *usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
+static enum usbd_request_return_codes simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
 		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)buf;
@@ -86,14 +86,14 @@ static int simple_control_callback(usbd_device *usbd_dev, struct usb_setup_data 
 	(void)usbd_dev;
 
 	if (req->bmRequestType != 0x40)
-		return 0; /* Only accept vendor request. */
+		return USBD_REQ_NOTSUPP; /* Only accept vendor request. */
 
 	if (req->wValue & 1)
 		gpio_set(GPIOC, GPIO6);
 	else
 		gpio_clear(GPIOC, GPIO6);
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 static void usb_set_config_cb(usbd_device *usbd_dev, uint16_t wValue)

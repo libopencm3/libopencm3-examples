@@ -38,8 +38,7 @@ static void adc_setup(void)
 
 	adc_power_off(ADC1);
 	adc_set_clk_source(ADC1, ADC_CLKSOURCE_ADC);
-	adc_calibrate_start(ADC1);
-	adc_calibrate_wait_finish(ADC1);
+	adc_calibrate(ADC1);
 	adc_set_operation_mode(ADC1, ADC_MODE_SCAN);
 	adc_disable_external_trigger_regular(ADC1);
 	adc_set_right_aligned(ADC1);
@@ -71,7 +70,7 @@ static void usart_setup(void)
 	/* Setup UART parameters. */
 	usart_set_baudrate(USART1, 38400);
 	usart_set_databits(USART1, 8);
-	usart_set_stopbits(USART1, USART_CR2_STOP_1_0BIT);
+	usart_set_stopbits(USART1, USART_CR2_STOPBITS_1);
 	usart_set_mode(USART1, USART_MODE_TX);
 	usart_set_parity(USART1, USART_PARITY_NONE);
 	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);

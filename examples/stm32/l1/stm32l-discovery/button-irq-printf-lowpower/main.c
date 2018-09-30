@@ -131,7 +131,7 @@ int _write(int file, char *ptr, int len)
  */
 static void setup_button_press_timer(void)
 {
-	timer_reset(TIMER_BUTTON_PRESS);
+	rcc_periph_reset_pulse(TIMER_BUTTON_PRESS_RST);
 	timer_set_prescaler(TIMER_BUTTON_PRESS, 3999); /* 4Mhz/1000hz - 1 */
 	timer_set_period(TIMER_BUTTON_PRESS, 0xffff);
 	timer_enable_counter(TIMER_BUTTON_PRESS);
@@ -265,7 +265,7 @@ static void reset_clocks(void)
 		.ppre1 = RCC_CFGR_PPRE1_HCLK_NODIV,
 		.ppre2 = RCC_CFGR_PPRE2_HCLK_NODIV,
 		.voltage_scale = PWR_SCALE2,
-		.flash_config = FLASH_ACR_LATENCY_0WS,
+		.flash_waitstates = FLASH_ACR_LATENCY_0WS,
 		.apb1_frequency = 4194000,
 		.apb2_frequency = 4194000,
 		.msi_range = RCC_ICSCR_MSIRANGE_4MHZ,

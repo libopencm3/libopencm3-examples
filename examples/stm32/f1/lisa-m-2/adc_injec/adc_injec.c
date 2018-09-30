@@ -79,7 +79,7 @@ static void adc_setup(void)
 	adc_enable_external_trigger_injected(ADC1,ADC_CR2_JEXTSEL_JSWSTART);
 	adc_set_right_aligned(ADC1);
 	/* We want to read the temperature sensor, so we have to enable it. */
-	adc_enable_temperature_sensor(ADC1);
+	adc_enable_temperature_sensor();
 	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_28DOT5CYC);
 
 	adc_power_on(ADC1);
@@ -89,9 +89,7 @@ static void adc_setup(void)
 		__asm__("nop");
 
 	adc_reset_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_RSTCAL) != 0); //added this check
-	adc_calibration(ADC1);
-	while ((ADC_CR2(ADC1) & ADC_CR2_CAL) != 0); //added this check
+	adc_calibrate(ADC1);
 }
 
 static void my_usart_print_int(uint32_t usart, int value)

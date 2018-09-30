@@ -110,7 +110,7 @@ static void tim_setup(void)
 	nvic_enable_irq(NVIC_TIM1_TRG_COM_IRQ);
 
 	/* Reset TIM1 peripheral. */
-	timer_reset(TIM1);
+	rcc_periph_reset_pulse(RST_TIM1);
 
 	/* Timer global mode:
 	 * - No divider

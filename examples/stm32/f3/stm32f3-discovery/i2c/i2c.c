@@ -20,6 +20,8 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
+#include <stdio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/i2c.h>
@@ -43,6 +45,8 @@
 #define LD8 GPIOE, GPIO14
 #define LD6 GPIOE, GPIO15
 
+int _write(int file, char *ptr, int len);
+
 static void i2c_setup(void)
 {
 	rcc_periph_clock_enable(RCC_I2C1);
@@ -52,14 +56,13 @@ static void i2c_setup(void)
 	i2c_reset(I2C1);
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
-	gpio_set_af(GPIOB, GPIO_AF4, GPIO6| GPIO7);
+	gpio_set_af(GPIOB, GPIO_AF4, GPIO6 | GPIO7);
 	i2c_peripheral_disable(I2C1);
 	//configure ANFOFF DNF[3:0] in CR1
 	i2c_enable_analog_filter(I2C1);
-	i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
-	//Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0] SCLH[7:0] SCLL[7:0]
-	// in TIMINGR
-	i2c_100khz_i2cclk8mhz(I2C1);
+	i2c_set_digital_filter(I2C1, 0);
+	/* HSI is at 8Mhz */
+	i2c_set_speed(I2C1, i2c_speed_sm_100k, 8);
 	//configure No-Stretch CR1 (only relevant in slave mode)
 	i2c_enable_stretching(I2C1);
 	//addressing mode
@@ -97,37 +100,27 @@ static void gpio_setup(void)
 		GPIO14 | GPIO15);
 }
 
-static void my_usart_print_int(uint32_t usart, int32_t value)
+int _write(int file, char *ptr, int len)
 {
-	int8_t i;
-	int8_t nr_digits = 0;
-	char buffer[25];
+        int i;
 
-	if (value < 0) {
-		usart_send_blocking(usart, '-');
-		value = value * -1;
-	}
-
-	if (value == 0) {
-		usart_send_blocking(usart, '0');
-	}
-
-	while (value > 0) {
-		buffer[nr_digits++] = "0123456789"[value % 10];
-		value /= 10;
-	}
-
-	for (i = nr_digits-1; i >= 0; i--) {
-		usart_send_blocking(usart, buffer[i]);
-	}
-
-	usart_send_blocking(usart, '\r');
-	usart_send_blocking(usart, '\n');
+        if (file == 1) {
+                for (i = 0; i < len; i++) {
+			if (ptr[i] == '\n') {
+				usart_send_blocking(USART2, '\r');
+			}
+                        usart_send_blocking(USART2, ptr[i]);
+		}
+                return i;
+        }
+        errno = EIO;
+        return -1;
 }
+
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_hsi(&rcc_hsi_8mhz[RCC_CLOCK_64MHZ]);
+	rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 }
 
 #define I2C_ACC_ADDR 0x19
@@ -142,34 +135,31 @@ static void clock_setup(void)
 #define ACC_OUT_X_L_A 0x28
 #define ACC_OUT_X_H_A 0x29
 
-//      gpio_port_write(GPIOE, (I2C_ISR(i2c) & 0xFF) << 8);
-//      my_usart_print_int(USART2, (I2C_ISR(i2c) & 0xFF));
-
 int main(void)
 {
 	clock_setup();
 	gpio_setup();
 	usart_setup();
+	printf("Hello, we're running\n");
 	i2c_setup();
-	/*uint8_t data[1]={(0x4 << ACC_CTRL_REG1_A_ODR_SHIFT) | ACC_CTRL_REG1_A_XEN};*/
-	uint8_t data[1]={0x97};
-	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG1_A, 1, data);
-	data[0]=0x08;
-	write_i2c(I2C1, I2C_ACC_ADDR, ACC_CTRL_REG4_A, 1, data);
-	uint16_t acc_x;
+	uint8_t cmd = ACC_CTRL_REG1_A;
+	uint8_t data;
+	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+	cmd = ACC_CTRL_REG4_A;
+	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+	int16_t acc_x;
 
 	while (1) {
 
-		read_i2c(I2C1, I2C_ACC_ADDR, ACC_STATUS, 1, data);
-		/*my_usart_print_int(USART2, data[0]);*/
-		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_L_A, 1, data);
-		acc_x=data[0];
-		read_i2c(I2C1, I2C_ACC_ADDR, ACC_OUT_X_H_A, 1, data);
-		acc_x|=(data[0] << 8);
-		my_usart_print_int(USART2, (int16_t) acc_x);
-		//int i;
-		//for (i = 0; i < 800000; i++)    /* Wait a bit. */
-		//  __asm__("nop");
+		cmd = ACC_STATUS;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		cmd = ACC_OUT_X_L_A;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		acc_x = data;
+		cmd = ACC_OUT_X_H_A;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		acc_x |= ((uint16_t)data << 8);
+		printf("data was %d\n", acc_x);
 	}
 
 	return 0;

@@ -1,14 +1,14 @@
 # README
 
 This example demonstrates the use of timers to trigger an interrupt. This
-example will toggle two LEDs spelling out the following morse code:
+example will toggle a LED spelling out the following morse code:
 
 SOS -> ...---...
 
-Where dots are .1s, dashes .2s, gaps .05s and the word pause .5s.
+using international morse timing, with a dot element of 100ms
 
 It's intended for the ST STM32F4DISCOVERY eval board. It should blink
-the LEDs on the board.
+a LED on the board.
 
 ## Board connections
 
