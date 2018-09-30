@@ -125,7 +125,7 @@ gfx_get_surface_visible_area(void);
 
 void gfx_fill_screen(uint16_t color);
 
-void gfx_rotate(gfx_rotation_t rotation);
+void gfx_set_rotation(gfx_rotation_t rotation);
 uint16_t gfx_height(void);
 uint16_t gfx_width(void);
 gfx_rotation_t gfx_get_rotation(void);
@@ -150,6 +150,11 @@ void gfx_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void gfx_draw_raw_rbg565_buffer(
 		int16_t x, int16_t y, uint16_t w, uint16_t h,
 		const uint16_t *img
+	);
+void gfx_draw_raw_rbg565_buffer_ignore_color(
+		int16_t x, int16_t y, uint16_t w, uint16_t h,
+		const uint16_t *img,
+		uint16_t ignored_color
 	);
 
 void gfx_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
@@ -203,6 +208,7 @@ uint8_t gfx_get_font_scale(void);
 void gfx_set_text_wrap(bool w);
 void gfx_set_font(const font_t *font);
 void gfx_puts(const char *);
+void gfx_puts4(const char *s, uint32_t max_len);
 void gfx_puts2(
 		int16_t x, int16_t y,
 		const char *s,

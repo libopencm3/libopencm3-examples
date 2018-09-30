@@ -160,7 +160,7 @@ void gfx_fill_screen(uint16_t color)
 
 
 /* change the rotation and flip width and height accordingly */
-void gfx_rotate(gfx_rotation_t rotation)
+void gfx_set_rotation(gfx_rotation_t rotation)
 {
 	if ((rotation == GFX_ROTATION_0_DEGREES)
 	 || (rotation == GFX_ROTATION_180_DEGREES)
@@ -706,6 +706,28 @@ void gfx_draw_raw_rbg565_buffer(
 	}
 }
 
+/* Draw RGB565 data, do not draw ignored_color */
+void gfx_draw_raw_rbg565_buffer_ignore_color(
+		int16_t x, int16_t y, uint16_t w, uint16_t h,
+		const uint16_t *img,
+		uint16_t ignored_color
+) {
+	int16_t x_cp, w_cp;
+	while (h--) {
+		x_cp = x;
+		w_cp = w;
+		while (w_cp--) {
+			if (*img != ignored_color) {
+				gfx_draw_pixel(x_cp, y, *img);
+			}
+			img++;
+
+			x_cp++;
+		}
+		y++;
+	}
+}
+
 /* Draw a circle outline */
 void gfx_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t fg)
 {
@@ -1011,9 +1033,15 @@ void gfx_write(const uint32_t c)
 	}
 }
 
-void gfx_puts(const char *s)
-{
+void gfx_puts(const char *s) {
 	while (*s) {
+		int32_t value;
+		s = utf8_read_value(s, &value);
+		gfx_write(value);
+	}
+}
+void gfx_puts4(const char *s, uint32_t max_len) {
+	while (*s && max_len--) {
 		int32_t value;
 		s = utf8_read_value(s, &value);
 		gfx_write(value);
@@ -1037,7 +1065,7 @@ void gfx_puts3(
 		const gfx_alignment_t alignment
 ) {
 	const char *s_end;
-	const char *next_nl, *last_nl;
+	const char *next_nl; //, *last_nl;
 
 	switch (alignment) {
 	case GFX_ALIGNMENT_TOP:
@@ -1050,7 +1078,7 @@ void gfx_puts3(
 	case GFX_ALIGNMENT_RIGHT:
 		s_end = utf8_find_character_in_string(0, s, s+1024);
 		next_nl = utf8_find_character_in_string('\n', s, s_end);
-		if (!next_nl) {
+		if (next_nl == s_end) {
 			gfx_set_cursor(
 					x
 					- utf8_find_pointer_diff(s, s_end)
@@ -1081,28 +1109,29 @@ void gfx_puts3(
 		break;
 
 	case GFX_ALIGNMENT_CENTER:
+		/* TODO correct rounding on /2 */
 		s_end = utf8_find_character_in_string(0, s, s+1024);
 		next_nl = utf8_find_character_in_string('\n', s, s_end);
-		if (!next_nl) {
+		if (0) { //next_nl == s_end) {
 			gfx_set_cursor(
-					x-utf8_find_pointer_diff(s, s_end)
-					* __gfx_state.font->charwidth/2,
+					x-(utf8_find_pointer_diff(s, s_end)
+					* __gfx_state.font->charwidth)/2,
 				y
 			);
 			gfx_puts(s);
 		} else {
-			/* find longest line */
-			uint32_t line_length, longest_line;
-			longest_line = utf8_find_pointer_diff(s, next_nl);
-			last_nl = next_nl+1;
-			while (last_nl < s_end) {
-				next_nl = utf8_find_character_in_string('\n', last_nl, s_end);
-				line_length = utf8_find_pointer_diff(last_nl, next_nl);
-				if (longest_line < line_length) {
-					longest_line = line_length;
-				}
-				last_nl = next_nl+1;
-			}
+//			/* find longest line */
+//			uint32_t line_length, longest_line;
+//			longest_line = utf8_find_pointer_diff(s, next_nl);
+//			last_nl = next_nl+1;
+//			while (last_nl < s_end) {
+//				next_nl = utf8_find_character_in_string('\n', last_nl, s_end);
+//				line_length = utf8_find_pointer_diff(last_nl, next_nl);
+//				if (longest_line < line_length) {
+//					longest_line = line_length;
+//				}
+//				last_nl = next_nl+1;
+//			}
 
 			/* print lines */
 			uint32_t line_count = 0;
@@ -1110,10 +1139,12 @@ void gfx_puts3(
 				next_nl = utf8_find_character_in_string('\n', s, s_end);
 				gfx_set_cursor(
 						x
-						- (longest_line*__gfx_state.font->charwidth)
-						+ (longest_line
-							- utf8_find_pointer_diff(s, next_nl)
-						) * __gfx_state.font->charwidth/2,
+						-(utf8_find_pointer_diff(s, next_nl)
+						* __gfx_state.font->charwidth)/2,
+						//- (longest_line*__gfx_state.font->charwidth)
+//						- ((longest_line
+//							- utf8_find_pointer_diff(s, next_nl)
+//						) * __gfx_state.font->charwidth)/2,
 						y
 						+ line_count*__gfx_state.font->lineheight);
 				do {
@@ -1171,11 +1202,12 @@ void gfx_draw_char(
 					gfx_fill_rect(x+i*size, y+j*size, size, size, col);
 				}
 			}
-			bm <<= 1;
 			/* overflow */
-			if (!bm) {
+			if (bm == 0x80000000) {
 				bm = 1;
 				cp_data_p++;
+			} else {
+				bm <<= 1;
 			}
 		}
 	}

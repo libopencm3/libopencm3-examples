@@ -582,7 +582,7 @@ int main(void)
 	 */
 
 	/* rotate LCD */
-	gfx_rotate(GFX_ROTATION_180_DEGREES);
+	gfx_set_rotation(GFX_ROTATION_180_DEGREES);
 
 	/* set background color */
 	ltdc_set_background_color(0, 0, 0);

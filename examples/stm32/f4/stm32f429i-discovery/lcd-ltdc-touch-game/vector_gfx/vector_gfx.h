@@ -21,6 +21,7 @@
 #ifndef VECTOR_GFX_H_
 #define VECTOR_GFX_H_
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <inttypes.h>
 #include <float.h>
