@@ -116,17 +116,18 @@ static void clock_setup(void)
 
 int main(void)
 {
+	uint8_t cmd = ACC_CTRL_REG1_A;
+	uint8_t data;
+	int16_t acc_x;
+
 	clock_setup();
 	gpio_setup();
 	usart_setup();
 	printf("Hello, we're running\n");
 	i2c_setup();
-	uint8_t cmd = ACC_CTRL_REG1_A;
-	uint8_t data;
 	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
 	cmd = ACC_CTRL_REG4_A;
 	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
-	int16_t acc_x;
 
 	while (1) {
 
