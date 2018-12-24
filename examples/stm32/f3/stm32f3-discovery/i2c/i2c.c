@@ -30,6 +30,70 @@
 
 int _write(int file, char *ptr, int len);
 
+static void i2c_setup(void);
+static void usart_setup(void);
+static void gpio_setup(void);
+static void clock_setup(void);
+
+
+#define I2C_ACC_ADDR 0x19
+#define ACC_STATUS 0x27
+#define ACC_CTRL_REG1_A 0x20
+#define ACC_CTRL_REG4_A 0x23
+
+#define ACC_OUT_X_L_A 0x28
+#define ACC_OUT_X_H_A 0x29
+
+int main(void)
+{
+	uint8_t cmd = ACC_CTRL_REG1_A;
+	uint8_t data;
+	int16_t acc_x;
+
+	clock_setup();
+	gpio_setup();
+	usart_setup();
+	printf("Hello, we're running\n");
+	i2c_setup();
+	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+	cmd = ACC_CTRL_REG4_A;
+	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+
+	while (1) {
+
+		cmd = ACC_STATUS;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		cmd = ACC_OUT_X_L_A;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		acc_x = data;
+		cmd = ACC_OUT_X_H_A;
+		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
+		acc_x |= ((uint16_t)data << 8);
+		printf("data was %d\n", acc_x);
+	}
+
+	return 0;
+}
+
+
+int _write(int file, char *ptr, int len)
+{
+        int i;
+
+        if (file == 1) {
+                for (i = 0; i < len; i++) {
+			if (ptr[i] == '\n') {
+				usart_send_blocking(USART2, '\r');
+			}
+                        usart_send_blocking(USART2, ptr[i]);
+		}
+                return i;
+        }
+        errno = EIO;
+        return -1;
+}
+
+
 static void i2c_setup(void)
 {
 	rcc_periph_clock_enable(RCC_I2C1);
@@ -83,65 +147,7 @@ static void gpio_setup(void)
 		GPIO14 | GPIO15);
 }
 
-int _write(int file, char *ptr, int len)
-{
-        int i;
-
-        if (file == 1) {
-                for (i = 0; i < len; i++) {
-			if (ptr[i] == '\n') {
-				usart_send_blocking(USART2, '\r');
-			}
-                        usart_send_blocking(USART2, ptr[i]);
-		}
-                return i;
-        }
-        errno = EIO;
-        return -1;
-}
-
-
 static void clock_setup(void)
 {
 	rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 }
-
-#define I2C_ACC_ADDR 0x19
-#define ACC_STATUS 0x27
-#define ACC_CTRL_REG1_A 0x20
-#define ACC_CTRL_REG4_A 0x23
-
-#define ACC_OUT_X_L_A 0x28
-#define ACC_OUT_X_H_A 0x29
-
-int main(void)
-{
-	uint8_t cmd = ACC_CTRL_REG1_A;
-	uint8_t data;
-	int16_t acc_x;
-
-	clock_setup();
-	gpio_setup();
-	usart_setup();
-	printf("Hello, we're running\n");
-	i2c_setup();
-	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
-	cmd = ACC_CTRL_REG4_A;
-	i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
-
-	while (1) {
-
-		cmd = ACC_STATUS;
-		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
-		cmd = ACC_OUT_X_L_A;
-		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
-		acc_x = data;
-		cmd = ACC_OUT_X_H_A;
-		i2c_transfer7(I2C1, I2C_ACC_ADDR, &cmd, 1, &data, 1);
-		acc_x |= ((uint16_t)data << 8);
-		printf("data was %d\n", acc_x);
-	}
-
-	return 0;
-}
-
