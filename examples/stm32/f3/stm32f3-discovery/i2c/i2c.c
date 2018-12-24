@@ -27,23 +27,6 @@
 #include <libopencm3/stm32/i2c.h>
 #include <libopencm3/stm32/gpio.h>
 
-#define LBLUE GPIOE, GPIO8
-#define LRED GPIOE, GPIO9
-#define LORANGE GPIOE, GPIO10
-#define LGREEN GPIOE, GPIO11
-#define LBLUE2 GPIOE, GPIO12
-#define LRED2 GPIOE, GPIO13
-#define LORANGE2 GPIOE, GPIO14
-#define LGREEN2 GPIOE, GPIO15
-
-#define LD4 GPIOE, GPIO8
-#define LD3 GPIOE, GPIO9
-#define LD5 GPIOE, GPIO10
-#define LD7 GPIOE, GPIO11
-#define LD9 GPIOE, GPIO12
-#define LD10 GPIOE, GPIO13
-#define LD8 GPIOE, GPIO14
-#define LD6 GPIOE, GPIO15
 
 int _write(int file, char *ptr, int len);
 
@@ -124,12 +107,8 @@ static void clock_setup(void)
 }
 
 #define I2C_ACC_ADDR 0x19
-#define I2C_MAG_ADDR 0x1E
 #define ACC_STATUS 0x27
 #define ACC_CTRL_REG1_A 0x20
-#define ACC_CTRL_REG1_A_ODR_SHIFT 4
-#define ACC_CTRL_REG1_A_ODR_MASK 0xF
-#define ACC_CTRL_REG1_A_XEN (1 << 0)
 #define ACC_CTRL_REG4_A 0x23
 
 #define ACC_OUT_X_L_A 0x28
