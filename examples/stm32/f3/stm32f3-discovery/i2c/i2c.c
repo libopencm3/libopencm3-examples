@@ -28,14 +28,6 @@
 #include <libopencm3/stm32/gpio.h>
 
 
-int _write(int file, char *ptr, int len);
-
-static void i2c_setup(void);
-static void usart_setup(void);
-static void gpio_setup(void);
-static void clock_setup(void);
-
-
 #define I2C_ACC_ADDR 0x19
 #define ACC_STATUS 0x27
 #define ACC_CTRL_REG1_A 0x20
@@ -43,6 +35,15 @@ static void clock_setup(void);
 
 #define ACC_OUT_X_L_A 0x28
 #define ACC_OUT_X_H_A 0x29
+
+
+int _write(int file, char *ptr, int len);
+
+static void i2c_setup(void);
+static void usart_setup(void);
+static void gpio_setup(void);
+static void clock_setup(void);
+
 
 int main(void)
 {
