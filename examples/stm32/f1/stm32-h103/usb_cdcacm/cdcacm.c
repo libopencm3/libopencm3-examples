@@ -238,20 +238,21 @@ int main(void)
 
 	usbd_device *usbd_dev;
 
-	rcc_clock_setup_in_hsi_out_48mhz();
+	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 
 	rcc_periph_clock_enable(RCC_GPIOC);
 
-	gpio_set(GPIOC, GPIO11);
+	// STM32-H103 has a Maple-Hardware USB disconnect mechanism.
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO11);
+	gpio_set(GPIOC, GPIO11); // Disconnect USB.
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
 	for (i = 0; i < 0x800000; i++)
 		__asm__("nop");
-	gpio_clear(GPIOC, GPIO11);
+	gpio_clear(GPIOC, GPIO11); // after setup. Allow USB Connection.
 
 	while (1)
 		usbd_poll(usbd_dev);
