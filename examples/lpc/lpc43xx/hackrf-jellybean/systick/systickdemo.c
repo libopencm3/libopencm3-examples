@@ -71,10 +71,10 @@ static void systick_setup(void)
 	g_ulSysTickCount = 0;
 
 	/* Disable IRQ globally */
-	asm volatile ("cpsid i");
+	__asm__ __volatile__ ("cpsid i");
 
 	/* Set processor Clock as Source Clock */
-	systick_set_clocksource(STK_CTRL_CLKSOURCE);
+	systick_set_clocksource(STK_CSR_CLKSOURCE);
 
 	/* Get SysTick calibration value to obtain by default 1 tick = 10ms */
 	systick_reload_val = systick_get_calib();
@@ -97,7 +97,7 @@ static void systick_setup(void)
 	nvic_set_priority(NVIC_SYSTICK_IRQ, 0xFF);
 
 	/* Enable IRQ globally */
-	asm volatile ("cpsie i");
+	__asm__ __volatile__ ("cpsie i");
 }
 
 static void scs_dwt_cycle_counter_enabled(void)
