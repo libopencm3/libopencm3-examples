@@ -168,9 +168,25 @@ else
 include $(OPENCM3_DIR)/mk/genlink-rules.mk
 endif
 
+# Find libopencm3 library folder
+#  this tries to match LIBNAME to manufacturer or manufacturer/series folder in lib/
+#  eg. LIBNAME=lm3s LIBFOLDER=lib/lm3s or LIBNAME=stm32f7 LIBFOLDER=lib/stm32/f7
+DIR=$(notdir $(subst /.,,$(wildcard $1/*/.)))
+LIBFOLDER=lib/$(strip \
+    $(foreach M,$(filter-out usb ethernet dispatch,$(call DIR,$(OPENCM3_DIR)/lib)), \
+        $(if $(subst opencm3_$M,,$(LIBNAME)),\
+            $(foreach S,$(call DIR,$(OPENCM3_DIR)/lib/$(M)), \
+                $(if $(subst opencm3_$M$S,,$(LIBNAME)),,$M/$S)), \
+            $M)))
+# exceptions
+ifeq ($(LIBFOLDER),lib/lpc43xx)
+LIBFOLDER=lib/lpc43xx/m4
+endif
+
+# Build libopencm3-lib if it does exists
 $(OPENCM3_DIR)/lib/lib$(LIBNAME).a:
 	$(warning $(LIBNAME).a not found, attempting to rebuild in $(OPENCM3_DIR))
-	$(MAKE) -C $(OPENCM3_DIR)
+	$(MAKE) -C $(OPENCM3_DIR) $(LIBFOLDER)
 $(OPENCM3_DIR)/include/%.h: $(OPENCM3_DIR)/lib/lib$(LIBNAME).a;
 
 # Define a helper macro for debugging make errors online
