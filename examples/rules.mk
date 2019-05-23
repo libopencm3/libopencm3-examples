@@ -84,6 +84,7 @@ ifeq ($(strip $(DEVICE)),)
 DEFS		+= -I$(OPENCM3_DIR)/include
 LDFLAGS		+= -L$(OPENCM3_DIR)/lib
 LDLIBS		+= -l$(LIBNAME)
+LIBDEPS		+= $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
 LDSCRIPT	?= $(BINARY).ld
 else
 # New style, assume device is provided, and we're generating the rest.
@@ -199,7 +200,7 @@ print-%:
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf %.map: $(OBJS) $(LDSCRIPT) $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
+%.elf %.map: $(OBJS) $(LDSCRIPT) $(LIBDEPS)
 	@#printf "  LD      $(*).elf\n"
 	$(Q)$(LD) $(TGT_LDFLAGS) $(LDFLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
 
