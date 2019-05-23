@@ -169,10 +169,8 @@ include $(OPENCM3_DIR)/mk/genlink-rules.mk
 endif
 
 $(OPENCM3_DIR)/lib/lib$(LIBNAME).a:
-ifeq (,$(wildcard $@))
 	$(warning $(LIBNAME).a not found, attempting to rebuild in $(OPENCM3_DIR))
 	$(MAKE) -C $(OPENCM3_DIR)
-endif
 $(OPENCM3_DIR)/include/%.h: $(OPENCM3_DIR)/lib/lib$(LIBNAME).a;
 
 # Define a helper macro for debugging make errors online
