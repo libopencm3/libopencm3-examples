@@ -186,7 +186,7 @@ endif
 # Build libopencm3-lib if it does exists
 $(OPENCM3_DIR)/lib/lib$(LIBNAME).a:
 	$(warning $(LIBNAME).a not found, attempting to rebuild in $(OPENCM3_DIR))
-	$(MAKE) -C $(OPENCM3_DIR) $(LIBFOLDER)
+	$(MAKE) -C $(OPENCM3_DIR) $(LIBFOLDER) $(if $(CFLAGS),CFLAGS="$(CFLAGS)")
 $(OPENCM3_DIR)/include/%.h: $(OPENCM3_DIR)/lib/lib$(LIBNAME).a;
 
 # Define a helper macro for debugging make errors online
