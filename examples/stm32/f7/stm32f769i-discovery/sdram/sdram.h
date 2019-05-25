@@ -1,7 +1,7 @@
 /*
  * This file is part of the libopencm3 project.
  *
- * Copyright (C) 2010 Uwe Hermann <uwe@hermann-uwe.de>
+ * Copyright (C) 2014 Chuck McManis <cmcmanis@mcmanis.com>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,17 +17,31 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Linker script for HackRF Jellybean (LPC4330, 1M SPI flash, 64K SRAM). */
+#ifndef __SDRAM_H
+#define __SDRAM_H
 
-/* Define memory regions. */
-MEMORY
-{
-  /* rom is really the shadow region that points to SPI flash or elsewhere */
-  rom (rx)  : ORIGIN = 0x00000000, LENGTH =  1M
-  ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
-  /* there are some additional RAM regions */
-  ram_local2 (rw) : ORIGIN = 0x10080000, LENGTH =  72K
-}
+#include <stdint.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/fsmc.h>
 
-/* Include the common ld script. */
-INCLUDE lpc43xx/m4/libopencm3_lpc43xx.ld
+#define SDRAM1_BASE_ADDRESS (0xc0000000U)
+#define SDRAM2_BASE_ADDRESS (0xd0000000U)
+
+/* Initialize the SDRAM chip on the board */
+void sdram_init(void);
+void sdram_init_custom(
+		enum fmc_sdram_bank sdram_bank,
+		uint32_t memory_width,
+		uint32_t row_count, uint32_t column_count,
+		struct sdram_timing timing,
+		uint32_t cas_latency,
+		bool read_burst, bool write_burst,
+		uint32_t burst_length
+);
+
+#ifndef NULL
+#define NULL	(void *)(0)
+#endif
+
+#endif

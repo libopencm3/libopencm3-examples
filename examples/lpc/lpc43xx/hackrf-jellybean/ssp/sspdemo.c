@@ -86,7 +86,7 @@ int main(void)
 
 	while (1) {
 
-		ssp_write(SSP1_NUM, (uint16_t)ssp_val);
+		ssp_transfer(SSP1_NUM, (uint16_t)ssp_val);
 
 		gpio_set(GPIO2, GPIOPIN1); /* LED on */
 

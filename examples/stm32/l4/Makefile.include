@@ -1,11 +1,6 @@
 ##
 ## This file is part of the libopencm3 project.
 ##
-## Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
-## Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
-## Copyright (C) 2012 Michael Ossmann <mike@ossmann.com>
-## Copyright (C) 2012 Benjamin Vernoux <titanmkd@gmail.com>
-##
 ## This library is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU Lesser General Public License as published by
 ## the Free Software Foundation, either version 3 of the License, or
@@ -20,19 +15,21 @@
 ## along with this library.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+# You should use linker script generation! Specify device!
+ifeq ($(DEVICE),)
+LIBNAME		= opencm3_stm32l4
+DEFS		+= -DSTM32L4
 
-LIBNAME		= opencm3_lpc43xx
-DEFS		+= -DLPC43XX -DLPC43XX_M4
-
-FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
+FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv5-sp-d16
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m4 $(FP_FLAGS)
+endif
 
 ################################################################################
 # OpenOCD specific variables
 
 OOCD		?= openocd
-OOCD_INTERFACE	?= flossjtag
-OOCD_TARGET	?= lpc4357
+OOCD_INTERFACE	?= stlink-v2-1
+OOCD_TARGET	?= stm32l4x
 
 ################################################################################
 # Black Magic Probe specific variables

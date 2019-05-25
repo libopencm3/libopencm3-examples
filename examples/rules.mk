@@ -60,7 +60,7 @@ ifeq ($(strip $(OPENCM3_DIR)),)
 LIBPATHS := ./libopencm3 ../../../../libopencm3 ../../../../../libopencm3
 
 OPENCM3_DIR := $(wildcard $(LIBPATHS:=/locm3.sublime-project))
-OPENCM3_DIR := $(firstword $(dir $(OPENCM3_DIR)))
+OPENCM3_DIR := $(patsubst %/,%,$(firstword $(dir $(OPENCM3_DIR))))
 
 ifeq ($(strip $(OPENCM3_DIR)),)
 $(warning Cannot find libopencm3 library in the standard search paths.)
@@ -84,6 +84,7 @@ ifeq ($(strip $(DEVICE)),)
 DEFS		+= -I$(OPENCM3_DIR)/include
 LDFLAGS		+= -L$(OPENCM3_DIR)/lib
 LDLIBS		+= -l$(LIBNAME)
+LIBDEPS		+= $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
 LDSCRIPT	?= $(BINARY).ld
 else
 # New style, assume device is provided, and we're generating the rest.
@@ -167,11 +168,26 @@ else
 include $(OPENCM3_DIR)/mk/genlink-rules.mk
 endif
 
-$(OPENCM3_DIR)/lib/lib$(LIBNAME).a:
-ifeq (,$(wildcard $@))
-	$(warning $(LIBNAME).a not found, attempting to rebuild in $(OPENCM3_DIR))
-	$(MAKE) -C $(OPENCM3_DIR)
+# Find libopencm3 library folder
+#  this tries to match LIBNAME to manufacturer or manufacturer/series folder in lib/
+#  eg. LIBNAME=lm3s LIBFOLDER=lib/lm3s or LIBNAME=stm32f7 LIBFOLDER=lib/stm32/f7
+DIR=$(notdir $(subst /.,,$(wildcard $1/*/.)))
+LIBFOLDER=lib/$(strip \
+    $(foreach M,$(filter-out usb ethernet dispatch,$(call DIR,$(OPENCM3_DIR)/lib)), \
+        $(if $(subst opencm3_$M,,$(LIBNAME)),\
+            $(foreach S,$(call DIR,$(OPENCM3_DIR)/lib/$(M)), \
+                $(if $(subst opencm3_$M$S,,$(LIBNAME)),,$M/$S)), \
+            $M)))
+# exceptions
+ifeq ($(LIBFOLDER),lib/lpc43xx)
+LIBFOLDER=lib/lpc43xx/m4
 endif
+
+# Build libopencm3-lib if it does exists
+$(OPENCM3_DIR)/lib/lib$(LIBNAME).a:
+	$(warning $(LIBNAME).a not found, attempting to rebuild in $(OPENCM3_DIR))
+	$(MAKE) -C $(OPENCM3_DIR) $(LIBFOLDER) $(if $(CFLAGS),CFLAGS="$(CFLAGS)")
+$(OPENCM3_DIR)/include/%.h: $(OPENCM3_DIR)/lib/lib$(LIBNAME).a;
 
 # Define a helper macro for debugging make errors online
 # you can type "make print-OPENCM3_DIR" and it will show you
@@ -199,19 +215,19 @@ print-%:
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf %.map: $(OBJS) $(LDSCRIPT) $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
+%.elf %.map: $(OBJS) $(LDSCRIPT) $(LIBDEPS)
 	@#printf "  LD      $(*).elf\n"
 	$(Q)$(LD) $(TGT_LDFLAGS) $(LDFLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
 
-%.o: %.c
+%.o: %.c $(LIBDEPS)
 	@#printf "  CC      $(*).c\n"
 	$(Q)$(CC) $(TGT_CFLAGS) $(CFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
 
-%.o: %.cxx
+%.o: %.cxx $(LIBDEPS)
 	@#printf "  CXX     $(*).cxx\n"
 	$(Q)$(CXX) $(TGT_CXXFLAGS) $(CXXFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cxx
 
-%.o: %.cpp
+%.o: %.cpp $(LIBDEPS)
 	@#printf "  CXX     $(*).cpp\n"
 	$(Q)$(CXX) $(TGT_CXXFLAGS) $(CXXFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cpp
 

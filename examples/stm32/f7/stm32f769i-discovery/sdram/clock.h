@@ -1,7 +1,8 @@
 /*
+ * This include file describes the functions exported by clock.c and the
+ * CLOCK_SETUP
+ * 
  * This file is part of the libopencm3 project.
- *
- * Copyright (C) 2010 Uwe Hermann <uwe@hermann-uwe.de>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,17 +18,21 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Linker script for HackRF Jellybean (LPC4330, 1M SPI flash, 64K SRAM). */
+#ifndef __CLOCK_H
+#define __CLOCK_H
 
-/* Define memory regions. */
-MEMORY
-{
-  /* rom is really the shadow region that points to SPI flash or elsewhere */
-  rom (rx)  : ORIGIN = 0x00000000, LENGTH =  1M
-  ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
-  /* there are some additional RAM regions */
-  ram_local2 (rw) : ORIGIN = 0x10080000, LENGTH =  72K
-}
+#include <stdint.h>
 
-/* Include the common ld script. */
-INCLUDE lpc43xx/m4/libopencm3_lpc43xx.ld
+#include <libopencm3/stm32/rcc.h>
+
+#define CLOCK_SETUP rcc_3v3[RCC_CLOCK_3V3_216MHZ]
+
+/*
+ * Definitions for functions being abstracted out
+ */
+void msleep(uint32_t);
+uint64_t mtime(void);
+void clock_setup(void);
+
+#endif /* generic header protector */
+
