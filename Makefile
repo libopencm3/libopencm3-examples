@@ -20,7 +20,8 @@
 PREFIX		?= arm-none-eabi
 #PREFIX		?= arm-elf
 
-TARGETS		:= stm32/f0 stm32/f1 stm32/f2 stm32/f3 stm32/f4 stm32/l0 stm32/l1
+TARGETS		:= stm32/f0 stm32/f1 stm32/f2 stm32/f3 stm32/f4
+TARGETS		+= stm32/l0 stm32/l1 stm32/l4
 TARGETS		+= lpc/lpc13xx lpc/lpc17xx #lpc/lpc43xx
 TARGETS		+= tiva/lm3s tiva/lm4f
 TARGETS		+= efm32/efm32tg efm32/efm32g efm32/efm32lg efm32/efm32gg
