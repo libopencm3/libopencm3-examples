@@ -46,6 +46,9 @@ static void clock_setup(void)
 	/* And timers. */
 	rcc_periph_clock_enable(RCC_TIM6);
 	rcc_periph_clock_enable(RCC_TIM7);
+
+	/* And syscfg for exti port mapping */
+	rcc_periph_clock_enable(RCC_SYSCFG);
 }
 
 static void gpio_setup(void)
