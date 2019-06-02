@@ -26,8 +26,8 @@
 
 static void clock_setup(void)
 {
-	/* Enable high-speed clock at 120MHz */
-	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
+	/* Enable high-speed clock */
+	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
 	/* Enable GPIOG clock for LED & USARTs. */
 	rcc_periph_clock_enable(RCC_GPIOG);
