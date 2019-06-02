@@ -8,4 +8,4 @@ ADC\_IN1 input, and prints it to the serial port.
 | Port  | Function    | Description                       |
 | ----- | ----------- | --------------------------------- |
 | `PA1` | `(ADC_IN1)` | Analog input                      |
-| `PA9` | `(USART1)`  | TTL serial output `(38400,8,N,1)` |
+| `PA9` | `(USART1)`  | TTL serial output `(115200,8,N,1)` |

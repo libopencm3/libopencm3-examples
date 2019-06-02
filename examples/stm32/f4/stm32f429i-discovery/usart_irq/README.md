@@ -9,8 +9,8 @@ The sending is done in a nonblocking way.
 
 | Port   | Function      | Description                       |
 | ------ | ------------- | --------------------------------- |
-| `PA9`  | `(USART1_TX)` | TTL serial output `(38400,8,N,1)` |
-| `PA10` | `(USART1_RX)` | TTL serial input `(38400,8,N,1)`  |
+| `PA9`  | `(USART1_TX)` | TTL serial output `(115200,8,N,1)` |
+| `PA10` | `(USART1_RX)` | TTL serial input `(115200,8,N,1)`  |
 
 ## Notes
 

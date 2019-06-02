@@ -55,7 +55,7 @@ static ssize_t _iowr(void *_cookie, const char *_buf, size_t _n)
 static FILE *usart_setup(uint32_t dev)
 {
 	/* Setup USART2 parameters. */
-	usart_set_baudrate(dev, 38400);
+	usart_set_baudrate(dev, 115200);
 	usart_set_databits(dev, 8);
 	usart_set_parity(dev, USART_PARITY_NONE);
 	usart_set_stopbits(dev, USART_CR2_STOPBITS_1);

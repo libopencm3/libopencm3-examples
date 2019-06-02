@@ -10,4 +10,4 @@ the USART1.
 
 | Port  | Function      | Description                       |
 | ----- | ------------- | --------------------------------- |
-| `PA9` | `(USART1_TX)` | TTL serial output `(38400,8,N,1)` |
+| `PA9` | `(USART1_TX)` | TTL serial output `(115200,8,N,1)` |

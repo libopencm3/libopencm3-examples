@@ -44,11 +44,7 @@ static void usart_setup(void)
 		      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 
 	/* Setup UART parameters. */
-	// usart_set_baudrate(USART1, 38400);
-	/* TODO usart_set_baudrate() doesn't support 24MHz clock (yet). */
-	/* This is the equivalent: */
-	USART_BRR(USART1) = (uint16_t)((24000000 << 4) / (38400 * 16));
-
+	usart_set_baudrate(USART1, 115200);
 	usart_set_databits(USART1, 8);
 	usart_set_stopbits(USART1, USART_STOPBITS_1);
 	usart_set_mode(USART1, USART_MODE_TX);

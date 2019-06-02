@@ -48,7 +48,7 @@ static void usart_setup(void)
 		      GPIO_CNF_INPUT_FLOAT, GPIO_USART2_RX);
 
 	/* Setup UART parameters. */
-	usart_set_baudrate(USART2, 38400);
+	usart_set_baudrate(USART2, 115200);
 	usart_set_databits(USART2, 8);
 	usart_set_stopbits(USART2, USART_STOPBITS_1);
 	usart_set_mode(USART2, USART_MODE_TX_RX);

@@ -35,7 +35,7 @@ static void clock_setup(void)
 static void usart_setup(void)
 {
 	/* Setup USART2 parameters. */
-	usart_set_baudrate(USART1, 38400);
+	usart_set_baudrate(USART1, 115200);
 	usart_set_databits(USART1, 8);
 	usart_set_parity(USART1, USART_PARITY_NONE);
 	usart_set_stopbits(USART1, USART_CR2_STOPBITS_1);

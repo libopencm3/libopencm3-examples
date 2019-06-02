@@ -10,4 +10,4 @@ the USART2.
 
 | Port  | Function      | Description                       |
 | ----- | ------------- | --------------------------------- |
-| `PA2` | `(USART2_TX)` | TTL serial output `(38400,8,N,1)` |
+| `PA2` | `(USART2_TX)` | TTL serial output `(115200,8,N,1)` |
