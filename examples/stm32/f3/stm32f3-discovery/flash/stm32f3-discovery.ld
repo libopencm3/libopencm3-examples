@@ -41,7 +41,7 @@ MEMORY
  * to learn the the start address of that flash section,
  *
  * &_my_flash_start will be equal to 0x803f800 in this case.
- */
+*/
 SECTIONS
 {
     .my_flash :
