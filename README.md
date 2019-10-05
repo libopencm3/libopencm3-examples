@@ -117,6 +117,17 @@ This example uses the st-util by texane that you can find on [GitHub](https://gi
     load
     run
 
+### stm32flash
+
+Set pins BOOT0=1 and BOOT1=1 (if present) to boot from System Memory.
+Connect UART pins to USB-UART converter, reset the MCU and you can write an image with stm32flash tool.
+
+    cd examples/stm32/f0/stm32f0-discovery/miniblink
+    arm-none-eabi-objcopy -j .text -j .data -O ihex miniblink.elf miniblink.hex
+    stm32flash -w miniblink.hex -v DEVICE
+
+DEVICE is the name of your UART converter, for example /dev/ttyUSB0 or COM7.
+
 ## Reuse
 
 If you want to use libopencm3 in your own project, the _easiest_ way is
