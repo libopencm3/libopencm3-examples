@@ -1,0 +1,9 @@
+------------------------------------------------------------------------------
+README
+------------------------------------------------------------------------------
+
+This is the smallest-possible example program using libopencm3.
+
+It's intended for the Embedded artists LPC-Link2 board.
+http://www.embeddedartists.com/products/lpcxpresso/lpclink2.php
+It should blink LED1 (P1-1) on the board.
