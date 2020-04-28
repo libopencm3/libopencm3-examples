@@ -63,7 +63,7 @@ const struct usb_device_descriptor dev = {
 const struct usb_dfu_descriptor dfu_function = {
 	.bLength = sizeof(struct usb_dfu_descriptor),
 	.bDescriptorType = DFU_FUNCTIONAL,
-	.bmAttributes = USB_DFU_CAN_DOWNLOAD | USB_DFU_WILL_DETACH,
+	.bmAttributes = USB_DFU_CAN_UPLOAD | USB_DFU_CAN_DOWNLOAD | USB_DFU_WILL_DETACH,
 	.wDetachTimeout = 255,
 	.wTransferSize = 1024,
 	.bcdDFUVersion = 0x011A,
@@ -204,8 +204,12 @@ static enum usbd_request_return_codes usbdfu_control_request(usbd_device *usbd_d
 		usbdfu_state = STATE_DFU_IDLE;
 		return USBD_REQ_HANDLED;
 	case DFU_UPLOAD:
-		/* Upload not supported for now. */
-		return USBD_REQ_NOTSUPP;
+		usbdfu_state = STATE_DFU_UPLOAD_IDLE;
+		uint32_t addr = prog.addr
+			+ ((req->wValue - 2) * dfu_function.wTransferSize);
+		memcpy(*buf, (void*)addr, dfu_function.wTransferSize);
+		*len = dfu_function.wTransferSize;
+		return USBD_REQ_HANDLED;
 	case DFU_GETSTATUS: {
 		uint32_t bwPollTimeout = 0; /* 24-bit integer in DFU class spec */
 		(*buf)[0] = usbdfu_getstatus(usbd_dev, &bwPollTimeout);
