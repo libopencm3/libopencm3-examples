@@ -154,7 +154,6 @@ int main(void)
 
 		/* Wait for end of conversion. */
 		while (!(adc_eoc_injected(ADC1)));
-		ADC_SR(ADC2) &= ~ADC_SR_JEOC; //clear injected end of conversion
 
 		temperature = adc_read_injected(ADC1,1); //get the result from ADC_JDR1 on ADC1 (only bottom 16bits)
 
