@@ -1,0 +1,21 @@
+DEVICE=stm32f411ceu6
+
+# System DFU Bootloader
+STM_USB_VID=0x0483
+STM_USB_PID=0xdf11
+
+MAIN_MEMORY_BASE = 0x08000000
+
+include ../../Makefile.include
+
+dfu_download: ${BINARY}.bin
+	dfu-util --alt 0 --device $(STM_USB_VID):$(STM_USB_PID) --dfuse-address $(MAIN_MEMORY_BASE) --download $<
+
+openocd_program: ${BINARY}.bin
+	openocd --file interface/$(OOCD_INTERFACE).cfg --file target/$(OOCD_TARGET).cfg --command "program ${BINARY}.bin verify reset exit $(MAIN_MEMORY_BASE)"
+
+openocd:
+	openocd --file interface/$(OOCD_INTERFACE).cfg --file target/$(OOCD_TARGET).cfg
+
+gdb: $(BINARY).elf
+	$(GDB) --init-command=lib/gdb.init $(BINARY).elf
