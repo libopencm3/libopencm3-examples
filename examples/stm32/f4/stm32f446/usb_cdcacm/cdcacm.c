@@ -24,6 +24,15 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
 
+#ifndef OTG_GOTGCTL_BVALOVAL
+#define OTG_GOTGCTL_BVALOVAL   (1 << 7)
+#endif
+#ifndef OTG_GOTGCTL_BVALOEN
+#define OTG_GOTGCTL_BVALOEN    (1 << 6)
+#endif
+#define OTG_CID_HAS_VBDEN 0x00002000
+#define OTG_GCCFG_VBDEN   (1 << 21)
+
 static const struct usb_device_descriptor dev = {
 	.bLength = USB_DT_DEVICE_SIZE,
 	.bDescriptorType = USB_DT_DEVICE,
@@ -237,10 +246,17 @@ int main(void)
 
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
+	
+	/* no vbus detection (STMF32446, STMF32469 starts disconnected) */
+	OTG_FS_GOTGCTL |= OTG_GOTGCTL_BVALOEN | OTG_GOTGCTL_BVALOVAL;
 
 	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
 			usb_strings, 3,
 			usbd_control_buffer, sizeof(usbd_control_buffer));
+	
+	OTG_FS_GCCFG |= OTG_GCCFG_VBDEN | OTG_GCCFG_PWRDWN;
+	/* Set the Soft Connect (STMF32446, STMF32469 starts disconnected) */
+	OTG_FS_DCTL &= ~OTG_DCTL_SDIS;
 
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
