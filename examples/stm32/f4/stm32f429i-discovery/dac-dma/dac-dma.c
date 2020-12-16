@@ -108,10 +108,10 @@ static void dac_setup(void)
 	rcc_periph_clock_enable(RCC_DAC);
 	/* Setup the DAC channel 1, with timer 2 as trigger source.
 	 * Assume the DAC has woken up by the time the first transfer occurs */
-	dac_trigger_enable(CHANNEL_1);
-	dac_set_trigger_source(DAC_CR_TSEL1_T2);
-	dac_dma_enable(CHANNEL_1);
-	dac_enable(CHANNEL_1);
+	dac_trigger_enable(DAC1, DAC_CHANNEL1);
+	dac_set_trigger_source(DAC1, DAC_CR_TSEL1_T2);
+	dac_dma_enable(DAC1, DAC_CHANNEL1);
+	dac_enable(DAC1, DAC_CHANNEL1);
 }
 
 /*--------------------------------------------------------------------*/

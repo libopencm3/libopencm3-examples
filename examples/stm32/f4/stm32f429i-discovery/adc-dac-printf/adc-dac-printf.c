@@ -110,10 +110,10 @@ static void adc_setup(void)
 static void dac_setup(void)
 {
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO5);
-	dac_disable(CHANNEL_2);
-	dac_disable_waveform_generation(CHANNEL_2);
-	dac_enable(CHANNEL_2);
-	dac_set_trigger_source(DAC_CR_TSEL2_SW);
+	dac_disable(DAC1, DAC_CHANNEL2);
+	dac_disable_waveform_generation(DAC1, DAC_CHANNEL2);
+	dac_enable(DAC1, DAC_CHANNEL2);
+	dac_set_trigger_source(DAC1, DAC_CR_TSEL2_SW);
 }
 
 static uint16_t read_adc_naiive(uint8_t channel)
@@ -144,8 +144,9 @@ int main(void)
 	while (1) {
 		uint16_t input_adc0 = read_adc_naiive(0);
 		uint16_t target = input_adc0 / 2;
-		dac_load_data_buffer_single(target, RIGHT12, CHANNEL_2);
-		dac_software_trigger(CHANNEL_2);
+		dac_load_data_buffer_single(
+				DAC1, target, DAC_ALIGN_RIGHT12, DAC_CHANNEL2);
+		dac_software_trigger(DAC1, DAC_CHANNEL2);
 		uint16_t input_adc1 = read_adc_naiive(1);
 		printf("tick: %d: adc0= %u, target adc1=%d, adc1=%d\n",
 			j++, input_adc0, target, input_adc1);
