@@ -213,7 +213,6 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	if (len) {
 		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0)
 			;
-		buf[len] = 0;
 	}
 
 	gpio_toggle(GPIOC, GPIO5);
