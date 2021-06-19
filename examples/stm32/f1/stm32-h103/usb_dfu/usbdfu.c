@@ -147,11 +147,13 @@ static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_da
 					uint32_t *dat = (uint32_t *)(prog.buf + 1);
 					flash_erase_page(*dat);
 				}
+				break;
 			case CMD_SETADDR:
 				{
 					uint32_t *dat = (uint32_t *)(prog.buf + 1);
 					prog.addr = *dat;
 				}
+				break;
 			}
 		} else {
 			uint32_t baseaddr = prog.addr + ((prog.blocknum - 2) *
