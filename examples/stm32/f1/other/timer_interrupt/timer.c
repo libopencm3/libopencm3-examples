@@ -50,7 +50,7 @@ void tim2_isr(void)
 
 int main(void)
 {
-	rcc_clock_setup_in_hse_16mhz_out_72mhz();
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE16_72MHZ]);
 	gpio_setup();
 	nvic_setup();
 

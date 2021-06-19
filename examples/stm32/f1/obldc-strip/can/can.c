@@ -195,7 +195,7 @@ void usb_lp_can_rx0_isr(void)
 
 int main(void)
 {
-	rcc_clock_setup_in_hsi_out_64mhz();
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_64MHZ]);
 	gpio_setup();
 	can_setup();
 	systick_setup();

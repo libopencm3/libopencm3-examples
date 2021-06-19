@@ -29,7 +29,7 @@ int _write(int file, char *ptr, int len);
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_in_hse_12mhz_out_72mhz();
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE12_72MHZ]);
 
 	/* Enable GPIOA clock (for LED GPIOs). */
 	rcc_periph_clock_enable(RCC_GPIOC);

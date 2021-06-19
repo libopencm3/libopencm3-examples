@@ -74,7 +74,7 @@ int main(void)
 	char s1[20] = "Hello STM MEM2MEM\r\n";
 	char s2[20];
 
-	rcc_clock_setup_in_hse_16mhz_out_72mhz();
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE16_72MHZ]);
 	gpio_setup();
 	usart_setup();
 

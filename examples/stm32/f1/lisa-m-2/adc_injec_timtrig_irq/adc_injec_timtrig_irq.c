@@ -152,7 +152,7 @@ int main(void)
 {
 	uint8_t channel_array[16];
 
-	rcc_clock_setup_in_hse_12mhz_out_72mhz();
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE12_72MHZ]);
 	gpio_setup();
 	usart_setup();
 	timer_setup();

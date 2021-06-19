@@ -245,7 +245,7 @@ int main(void)
 {
   usbd_device *usbd_dev;
 
-  rcc_clock_setup_in_hsi_out_48mhz();
+  rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_48MHZ]);
   rcc_periph_clock_enable(RCC_AFIO);
 
   AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
