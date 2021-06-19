@@ -19,7 +19,7 @@
 
 BINARY = usart
 
-LDSCRIPT = $(OPENCM3_DIR)/lib/stm32/l1/stm32l15xxb.ld
+LDSCRIPT = ../stm32l-discovery.ld
 
 include ../../Makefile.include
 

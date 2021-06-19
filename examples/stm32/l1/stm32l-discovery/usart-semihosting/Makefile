@@ -19,7 +19,7 @@
 
 BINARY = usart-semihosting
 
-LDSCRIPT = $(OPENCM3_DIR)/lib/stm32/l1/stm32l15xxb.ld
+LDSCRIPT = ../stm32l-discovery.ld
 
 # To disable, run "make ENABLE_SEMIHOSTING=0" or comment next line out
 ENABLE_SEMIHOSTING ?= 1

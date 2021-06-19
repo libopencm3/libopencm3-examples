@@ -19,7 +19,7 @@
 
 BINARY = miniblink
 
-LDSCRIPT = $(OPENCM3_DIR)/lib/stm32/l0/stm32l0xx8.ld
+LDSCRIPT = ../stm32l0538-discovery.ld
 
 include ../../Makefile.include
 
