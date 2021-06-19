@@ -152,7 +152,7 @@ read_xyz(int16_t vecs[3])
 	gpio_set(GPIOC, GPIO1); /* CS* deselect */
 	vecs[0] = (buf[1] << 8 | buf[0]);
 	vecs[1] = (buf[3] << 8 | buf[2]);
-	vecs[3] = (buf[5] << 8 | buf[4]);
+	vecs[2] = (buf[5] << 8 | buf[4]);
 	return read_reg(0x27); /* Status register */
 }
 
