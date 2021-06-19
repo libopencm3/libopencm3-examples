@@ -91,7 +91,7 @@ static void dma_setup(void)
 				DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
 	/* The register to target is the DAC1 8-bit right justified data
 	   register */
-	dma_set_peripheral_address(DMA1, DMA_STREAM5, (uint32_t) &DAC_DHR8R1);
+	dma_set_peripheral_address(DMA1, DMA_STREAM5, (uint32_t) &DAC_DHR8R1(DAC1));
 	/* The array v[] is filled with the waveform data to be output */
 	dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) waveform);
 	dma_set_number_of_data(DMA1, DMA_STREAM5, 256);
@@ -107,10 +107,10 @@ static void dac_setup(void)
 	rcc_periph_clock_enable(RCC_DAC);
 	/* Setup the DAC channel 1, with timer 2 as trigger source.
 	 * Assume the DAC has woken up by the time the first transfer occurs */
-	dac_trigger_enable(CHANNEL_1);
-	dac_set_trigger_source(DAC_CR_TSEL1_T2);
-	dac_dma_enable(CHANNEL_1);
-	dac_enable(CHANNEL_1);
+	dac_trigger_enable(DAC1, DAC_CHANNEL1);
+	dac_set_trigger_source(DAC1, DAC_CR_TSEL1_T2);
+	dac_dma_enable(DAC1, DAC_CHANNEL1);
+	dac_enable(DAC1, DAC_CHANNEL1);
 }
 
 /*--------------------------------------------------------------------*/
