@@ -73,7 +73,7 @@ static void i2c_setup(void)
 	i2c_peripheral_disable(I2C2);
 
 	/* APB1 is running at 36MHz. */
-	i2c_set_clock_frequency(I2C2, I2C_CR2_FREQ_36MHZ);
+	i2c_set_clock_frequency(I2C2, 36);
 
 	/* 400KHz - I2C Fast Mode */
 	i2c_set_fast_mode(I2C2);
