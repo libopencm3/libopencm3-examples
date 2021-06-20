@@ -23,7 +23,7 @@
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_64MHZ]);
+	rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 
 	/* Enable clocks for GPIO port B (for GPIO_USART1_TX and LED) and USART1. */
 	rcc_periph_clock_enable(RCC_GPIOB);

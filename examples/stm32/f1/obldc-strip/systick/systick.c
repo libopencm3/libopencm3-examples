@@ -59,7 +59,7 @@ void sys_tick_handler(void)
 
 int main(void)
 {
-	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_64MHZ]);
+	rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 	gpio_setup();
 
 	temp32 = 0;

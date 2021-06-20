@@ -239,7 +239,7 @@ int main(void)
 
 	usbd_device *usbd_dev;
 
-	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_48MHZ]);
+	rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_48MHZ]);
 
 	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_periph_clock_enable(RCC_OTGFS);

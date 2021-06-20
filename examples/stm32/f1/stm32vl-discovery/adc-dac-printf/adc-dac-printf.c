@@ -37,7 +37,7 @@ int _write(int file, char *ptr, int len);
 
 static void clock_setup(void)
 {
-	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_24MHZ]);
+	rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_24MHZ]);
 	/* Enable clocks for USART2 and DAC*/
 	rcc_periph_clock_enable(RCC_USART2);
 	rcc_periph_clock_enable(RCC_DAC);

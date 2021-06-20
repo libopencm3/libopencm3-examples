@@ -260,7 +260,7 @@ int main(void)
 		}
 	}
 
-	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_48MHZ]);
+	rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_48MHZ]);
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_AFIO);

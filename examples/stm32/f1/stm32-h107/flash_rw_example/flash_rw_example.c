@@ -80,7 +80,7 @@ int main(void)
 static void init_system(void)
 {
 	/* setup SYSCLK to work with 64Mhz HSI */
-	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSI_64MHZ]);
+	rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
 	init_usart();
 }
 
