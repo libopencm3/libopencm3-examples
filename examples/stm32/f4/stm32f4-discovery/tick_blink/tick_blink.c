@@ -31,18 +31,22 @@
  * overflows every 49 days if you're wondering
  */
 volatile uint32_t system_millis;
+volatile uint32_t delay_millis;
 
 /* Called when systick fires */
 void sys_tick_handler(void)
 {
 	system_millis++;
+	if (delay_millis != 0) {
+		delay_millis--;
+	}
 }
 
 /* sleep for delay milliseconds */
 static void msleep(uint32_t delay)
 {
-	uint32_t wake = system_millis + delay;
-	while (wake > system_millis);
+	delay_millis = delay;
+	while (delay_millis);
 }
 
 /* Set up a timer to create 1mS ticks. */
