@@ -93,14 +93,19 @@ static void lcd_command(uint8_t cmd, int delay, int n_args,
 static void
 lcd_command(uint8_t cmd, int delay, int n_args, const uint8_t *args)
 {
-	int i;
-
 	gpio_clear(GPIOC, GPIO2);	/* Select the LCD */
 	(void) spi_xfer(LCD_SPI, cmd);
 	if (n_args) {
 		gpio_set(GPIOD, GPIO13);	/* Set the D/CX pin */
-		for (i = 0; i < n_args; i++) {
-			(void) spi_xfer(LCD_SPI, *(args+i));
+		for (int i = 0; i < n_args; i++) {
+			if (cmd == 0x2c) { // if colors are being sent
+				// switch to little-endian to get real rgb565 colors
+				(void) spi_xfer(LCD_SPI, *(args+i+1));
+				(void) spi_xfer(LCD_SPI, *(args+i));
+				i++;
+			} else {
+				(void) spi_xfer(LCD_SPI, *(args+i));
+			}
 		}
 	}
 	gpio_set(GPIOC, GPIO2);		/* Turn off chip select */
