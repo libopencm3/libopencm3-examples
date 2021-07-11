@@ -107,7 +107,7 @@ int console_gets(char *s, int len)
 	*t = '\000';
 	/* read until a <CR> is received */
 	while ((c = console_getc(1)) != '\r') {
-		if ((c == '\010') || (c == '\127')) {
+		if ((c == '\010') || (c == '\177')) {
 			if (t > s) {
 				/* send ^H ^H to erase previous character */
 				console_puts("\010 \010");
