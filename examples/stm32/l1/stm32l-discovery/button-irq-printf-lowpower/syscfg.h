@@ -47,6 +47,7 @@ extern "C" {
 #define TIMER_BUTTON_PRESS_RST RST_TIM7
 
 	struct state_t {
+		bool interrupted;
 		bool falling;
 		bool pressed;
 		int rtc_ticked;

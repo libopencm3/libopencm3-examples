@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/scb.h>
+#include <libopencm3/cm3/cortex.h>
 #include <libopencm3/stm32/dbgmcu.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/flash.h>
@@ -61,6 +62,8 @@ static void gpio_setup(void)
 
 void BUTTON_DISCO_USER_isr(void)
 {
+	state.interrupted = true;
+
 	exti_reset_request(BUTTON_DISCO_USER_EXTI);
 	state.pressed = true;
 	if (state.falling) {
@@ -76,6 +79,8 @@ void BUTTON_DISCO_USER_isr(void)
 
 static void setup_buttons(void)
 {
+	state.interrupted = true;
+
 	/* Enable EXTI0 interrupt. */
 	nvic_enable_irq(BUTTON_DISCO_USER_NVIC);
 
@@ -227,6 +232,8 @@ static int setup_rtc_wakeup(int period)
 
 void rtc_wkup_isr(void)
 {
+	state.interrupted = true;
+
 	/* clear flag, not write protected */
 	RTC_ISR &= ~(RTC_ISR_WUTF);
 	exti_reset_request(EXTI20);
@@ -235,6 +242,12 @@ void rtc_wkup_isr(void)
 
 static int process_state(volatile struct state_t *st)
 {
+	st->interrupted = false;
+	/*
+	 * TODO: protect against another interrupt arriving while we're in
+	 * here, preferably not by disabling all interrupt processing.
+	 */
+
 	if (st->rtc_ticked) {
 		st->rtc_ticked = 0;
 		printf("Tick: %x\n", (unsigned int) RTC_TR);
@@ -294,12 +307,22 @@ int main(void)
 	setup_rtc();
 	setup_rtc_wakeup(1);
 
+	/* 
+	 * This example demonstrates how to safely handle interrupts in the
+	 * main loop: we want to avoid a deadlock when the interrupt is
+	 * serviced just before the WFI.
+	 */
 	while (1) {
-		PWR_CR |= PWR_CR_LPSDSR;
-		pwr_set_stop_mode();
-		__WFI();
-		reset_clocks();
-		process_state(&state);
+		cm_disable_interrupts();
+		if(state.interrupted) {
+			cm_enable_interrupts();
+			process_state(&state);
+		} else {
+			PWR_CR |= PWR_CR_LPSDSR;
+			pwr_set_stop_mode();
+			__WFI();
+			reset_clocks();
+		}
 	}
 
 	return 0;
