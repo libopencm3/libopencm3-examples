@@ -109,7 +109,16 @@ Having this in your .gdbinit boils down the flashing/debugging process to:
 
 ### ST-Link (st-util)
 
-This example uses the st-util by texane that you can find on [GitHub](https://github.com/texane/stlink).
+This example uses the st-util GDB server by texane that you can find on [GitHub](https://github.com/texane/stlink). Remember to start it by running
+
+    st-util
+
+    # you should see output like this:
+    st-util
+    2021-08-12T16:20:15 INFO common.c: F42x/F43x: 256 KiB SRAM, 2048 KiB flash in at least 16 KiB pages.
+    2021-08-12T16:20:15 INFO gdb-server.c: Listening at *:4242...
+
+After you've started your GDB server, flash *in a separate terminal*:
 
     cd examples/stm32/f1/stm32vl-discovery/miniblink
     arm-none-eabi-gdb miniblink.elf
