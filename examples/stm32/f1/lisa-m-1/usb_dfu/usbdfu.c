@@ -266,7 +266,7 @@ int main(void)
 	rcc_periph_clock_enable(RCC_OTGFS);
 
 	gpio_set(GPIOC, GPIO2);
-	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
+	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2);
 
 	usbd_dev = usbd_init(&stm32f107_usb_driver, &dev, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));

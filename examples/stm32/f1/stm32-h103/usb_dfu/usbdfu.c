@@ -113,10 +113,8 @@ static const char *usb_strings[] = {
 	"@Internal Flash   /0x08000000/8*001Ka,56*001Kg",
 };
 
-static uint8_t usbdfu_getstatus(usbd_device *usbd_dev, uint32_t *bwPollTimeout)
+static uint8_t usbdfu_getstatus(uint32_t *bwPollTimeout)
 {
-	(void)usbd_dev;
-
 	switch (usbdfu_state) {
 	case STATE_DFU_DNLOAD_SYNC:
 		usbdfu_state = STATE_DFU_DNBUSY;
@@ -181,6 +179,8 @@ static void usbdfu_getstatus_complete(usbd_device *usbd_dev, struct usb_setup_da
 static enum usbd_request_return_codes usbdfu_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
 		uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
+	(void)usbd_dev;
+
 	if ((req->bmRequestType & 0x7F) != 0x21)
 		return USBD_REQ_NOTSUPP; /* Only accept class request. */
 
@@ -210,7 +210,7 @@ static enum usbd_request_return_codes usbdfu_control_request(usbd_device *usbd_d
 		return USBD_REQ_NOTSUPP;
 	case DFU_GETSTATUS: {
 		uint32_t bwPollTimeout = 0; /* 24-bit integer in DFU class spec */
-		(*buf)[0] = usbdfu_getstatus(usbd_dev, &bwPollTimeout);
+		(*buf)[0] = usbdfu_getstatus(&bwPollTimeout);
 		(*buf)[1] = bwPollTimeout & 0xFF;
 		(*buf)[2] = (bwPollTimeout >> 8) & 0xFF;
 		(*buf)[3] = (bwPollTimeout >> 16) & 0xFF;
@@ -264,9 +264,9 @@ int main(void)
 
 	rcc_periph_clock_enable(RCC_GPIOC);
 
-	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
-		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO11);
 	gpio_set(GPIOC, GPIO11);
+	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
+		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO11);
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, usbdfu_set_config);
