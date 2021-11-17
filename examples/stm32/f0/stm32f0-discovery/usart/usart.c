@@ -28,13 +28,13 @@ static void clock_setup(void)
 	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* Enable clocks for USART2. */
+	/* Enable clocks for USART1. */
 	rcc_periph_clock_enable(RCC_USART1);
 }
 
 static void usart_setup(void)
 {
-	/* Setup USART2 parameters. */
+	/* Setup USART1 parameters. */
 	usart_set_baudrate(USART1, 115200);
 	usart_set_databits(USART1, 8);
 	usart_set_parity(USART1, USART_PARITY_NONE);
@@ -51,7 +51,7 @@ static void gpio_setup(void)
 	/* Setup GPIO pin GPIO8/9 on GPIO port C for LEDs. */
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 | GPIO9);
 
-	/* Setup GPIO pins for USART2 transmit. */
+	/* Setup GPIO pins for USART1 transmit. */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
 
 	/* Setup USART1 TX pin as alternate function. */
