@@ -66,7 +66,7 @@ const struct usb_dfu_descriptor dfu_function = {
 	.bmAttributes = USB_DFU_CAN_DOWNLOAD | USB_DFU_WILL_DETACH,
 	.wDetachTimeout = 255,
 	.wTransferSize = 1024,
-	.bcdDFUVersion = 0x011A,
+	.bcdDFUVersion = 0x011A, /* 1.1a is ST's DFU extension */
 };
 
 const struct usb_interface_descriptor iface = {
@@ -75,12 +75,12 @@ const struct usb_interface_descriptor iface = {
 	.bInterfaceNumber = 0,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 0,
-	.bInterfaceClass = 0xFE, /* Device Firmware Upgrade */
-	.bInterfaceSubClass = 1,
-	.bInterfaceProtocol = 2,
+	.bInterfaceClass = 0xFE, /* Application Specific Class */
+	.bInterfaceSubClass = 1, /* Device Firmware Upgrade */
+	.bInterfaceProtocol = 2, /* DFU mode */
 
 	/* The ST Microelectronics DfuSe application needs this string.
-	 * The format isn't documented... */
+	 * The format is documented in ST's UM0424 section 10.3.2 */
 	.iInterface = 4,
 
 	.extra = &dfu_function,
