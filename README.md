@@ -117,10 +117,20 @@ This example uses the st-util by texane that you can find on [GitHub](https://gi
     load
     run
 
+### Objcopy (arm-none-eabi-objcopy) + JLink
+
+Create .bin file using:
+    cd examples/stm32/f1/stm32vl-discovery/miniblink
+    make
+    arm-none-eabi-objcopy -O binary miniblink.elf miniblink.bin
+    
+This will give you a binary that can be flashed through any means, such as J-Link:
+    loadfile miniblink.bin
+
+
 ## Reuse
 
 If you want to use libopencm3 in your own project, the _easiest_ way is
 to use the template repository we created for this purpose.
 
 See https://github.com/libopencm3/libopencm3-template
-
