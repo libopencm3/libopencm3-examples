@@ -59,7 +59,7 @@ static void spi_setup(void) {
           GPIO6);
 
   /* Reset SPI, SPI_CR1 register cleared, SPI is disabled */
-  spi_reset(SPI1);
+  rcc_periph_reset_pulse(RST_SPI1);
 
   /* Set up SPI in Master mode with:
    * Clock baud rate: 1/64 of peripheral clock frequency

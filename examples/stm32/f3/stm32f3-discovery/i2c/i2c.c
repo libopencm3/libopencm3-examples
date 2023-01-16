@@ -53,7 +53,7 @@ static void i2c_setup(void)
 	rcc_periph_clock_enable(RCC_GPIOB);
 	rcc_set_i2c_clock_hsi(I2C1);
 
-	i2c_reset(I2C1);
+	rcc_periph_reset_pulse(RST_I2C1);
 	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
 	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
 	gpio_set_af(GPIOB, GPIO_AF4, GPIO6 | GPIO7);

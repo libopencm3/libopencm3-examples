@@ -94,7 +94,7 @@ static void spi_setup(void) {
 			GPIO6);
 
 	/* Reset SPI, SPI_CR1 register cleared, SPI is disabled */
-	spi_reset(SPI1);
+	rcc_periph_reset_pulse(RST_SPI1);
 
 	/* Explicitly disable I2S in favour of SPI operation */
 	SPI1_I2SCFGR = 0;
