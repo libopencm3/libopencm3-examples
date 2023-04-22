@@ -156,6 +156,7 @@ GENERATED_BINARIES=$(BINARY).elf $(BINARY).bin $(BINARY).hex $(BINARY).srec $(BI
 
 images: $(BINARY).images
 flash: $(BINARY).flash
+stflash: $(BINARY).stlink-flash
 
 # Either verify the user provided LDSCRIPT exists, or generate it.
 ifeq ($(strip $(DEVICE)),)
